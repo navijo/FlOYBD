@@ -17,6 +17,7 @@
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="date" value="{{  date }}">
+			<input type="hidden" name="millis" value="{{  millis }}">
 			<!--<input type="hidden" name="weatherData" value="{{  weatherData }}">
 			<input type="hidden" name="station" value="{{ concreteStation.station_id }}">-->
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
