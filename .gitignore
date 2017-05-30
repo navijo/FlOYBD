@@ -1,2 +1,14 @@
 
 *.pyc
+
+virtualEnv/bin/
+
+virtualEnv/include/
+
+virtualEnv/lib/
+
+virtualEnv/man/
+
+virtualEnv/share/
+
+virtualEnv/pip-selfcheck\.json
