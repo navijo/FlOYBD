@@ -7,57 +7,123 @@ import os
 import json
 import time
 import datetime
+import simplekml
 
 def getConcreteValues(request):
 	date = request.POST['date']
-	print(date)
 
-	station_id = request.POST['station']
-	print(station_id)
+	if 'station' not in request.POST:
+		station_id = 0
+	else:
+		station_id = request.POST['station']
+
+	getAllStations = False
+	if 'allStations' not in request.POST:
+		allStations = 0
+	else:
+		allStations = request.POST['allStations']
+		getAllStations = True
+
 
 	stations = Station.objects.all()
-	concreteStation = Station.objects.get(station_id=station_id)
 
-	response = requests.get('http://130.206.117.178:5000/getMeasurement?date='+date+'&station_id='+station_id,stream=True)
+	response = requests.get('http://130.206.117.178:5000/getMeasurement?date='+date+'&station_id='+station_id+'&allStations='+str(getAllStations),stream=True)
 	jsonData = json.loads(response.json())
-	print(jsonData)
-	timestamp = jsonData.get("measure_date")
-	measureDate = datetime.datetime.utcfromtimestamp(float(timestamp)/1000).strftime('%d-%m-%Y')
 
-	contentString = '<div id="content">' +\
-	'<div id="siteNotice">' +\
-	'</div>' +\
-	'<h1 id="firstHeading" class="firstHeading">'+concreteStation.name+'</h1>' + \
-	'<h3>' + measureDate + '</h3>' + \
-	'<div id="bodyContent">' +\
-	'<p>'+\
-	'<br/><b>Max Temp: </b>'+str(jsonData.get("max_temp"))+ \
-	'<br/><b>Med Temp: </b>' + str(jsonData.get("med_temp")) + \
-	'<br/><b>Min Temp: </b>' + str(jsonData.get("min_temp")) + \
-	'<br/><b>Max Pressure: </b>' + str(jsonData.get("max_pressure")) + \
-	'<br/><b>Min Pressure: </b>' + str(jsonData.get("min_pressure")) + \
-	'<br/><b>Precip: </b>' + str(jsonData.get("precip")) + \
-	'<br/><b>Insolation: </b>' + str(jsonData.get("insolation")) + \
-	'</p>' +\
-	'</div>' +\
-	'</div>'
+	stationsWeather = {}
+	for row in jsonData:
+		concreteStation = Station.objects.get(station_id=row.get("station_id"))
+		stationData = {}
+
+		timestamp = row.get("measure_date")
+		measureDate = datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).strftime('%d-%m-%Y')
+		contentString = '<div id="content">' + \
+						'<div id="siteNotice">' + \
+						'</div>' + \
+						'<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
+						'<h3>' + measureDate + '</h3>' + \
+						'<div id="bodyContent">' + \
+						'<p>' + \
+						'<br/><b>Max Temp: </b>' + str(row.get("max_temp")) + \
+						'<br/><b>Med Temp: </b>' + str(row.get("med_temp")) + \
+						'<br/><b>Min Temp: </b>' + str(row.get("min_temp")) + \
+						'<br/><b>Max Pressure: </b>' + str(row.get("max_pressure")) + \
+						'<br/><b>Min Pressure: </b>' + str(row.get("min_pressure")) + \
+						'<br/><b>Precip: </b>' + str(row.get("precip")) + \
+						'<br/><b>Insolation: </b>' + str(row.get("insolation")) + \
+						'</p>' + \
+						'</div>' + \
+						'</div>'
+		stationData["timestamp"] = timestamp
+		stationData["measureDate"] = measureDate
+		stationData["contentString"] = contentString
+		stationData["latitude"] = concreteStation.latitude
+		stationData["longitude"] = concreteStation.longitude
+		stationData["name"] = concreteStation.name
+		stationsWeather[row.get("station_id")] = stationData
+
+		if not getAllStations:
+			return render(request, 'floybd/weather/weatherConcreteView.html',
+						  {'stations': stations, 'concreteStation': concreteStation, 'weatherData': contentString,
+						   'date': date})
+
+	if getAllStations:
+		kml = simplekml.Kml()
+		for key, value in stationsWeather.items():
+			kml.newpoint(name=value["name"], description=value["contentString"],
+						 coords=[(value["longitude"], value["latitude"])])
+
+
+		millis = int(round(time.time() * 1000))
+		fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+		currentDir = os.getcwd()
+		dir1 = os.path.join(currentDir, "static/kmls")
+		dirPath2 = os.path.join(dir1, fileName)
+
+		kml.save(dirPath2)
+	return render(request, 'floybd/weather/weatherConcreteView.html',
+				  {'kml': 'http://localhost:8000/static/kmls/'+fileName,'date': date})
 
 
 
 
-	return render(request, 'floybd/weather/weatherConcreteView.html', {'stations': stations,'concreteStation':concreteStation,'weatherData':contentString,'date':date})
+
+
+	#return render(request, 'floybd/weather/weatherConcreteView.html', {'stations': stations,'concreteStation':concreteStation,'weatherData':contentString,'date':date})
 
 
 def sendConcreteValuesToLG(request):
 	date = request.POST['date']
-	print(date)
-
 	millis = int(round(time.time() * 1000))
 
-	station_id = request.POST['station']
-	print(station_id)
 
-	weatherData = request.POST['weatherData']
+	allStations = request.POST.get('allStations', 0)
+
+	if str(allStations) == str('allStations'):
+		fileurl = request.POST['fileUrl']
+		millis = int(round(time.time() * 1000))
+
+		fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+		currentDir = os.getcwd()
+		dir1 = os.path.join(currentDir, "static/kmls")
+		dirPath2 = os.path.join(dir1, fileName)
+
+		response = requests.get(
+			'http://130.206.117.178:5000/getAllStationsMeasurementsKML?date=' + date,stream=True)
+		with open(dirPath2, 'wb') as f:
+			for chunk in response.iter_content(chunk_size=1024):
+				if chunk:  # filter out keep-alive new chunks
+					f.write(chunk)
+		sendKml(fileName)
+
+		return render(request, 'floybd/weather/weatherConcreteView.html',
+					  {'kml': fileurl, 'date': date})
+
+
+	else:
+		station_id = request.POST['station']
+
+		weatherData = request.POST['weatherData']
 
 	fileName = "measurement_" + str(date)+"_"+str(millis)+ ".kml"
 	currentDir = os.getcwd()
