@@ -9,7 +9,7 @@ import os
 import json
 import datetime
 import shutil
-#import unicode
+import time
 
 def getEarthquakes(request):
 	print("Getting Earthquakes")
@@ -27,16 +27,18 @@ def getEarthquakes(request):
 							'&min_lat='+min_lat+'&max_lon='+max_lon+'&min_lon='+min_lon)
 
 	jsonData = json.loads(response.json())
-	print(jsonData)
-	fileUrl = createKml(jsonData,date)
-	#jsFile = createJSFile(jsonData)
 
+	print("Obtained " +str(len(jsonData)) +" earthquakes")
+
+	millis = int(round(time.time() * 1000))
+	fileUrl = createKml(jsonData,date,millis)
+	#jsFile = createJSFile(jsonData)
 
 	#return render(request, 'floybd/earthquakes/viewEarthquakes.html',{'data':strJson,'kml':fileUrl,'center_lat':center_lat,'center_lon':center_lon})
 
 	#return render(request, 'floybd/earthquakes/viewEarthquakes.html', {'data': "http://localhost:8000/static/js/"+jsFile,'center_lat':center_lat,'center_lon':center_lon,'date':date})
 	return render(request, 'floybd/earthquakes/viewEarthquakes.html',
-				  {'kml': fileUrl, 'center_lat': center_lat, 'center_lon': center_lon,'date':date})
+				  {'kml': fileUrl, 'center_lat': center_lat, 'center_lon': center_lon,'date':date,'millis':millis})
 
 def createJSFile(jsonData):
 	data = {}
@@ -73,7 +75,6 @@ def populateInfoWindow(row,json):
 	contentString = '<div id="content">' +\
 	'<div id="siteNotice">' +\
 	'</div>' +\
-	'<h1 id="firstHeading" class="firstHeading">'+str(place)+'</h1>' + \
 	'<h3>Ocurred on ' + str(datetimeStr) + '</h3>' + \
 	'<div id="bodyContent">' +\
 	'<p>'+\
@@ -86,8 +87,8 @@ def populateInfoWindow(row,json):
 	'</div>'
 	return contentString
 
-def createKml(jsonData,date):
-	startup_clean()
+def createKml(jsonData,date,millis):
+	cleanKMLS()
 	kml = simplekml.Kml()
 
 	for row in jsonData:
@@ -111,15 +112,16 @@ def createKml(jsonData,date):
 
 				polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
 													radius=2000 * absMagnitude, number_of_vertices=36)
-				pol = kml.newpolygon(name=infowindow, outerboundaryis=polycircle.to_kml())
+				pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
 				pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
+				#pol.style.polystyle.color = simplekml.Color.rgb(255,0,0)
 			else:
-				kml.newpoint(name=infowindow, coords=[(longitude, latitude)])
+				kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
 		except ValueError:
-			kml.newpoint(name=infowindow, coords=[(longitude, latitude)])
+			kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
 			print(absMagnitude)
 
-	fileName = "earthquakes" + str(date) + ".kml"
+	fileName = "earthquakes" + str(date)+"_" +str(millis)+ ".kml"
 	currentDir = os.getcwd()
 	dir1 = os.path.join(currentDir, "static/kmls")
 	dirPath2 = os.path.join(dir1, fileName)
@@ -131,8 +133,9 @@ def createKml(jsonData,date):
 
 def sendConcreteValuesToLG(request):
 	date = request.POST['date']
+	millis = request.POST['millis']
 
-	fileName = "earthquakes" + str(date) + ".kml"
+	fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
 
 	sendKml(fileName)
 
@@ -140,12 +143,12 @@ def sendConcreteValuesToLG(request):
 
 
 def sendKml(fileName):
-	command = "echo 'http://192.168.88.243:8000/static/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.242 'cat - > /var/www/html/kmls.txt'"
+	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
 
 
-def startup_clean():
+def cleanKMLS():
 
 	if not os.path.exists("static/kmls"):
 		print("Creating kmls folder")

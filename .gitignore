@@ -12,3 +12,9 @@ virtualEnv/man/
 virtualEnv/share/
 
 virtualEnv/pip-selfcheck\.json
+
+Django/\.idea/
+
+*.kml
+
+Django/mysite/static/kmls/

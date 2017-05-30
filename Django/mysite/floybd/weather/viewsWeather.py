@@ -5,6 +5,7 @@ from ..models import Station
 import requests
 import os
 import json
+import time
 import datetime
 
 def getConcreteValues(request):
@@ -51,14 +52,16 @@ def sendConcreteValuesToLG(request):
 	date = request.POST['date']
 	print(date)
 
+	millis = int(round(time.time() * 1000))
+
 	station_id = request.POST['station']
 	print(station_id)
 
 	weatherData = request.POST['weatherData']
 
-	fileName = "measurement_" + str(date) + ".kml"
+	fileName = "measurement_" + str(date)+"_"+str(millis)+ ".kml"
 	currentDir = os.getcwd()
-	dir1 = os.path.join(currentDir, "static")
+	dir1 = os.path.join(currentDir, "static/kmls")
 	dirPath2 = os.path.join(dir1, fileName)
 
 	response = requests.get('http://130.206.117.178:5000/getMeasurementKml?date=' + date + '&station_id=' + station_id,
@@ -67,7 +70,7 @@ def sendConcreteValuesToLG(request):
 		for chunk in response.iter_content(chunk_size=1024):
 			if chunk:  # filter out keep-alive new chunks
 				f.write(chunk)
-	sendKml(fileName, request)
+	sendKml(fileName)
 
 	stations = Station.objects.all()
 	concreteStation = Station.objects.get(station_id=station_id)
@@ -76,8 +79,8 @@ def sendConcreteValuesToLG(request):
 				  {'stations': stations, 'concreteStation': concreteStation, 'weatherData':weatherData,'date': date})
 
 
-def sendKml(fileName, request):
-	command = "echo 'http://192.168.88.243:8000/static/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.242 'cat - > /var/www/html/kmls.txt'"
+def sendKml(fileName):
+	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
 
