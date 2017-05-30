@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#source ~/TFM/dataMiningEnv/bin/activate
 source cronEnv.sh
-cd ~/TFM/dataminingScripts/weather/ml
+cd ~/GSOC17/FlOYBD/DataMining/weather/ml
 nohup stdbuf -oL python linearRegression.py  > linearRegression.out &
 
 

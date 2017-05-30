@@ -1,4 +1,4 @@
 #!/bin/bash
 
-source ~/TFM/dataMiningEnv/bin/activate
+source ~/GSOC17/FlOYBD/virtualEnv/bin/activate
 python earthquakes.py > cronLog.txt &
