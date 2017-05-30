@@ -1,0 +1,28 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+{# Display a form #}
+  <script>
+  $( function() {
+    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
+  } );
+  </script>
+<div class="container">
+	<form action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
+		{% csrf_token %}
+		<p>Date: <input name = "date" type="text" id="datepicker"></p>
+		<input type="submit" value="Get Values for parque Retiro" class="btn"/>
+	</form>
+</div>
