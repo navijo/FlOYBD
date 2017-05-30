@@ -1,0 +1,27 @@
+{% include "floybd/header.html" %}
+{# Display a form #}
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+
+{% load coma_point %}
+
+<script>
+  $( function() {
+    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
+    })
+</script>
+<div class="container">
+	<form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
+		{% csrf_token %}
+		<p>Date: <input name = "date" type="text" id="datepicker"></p>
+  		<select id="combobox" name="station">
+		{% for entry in stations %}
+		    <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+		{% endfor %}
+		</select>
+
+		<input type="submit" value="{{ getValues }}" class="btn"/>
+	</form>
+</div>
