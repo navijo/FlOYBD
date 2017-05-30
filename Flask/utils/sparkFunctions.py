@@ -15,10 +15,15 @@ from pyspark.sql.types import *
 from cassandra.query import named_tuple_factory
 from utils import generalFunctions
 
-def getConcreteWeatherData(daily_measures,station_id,date):
+def getConcreteWeatherData(daily_measures,station_id,date,allStations):
 	datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
-	
-	measurement = daily_measures.filter((daily_measures.measure_date==datetime_object) & (daily_measures.station_id == station_id))
+
+	if str(allStations)==str("True"):
+		print("All Stations")
+		measurement = daily_measures.filter((daily_measures.measure_date==datetime_object))
+	else:	
+		print("One Station")
+		measurement = daily_measures.filter((daily_measures.measure_date==datetime_object) & (daily_measures.station_id == station_id))
 
 	return measurement
 

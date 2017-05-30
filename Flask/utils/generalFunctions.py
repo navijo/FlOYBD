@@ -1,10 +1,14 @@
 from utils.cylinders import CylindersKml
+from utils.cylindersExt import CylindersKmlExtended
 import pandas as pd
 import json
 import datetime
 from cassandra.cluster import Cluster
 
+from utils import sparkFunctions
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 import requests
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -39,6 +43,35 @@ def dataFrameToJsonStr(dataFrame):
 	return pandas_df.reset_index().to_json(path_or_buf = None, orient = 'records')
 	#return pandas_df.to_json(path_or_buf = None, orient = 'records')
 	
+
+def generateAllStationsWeatherKML(stations,weatherData,fileName):
+	finalData = []
+	weatherJsonData = dataframeToJson(weatherData)
+	jsonString = ""
+	for data in weatherJsonData:
+		stationData = sparkFunctions.getStationInfo(stations,data.get("station_id"))
+		stationJsonData = dataframeToJson(stationData)
+		jsonString += prepareJson(data,stationJsonData)
+	
+	finalData.append(jsonString)
+	cilinders = CylindersKml(fileName,finalData)
+	cilinders.makeKML()
+
+def generateAllStationsKml(weatherData,stations,fileName):
+	weatherJsonData = dataFrameToJsonStr(weatherData)
+	weatherJsonData = json.loads(weatherJsonData)
+	finalData = []
+	jsonString = []
+	for row in weatherJsonData:
+		stationData = sparkFunctions.getStationInfo(stations,row.get("station_id"))
+		stationJsonData = dataframeToJson(stationData)
+		preparedData = prepareJson(json.dumps(row),stationJsonData)
+		jsonString.append(preparedData)
+
+	finalData.append(jsonString)
+
+	cilinders = CylindersKmlExtended(fileName,finalData)
+	cilinders.makeKML()
 
 def generateKml(weatherData,stationData,fileName):
 	finalData = []
@@ -75,7 +108,6 @@ def prepareJson(weatherData,stationData):
 	finalData["description"] = temps
 	finalData["coordinates"] = coordinates
 	finalData["extra"] = ""
-	print(finalData)
 	return finalData
 
 def getCurrentWeather(station_id):

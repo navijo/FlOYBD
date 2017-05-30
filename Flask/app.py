@@ -58,12 +58,26 @@ def getApiKey():
 	return generalFunctions.getKey()
 
 
+@app.route('/getAllStationsMeasurementsKML')
+def getAllStationsMeasurementsKML():
+	initEnvironment()
+	date = request.args.get('date')
+	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,'',date,"True")
+
+	timestamp =  time.time()
+	fileName = "measurement_"+str(int(timestamp))
+	generalFunctions.generateAllStationsKml(weatherData,stations,fileName)
+
+	stopEnvironment()
+	return send_from_directory(directory='.', filename="kmls/"+fileName+".kml",as_attachment=True,mimetype='application/octet-stream')
+
 @app.route('/getMeasurementKml')
 def getMeasurementKml(): 
 	initEnvironment()
 	date = request.args.get('date')
 	station_id = request.args.get('station_id')
-	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,station_id,date)
+
+	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,station_id,date,"False")
 	stationData = sparkFunctions.getStationInfo(stations,station_id)
 	
 	timestamp =  time.time()
@@ -79,8 +93,11 @@ def getMeasurement():
 	initEnvironment()
 	date = request.args.get('date')
 	station_id = request.args.get('station_id')
-	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,station_id,date)
-	weatherJson = generalFunctions.dataframeToJson(weatherData)
+	getAllStations = request.args.get('allStations')
+
+	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,station_id,date,getAllStations)
+	weatherJson = generalFunctions.dataFrameToJsonStr(weatherData)
+
 	stopEnvironment()
 	return jsonify(weatherJson)
 
