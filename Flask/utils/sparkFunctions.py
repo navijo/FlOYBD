@@ -47,7 +47,7 @@ def getConcreteEarhquakesData(earthquakes,date,max_lat,min_lat,max_lon,min_lon):
 	#	earthquake["fecha"] = row.fecha
 	#	data.append(earthquake)
 
-	earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object*1000)
+	earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object)
 		& (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon) 
 		& (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
 

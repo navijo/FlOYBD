@@ -63,7 +63,7 @@ def getMeasurementKml():
 	initEnvironment()
 	date = request.args.get('date')
 	station_id = request.args.get('station_id')
-	weatherData = sparkFunctions.getConcreteData(clean_daily,station_id,date)
+	weatherData = sparkFunctions.getConcreteWeatherData(clean_daily,station_id,date)
 	stationData = sparkFunctions.getStationInfo(stations,station_id)
 	
 	timestamp =  time.time()
@@ -132,7 +132,7 @@ def getPrediction():
 		return "No Current Weather"
 	#except:
 	#	print("Unexpected error:", sys.exc_info()[0])
-	#	stopEnvironment()
+	stopEnvironment()
 
 
 @app.route('/getAllStations')
@@ -168,7 +168,7 @@ def initEnvironmentEarthquakes():
 
 
 def initEnvironment():
-	global sc,sql,clean_daily,stations,earthquakes
+	global sc,sql,clean_daily,stations
 	conf = SparkConf()
 	conf.setMaster("spark://192.168.246.236:7077")
 	#conf.setMaster("local[*]")
