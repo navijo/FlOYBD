@@ -144,23 +144,27 @@ def sendConcreteValuesToLG(request):
 
 
 def sendKml(fileName,concreteStation):
+
+	#Javi : 192.168.88.234
+	#Gerard: 192.168.88.198
+
 	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
-	flyTo = "flytoview=<LookAt>"\
-			+"<longitude>"+str(concreteStation.longitude)+"</longitude>"\
-			+"<latitude>"+str(concreteStation.latitude)+"</latitude>"\
-			+"<altitude>100</altitude>"\
-			+"<heading>14</heading>" \
-			+"<tilt>69</tilt>"\
-			+"<range>200000</range>"\
-			+"<altitudeMode>relativeToGround</altitudeMode>"\
-			+"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+	if concreteStation is not None:
+		flyTo = "flytoview=<LookAt>"\
+				+"<longitude>"+str(concreteStation.longitude)+"</longitude>"\
+				+"<latitude>"+str(concreteStation.latitude)+"</latitude>"\
+				+"<altitude>100</altitude>"\
+				+"<heading>14</heading>" \
+				+"<tilt>69</tilt>"\
+				+"<range>200000</range>"\
+				+"<altitudeMode>relativeToGround</altitudeMode>"\
+				+"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
 
-	command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
-	print(command)
-	os.system(command)
+		command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+		os.system(command)
 
 
 
@@ -192,6 +196,122 @@ def getPrediction(request):
 	response = requests.post('http://130.206.117.178:5000/getPrediction',
 							 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
 							 data=payload)
-	print(response.text)
+
 	result = json.loads(response.text)
+
 	return render(request, 'floybd/weather/weatherPrediction.html', {'result':result,'stations': stations, 'columnsList': columnsList})
+
+
+def weatherStats(request):
+	stations = Station.objects.all()
+	return render(request, 'floybd/weather/weatherStats.html', {'stations': stations})
+
+
+def getStats(request):
+	stations = Station.objects.all()
+
+	allStations = request.POST.get('allStations', 0)
+	allTime = request.POST.get('allTime', 0)
+	dateFrom = request.POST.get('dateFrom', 0)
+	dateTo = request.POST.get('dateTo', 0)
+	station_id = request.POST.get('station', 0)
+
+	jsonData = {}
+	jsonData["station_id"] = station_id
+	jsonData["dateTo"] = dateTo
+	jsonData["dateFrom"] = dateFrom
+	jsonData["allTime"] = allTime
+	jsonData["allStations"] = allStations
+
+
+	payload = json.dumps(jsonData)
+
+	response = requests.post('http://130.206.117.178:5000/getStats',
+							 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+							 data=payload)
+
+	result = json.loads(response.json())
+
+
+	stationsWeather = {}
+	for row in result:
+		concreteStation = Station.objects.get(station_id=row.get("station_id"))
+		stationData = {}
+
+
+		if allTime==str(1):
+			print(row)
+			contentString = '<div id="content">' + \
+							'<div id="siteNotice">' + \
+							'</div>' + \
+							'<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
+							'<div id="bodyContent">' + \
+							'<p>' + \
+							'<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
+							'<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
+							'<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
+							'<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
+							'<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
+							'<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
+							'<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
+							'<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
+							'<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
+							'<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
+							'<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
+							'<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
+							'<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
+							'</p>' + \
+							'</div>' + \
+							'</div>'
+		else:
+			contentString = '<div id="content">' + \
+							'<div id="siteNotice">' + \
+							'</div>' + \
+							'<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
+							'<div id="bodyContent">' + \
+							'<p>' + \
+							'<br/><b>Max Temp: </b>' + str(row.get("avg(max_temp)")) + \
+							'<br/><b>Med Temp: </b>' + str(row.get("avg(med_temp)")) + \
+							'<br/><b>Min Temp: </b>' + str(row.get("avg(min_temp)")) + \
+							'<br/><b>Max Pressure: </b>' + str(row.get("avg(max_pressure)")) + \
+							'<br/><b>Min Pressure: </b>' + str(row.get("avg(min_pressure)")) + \
+							'<br/><b>Precip: </b>' + str(row.get("avg(precip)")) + \
+							'<br/><b>Insolation: </b>' + str(row.get("avg(insolation)")) + \
+							'</p>' + \
+							'</div>' + \
+							'</div>'
+
+
+
+		#stationData["timestamp"] = timestamp
+		#stationData["measureDate"] = measureDate
+		stationData["contentString"] = contentString
+		stationData["latitude"] = concreteStation.latitude
+		stationData["longitude"] = concreteStation.longitude
+		stationData["name"] = concreteStation.name
+		stationsWeather[row.get("station_id")] = stationData
+
+	kml = simplekml.Kml()
+	for key, value in stationsWeather.items():
+		kml.newpoint(name=value["name"], description=value["contentString"],
+					 coords=[(value["longitude"], value["latitude"])])
+
+
+	millis = int(round(time.time() * 1000))
+	fileName = "stats_" + str(millis) + ".kml"
+	currentDir = os.getcwd()
+	dir1 = os.path.join(currentDir, "static/kmls")
+	dirPath2 = os.path.join(dir1, fileName)
+
+	kml.save(dirPath2)
+
+	return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://localhost:8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
+
+def sendKml(fileName):
+	command = "echo 'http://192.168.88.243:8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+	os.system(command)
+
+def sendStatsToLG(request):
+	fileName = request.POST.get("fileName")
+	print(fileName)
+	sendKml(fileName)

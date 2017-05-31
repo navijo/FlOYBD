@@ -25,6 +25,7 @@ urlpatterns = [
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
     url('getStats', viewsWeather.getStats, name='getStats'),
+    url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
 
 
 ]

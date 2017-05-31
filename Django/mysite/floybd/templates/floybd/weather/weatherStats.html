@@ -4,6 +4,8 @@
 {% trans "Get Values" as getValues %}
 {% trans "Send Values to LG" as sendValues %}
 
+{% load static %}
+<script src="{% static 'js/geoxml3.js' %}"></script>
 
 {% load coma_point %}
 
@@ -30,6 +32,7 @@
     }
 </script>
 <div class="container">
+	{% if kml == None %}
 	<form name="form" action="{% url 'floybd:getStats' %}" method="post" class="form">
 		{% csrf_token %}
 		<p>
@@ -50,4 +53,38 @@
 		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		<input type="submit" value="{{ getValues }}" class="btn"/>
 	</form>
+	{% endif %}
+	{% if kml != None %}
+
+		<center>
+			<h3>Viewing something </h3>
+
+		<form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
+			{% csrf_token %}
+			<input type="hidden" name="allStations" value="allStations">
+			<input type="hidden" name="fileName" value="{{ fileName }}">
+			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
+			<input type="button" value="Go Back" onclick="javascript:history.back()" class="btn btn-default"/>
+		</form>
+		</center>
+		<div class="span6 center-block" id="mapAll" style="height: 75%;width: 100%;"></div>
+		<script>
+		  var map;
+		  function initMap() {
+			map = new google.maps.Map(document.getElementById('mapAll'), {
+			  //center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
+			  zoom: 8,
+			  mapTypeId: google.maps.MapTypeId.HYBRID
+			});
+
+			var myParser = new geoXML3.parser({map: map});
+			myParser.parse('{{ kml }}');
+
+		  }
+
+		</script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
+		  async defer></script>
+	{% endif %}
+
 </div>
