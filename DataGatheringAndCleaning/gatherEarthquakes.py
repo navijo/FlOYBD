@@ -126,5 +126,5 @@ if __name__ == "__main__":
     cluster = Cluster(['192.168.246.236'])
     session = cluster.connect("dev")
     #getEarthQuakesSpain(1930)
-    getEarthQuakesWorld(1900)
+    getEarthQuakesWorld(2017)
     printLog("END")

@@ -187,12 +187,12 @@ def initEnvironmentEarthquakes():
 def initEnvironment():
 	global sc,sql,clean_daily,stations
 	conf = SparkConf()
-	conf.setMaster("spark://192.168.246.236:7077")
-	#conf.setMaster("local[*]")
+	#conf.setMaster("spark://192.168.246.236:7077")
+	conf.setMaster("local[*]")
 	conf.setAppName("Flask")
 	conf.set("spark.cassandra.connection.host","192.168.246.236")
 	conf.set("spark.executor.memory", "10g")
-	conf.set("spark.num.executors","2")
+	conf.set("spark.num.executors","1")
 	
 	sc = SparkContext(conf=conf)
 	#sc = SparkContext("local[*]")
