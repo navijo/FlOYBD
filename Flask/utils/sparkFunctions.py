@@ -3,13 +3,14 @@ from cassandra.cluster import Cluster
 import pyspark
 from pyspark import SparkContext,SparkConf
 
-from pyspark.sql.functions import col
 from pyspark.ml.regression import LinearRegression,LinearRegressionModel
 import os
 import time
 import pickle
 from pyspark.ml.tuning import TrainValidationSplitModel
 from pyspark.ml.feature import VectorAssembler
+
+from pyspark.sql.functions import max,min,col,avg,count
 
 from pyspark.sql.types import *
 from cassandra.query import named_tuple_factory
@@ -138,3 +139,39 @@ def predict(sql,sc,columns,station_id,currentWeather):
 
 	#resultDataframe = sql.createDataFrame(returnedPredictions)
 	return returnedPredictions
+
+
+def getLimitsForStation(stations_limits,station_id):
+	return stations_limits.filter(stations_limits.station_id == station_id)
+
+
+def getLimitsAllStationsWithInterval(clean_daily,dateFrom,dateTo):
+
+	datetime_object_from = datetime.strptime(dateFrom, '%Y-%m-%d').date()
+	datetime_object_to = datetime.strptime(dateTo, '%Y-%m-%d').date()
+
+	tmpDf = clean_daily.filter((clean_daily.measure_date>=datetime_object_from) & (clean_daily.measure_date<=datetime_object_to))
+	groupedDf = tmpDf.groupBy("station_id").agg(avg("max_temp"),avg("med_temp"),avg("min_temp"),
+		avg("max_pressure"),avg("min_pressure"),
+		avg("precip"),avg("insolation"))
+
+	groupedDf.show()
+
+	return groupedDf.select("station_id","avg(max_temp)","avg(med_temp)","avg(min_temp)",
+		"avg(max_pressure)","avg(min_pressure)","avg(precip)","avg(insolation)")
+
+def getLimitsStationWithInterval(clean_daily,station_id,dateFrom,dateTo):
+
+	datetime_object_from = datetime.strptime(dateFrom, '%Y-%m-%d').date()
+	datetime_object_to = datetime.strptime(dateTo, '%Y-%m-%d').date()
+
+	tmpDf = clean_daily.filter((clean_daily.measure_date>=datetime_object_from) & (clean_daily.measure_date<=datetime_object_to) &
+		(clean_daily.station_id==station_id))
+	groupedDf = tmpDf.groupBy("station_id").agg(avg("max_temp"),avg("med_temp"),avg("min_temp"),
+		avg("max_pressure"),avg("min_pressure"),
+		avg("precip"),avg("insolation"))
+
+	groupedDf.show()
+
+	return groupedDf.select("station_id","avg(max_temp)","avg(med_temp)","avg(min_temp)",
+		"avg(max_pressure)","avg(min_pressure)","avg(precip)","avg(insolation)")
