@@ -1,0 +1,53 @@
+{% include "floybd/header.html" %}
+{# Display a form #}
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+
+{% load coma_point %}
+
+<script>
+  $( function() {
+    $( "#datepickerFrom" ).datepicker({dateFormat: 'yy-mm-dd'});
+    $( "#datepickerTo" ).datepicker({dateFormat: 'yy-mm-dd'});
+    })
+
+     function showHideComboStations(){
+		if($("#allStations").prop("checked")){
+			$("#combobox").hide()
+		}else{
+			$("#combobox").show()
+		}
+    }
+
+     function showHideComboDate(){
+		if($("#allTime").prop("checked")){
+			$("#dateDiv").hide()
+		}else{
+			$("#dateDiv").show()
+		}
+    }
+</script>
+<div class="container">
+	<form name="form" action="{% url 'floybd:getStats' %}" method="post" class="form">
+		{% csrf_token %}
+		<p>
+		<input type="checkbox" id="allTime" onchange="showHideComboDate()" name="allTime" value="1">Get Stats All Time
+		<div id="dateDiv">
+			Date From: <input name = "dateFrom" type="text" id="datepickerFrom">
+			Date To: <input name = "dateTo" type="text" id="datepickerTo">
+		</div>
+		</p>
+
+
+		<input type="checkbox" id="allStations" onchange="showHideComboStations()" name="allStations" value="1">Get All Stations
+		<select id="combobox" name="station">
+			{% for entry in stations %}
+			<option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+			{% endfor %}
+		</select>
+		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+		<input type="submit" value="{{ getValues }}" class="btn"/>
+	</form>
+</div>
