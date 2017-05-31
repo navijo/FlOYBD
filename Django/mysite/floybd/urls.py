@@ -13,6 +13,7 @@ app_name = 'floybd'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^weather', views.weatherIndex, name='weather'),
+    url(r'^gtfs', views.gtfs, name='gtfs'),
     url(r'^dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
     url(r'^predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
     url(r'^earthquakes/$', views.eartquakesIndex, name='earthquakes'),

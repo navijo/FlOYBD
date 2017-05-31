@@ -12,3 +12,6 @@ def weatherIndex(request):
 def eartquakesIndex(request):
 	return render(request, 'floybd/indexEarthquakes.html')
 
+
+def gtfs():
+	return render(request, 'floybd/indexGTFS.html')

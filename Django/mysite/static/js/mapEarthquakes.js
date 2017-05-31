@@ -4,10 +4,28 @@ var selectedShape;
 
 function initMap() {
 
-    map = new google.maps.Map(document.getElementById('map'), {
+     var lleida = {lat: 41.6183423, lng: 0.6199348};
+     map = new google.maps.Map(document.getElementById('map'), {
       zoom: 8,
+      center: lleida,
       mapTypeId: google.maps.MapTypeId.HYBRID
     });
+
+
+    function centerMe(position) {
+        var coords = new google.maps.LatLng(
+            position.coords.latitude,
+            position.coords.longitude
+        );
+        map.setCenter(coords);
+    }
+
+
+     if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(centerMe);
+    } else {
+        alert("You don't support this");
+    }
 
     function getSelectedShapeValues(){
         var ne = selectedShape.getBounds().getNorthEast();
@@ -23,7 +41,6 @@ function initMap() {
         $("#min_lat").val(min_lat);
         $("#max_lon").val(max_lon);
         $("#min_lon").val(min_lon);
-
     }
 
     function deleteSelectedShape() {
@@ -51,21 +68,6 @@ function initMap() {
 
     }
 
-    function centerMe(position) {
-        var coords = new google.maps.LatLng(
-            position.coords.latitude,
-            position.coords.longitude
-        );
-
-        map.setCenter(coords);
-    }
-
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(centerMe);
-    } else {
-        alert("You don't support this");
-    }
 
     var polyOptions = {
         strokeWeight: 0,
@@ -88,7 +90,7 @@ function initMap() {
         editable: true
     },
     rectangleOptions: polyOptions,
-    map: map
+     map: map
     });
 
     google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
