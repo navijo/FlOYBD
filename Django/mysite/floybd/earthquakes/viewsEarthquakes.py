@@ -111,10 +111,10 @@ def createKml(jsonData,date,millis):
 					color = simplekml.Color.red
 
 				polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
-													radius=2000 * absMagnitude, number_of_vertices=36)
+													radius=2000 * absMagnitude, number_of_vertices=100)
 				pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
 				pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
-				#pol.style.polystyle.color = simplekml.Color.rgb(255,0,0)
+				pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
 			else:
 				kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
 		except ValueError:
@@ -135,17 +135,36 @@ def sendConcreteValuesToLG(request):
 	date = request.POST['date']
 	millis = request.POST['millis']
 
+	center_lat = request.POST['center_lat']
+	center_lon = request.POST['center_lon']
+
 	fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
+	fileUrl = "http://localhost:8000/static/kmls/" + fileName
 
-	sendKml(fileName)
+	sendKml(fileName,center_lat,center_lon)
 
-	return render(request, 'floybd/earthquakes/viewEarthquakes.html')
+	return render(request, 'floybd/earthquakes/viewEarthquakes.html',
+				  {'kml': fileUrl, 'center_lat': center_lat, 'center_lon': center_lon, 'date': date, 'millis': millis})
 
 
-def sendKml(fileName):
+def sendKml(fileName, center_lat, center_lon):
+	#Javi : 192.168.88.234
+	#Gerard: 192.168.88.198
 	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
+	flyTo = "flytoview=<LookAt>" \
+			+ "<longitude>" + str(center_lon) + "</longitude>" \
+			+ "<latitude>" + str(center_lat) + "</latitude>" \
+			+ "<altitude>100</altitude>" \
+			+ "<heading>14</heading>" \
+			+ "<tilt>69</tilt>" \
+			+ "<range>200000</range>" \
+			+ "<altitudeMode>relativeToGround</altitudeMode>" \
+			+ "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+
+	command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+	os.system(command)
 
 
 def cleanKMLS():
