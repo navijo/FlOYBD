@@ -22,7 +22,7 @@
 		    <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
 		{% endfor %}
 		</select>
-
+		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		<input type="submit" value="{{ getValues }}" class="btn"/>
 	</form>
 </div>

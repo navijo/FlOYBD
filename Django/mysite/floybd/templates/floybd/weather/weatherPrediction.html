@@ -18,6 +18,7 @@
 		{% for entry in columnsList %}
 			<input type="checkbox" name="columnToPredict" value="{{ entry }}">{{ entry }}<br/>
 		{% endfor %}
+		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		<input type="submit" value="Predict Values" class="btn"/>
 	</form>
 

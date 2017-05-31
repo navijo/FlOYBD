@@ -22,7 +22,7 @@
 			<input type="hidden" name="date" value="{{  date }}">
 			<input type="hidden" name="station" value="{{ concreteStation.station_id }}">
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<input type="button" value="Go Back" onclick="javascript:history.back()" class="btn btn-default"/>
+			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
 		</center>
 		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>

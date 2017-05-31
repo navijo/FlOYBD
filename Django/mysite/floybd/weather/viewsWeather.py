@@ -84,11 +84,6 @@ def getConcreteValues(request):
 	return render(request, 'floybd/weather/weatherConcreteView.html',
 				  {'kml': 'http://localhost:8000/static/kmls/'+fileName,'date': date})
 
-
-
-
-
-
 	#return render(request, 'floybd/weather/weatherConcreteView.html', {'stations': stations,'concreteStation':concreteStation,'weatherData':contentString,'date':date})
 
 
@@ -136,18 +131,38 @@ def sendConcreteValuesToLG(request):
 		for chunk in response.iter_content(chunk_size=1024):
 			if chunk:  # filter out keep-alive new chunks
 				f.write(chunk)
-	sendKml(fileName)
 
 	stations = Station.objects.all()
 	concreteStation = Station.objects.get(station_id=station_id)
+
+	sendKml(fileName,concreteStation)
+
+
 	#kmlPath = "http://localhost:8000/static/" + fileName
 	return render(request, 'floybd/weather/weatherConcreteView.html',
 				  {'stations': stations, 'concreteStation': concreteStation, 'weatherData':weatherData,'date': date})
 
 
-def sendKml(fileName):
+def sendKml(fileName,concreteStation):
 	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
+
+	flyTo = "flytoview=<LookAt>"\
+			+"<longitude>"+str(concreteStation.longitude)+"</longitude>"\
+			+"<latitude>"+str(concreteStation.latitude)+"</latitude>"\
+			+"<altitude>100</altitude>"\
+			+"<heading>14</heading>" \
+			+"<tilt>69</tilt>"\
+			+"<range>200000</range>"\
+			+"<altitudeMode>relativeToGround</altitudeMode>"\
+			+"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+
+
+	command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+	print(command)
+	os.system(command)
+
+
 
 
 def weatherConcreteIndex(request):
