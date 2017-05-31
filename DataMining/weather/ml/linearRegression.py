@@ -65,7 +65,7 @@ def saveModelToDatabase(model,station_id,columnName):
 
 
 def saveModel(model,station_id,columnName):
-	directory = "/home/ubuntu/TFM/flask/models"
+	directory = "/home/ubuntu/GSOC17/FlOYBD/Flask/models"
 	if not os.path.exists(directory):
 	    os.makedirs(directory)
 
@@ -107,13 +107,13 @@ def predictDataForStation(stationData,columnName,station_id):
 		# Fit the model
 		lrModel = tvs.fit(train_data)
 		#saveModelToDatabase(lrModel.bestModel,station_id,columnName)
-		#saveModel(lrModel.bestModel,station_id,columnName)
+		saveModel(lrModel.bestModel,station_id,columnName)
 
 		
 		##### AQUESTES LINIES SON LES BONES!!!!######
-		predictions = lrModel.transform(test_data).select("measure_date","station_id",columnName,"prediction")
-		groupedPredictions = predictions.groupBy("station_id").agg(avg(columnName),avg("prediction"))
-		insertDataIntoDatabase(groupedPredictions,columnName,station_id)
+		#predictions = lrModel.transform(test_data).select("measure_date","station_id",columnName,"prediction")
+		#groupedPredictions = predictions.groupBy("station_id").agg(avg(columnName),avg("prediction"))
+		#insertDataIntoDatabase(groupedPredictions,columnName,station_id)
 
 		
 		#Amb valors nous, es prediu la nova columna. Es podria fer que amb valors de pressio, predis les temperatures		
