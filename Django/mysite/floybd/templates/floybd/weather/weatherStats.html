@@ -11,8 +11,8 @@
 
 <script>
   $( function() {
-    $( "#datepickerFrom" ).datepicker({dateFormat: 'yy-mm-dd'});
-    $( "#datepickerTo" ).datepicker({dateFormat: 'yy-mm-dd'});
+    $( "#datepickerFrom" ).datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
+    $( "#datepickerTo" ).datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
     })
 
      function showHideComboStations(){
