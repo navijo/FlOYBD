@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from .forms import UploadFileForm
 
 def index(request):
 	return render(request, 'floybd/index.html')
@@ -13,5 +13,6 @@ def eartquakesIndex(request):
 	return render(request, 'floybd/indexEarthquakes.html')
 
 
-def gtfs():
-	return render(request, 'floybd/indexGTFS.html')
+def gtfs(request):
+	form = UploadFileForm()
+	return render(request, 'floybd/indexGTFS.html',{'form':form})

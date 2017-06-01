@@ -3,9 +3,11 @@ import shutil
 
 from django.conf.urls import url
 
-from .weather import viewsWeather
+
 from . import views
 from .earthquakes import viewsEarthquakes
+from .weather import viewsWeather
+from .gtfs import viewsGTFS
 
 app_name = 'floybd'
 
@@ -26,6 +28,8 @@ urlpatterns = [
         name='sendConcreteEarthquakesValuesToLG'),
     url('getStats', viewsWeather.getStats, name='getStats'),
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
+    url('uploadGTFS', viewsGTFS.uploadGTFS, name='uploadGTFS'),
+    url('sendGTFSToLG', viewsGTFS.sendGTFSToLG, name='sendGTFSToLG'),
 
 
 ]

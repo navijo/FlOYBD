@@ -1,6 +1,5 @@
 
 from django.shortcuts import render
-from ..models import Station
 import simplekml
 from polycircles import polycircles
 
@@ -10,6 +9,7 @@ import json
 import datetime
 import shutil
 import time
+from ..utils import *
 
 def getEarthquakes(request):
 	print("Getting Earthquakes")
@@ -130,7 +130,9 @@ def createKml(jsonData,date,millis):
 	dirPath2 = os.path.join(dir1, fileName)
 	kml.save(dirPath2)
 
-	fileUrl = "http://localhost:8000/static/kmls/" + fileName
+	ip = getIp()
+
+	fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
 	return fileUrl
 
 
@@ -141,8 +143,10 @@ def sendConcreteValuesToLG(request):
 	center_lat = request.POST['center_lat']
 	center_lon = request.POST['center_lon']
 
+	ip = getIp()
+
 	fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
-	fileUrl = "http://localhost:8000/static/kmls/" + fileName
+	fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
 
 	sendKml(fileName,center_lat,center_lon)
 
@@ -153,7 +157,10 @@ def sendConcreteValuesToLG(request):
 def sendKml(fileName, center_lat, center_lon):
 	#Javi : 192.168.88.234
 	#Gerard: 192.168.88.198
-	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+
+	ip = getIp()
+
+	command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
 	flyTo = "flytoview=<LookAt>" \

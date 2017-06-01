@@ -8,6 +8,7 @@ import json
 import time
 import datetime
 import simplekml
+from ..utils import *
 
 def getConcreteValues(request):
 	date = request.POST['date']
@@ -67,9 +68,11 @@ def getConcreteValues(request):
 		dir1 = os.path.join(currentDir, "static/kmls")
 		dirPath2 = os.path.join(dir1, fileName)
 
+		ip = getIp()
+
 		kml.save(dirPath2)
 		return render(request, 'floybd/weather/weatherConcreteView.html',
-				  {'kml': 'http://localhost:8000/static/kmls/'+fileName,'date': date})
+					  {'kml': 'http://'+ip+':8000/static/kmls/'+fileName,'date': date})
 	else:
 		concreteStation = Station.objects.get(station_id=station_id)
 		contentString = stationsWeather[station_id]["contentString"]
@@ -266,11 +269,12 @@ def getStats(request):
 
 	kml.save(dirPath2)
 
-	return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://localhost:8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
+	return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://192.168.88.243:8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
 
 
 def sendKmlGlobal(fileName):
-	command = "echo 'http://192.168.88.243:8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+	ip = getIp()
+	command = "echo 'http://"+ip+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
 
@@ -279,18 +283,20 @@ def sendKml(fileName, concreteStation):
 	#Javi : 192.168.88.234
 	#Gerard: 192.168.88.198
 
-	command = "echo 'http://192.168.88.243:8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+	ip = getIp()
+
+	command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
 	os.system(command)
 
 	if concreteStation is not None:
-		flyTo = "flytoview=<LookAt>"\
-				+"<longitude>"+str(concreteStation.longitude)+"</longitude>"\
-				+"<latitude>"+str(concreteStation.latitude)+"</latitude>"\
-				+"<altitude>100</altitude>"\
+		flyTo = "flytoview=<LookAt>" \
+				+"<longitude>"+str(concreteStation.longitude)+"</longitude>" \
+				+"<latitude>"+str(concreteStation.latitude)+"</latitude>" \
+				+"<altitude>100</altitude>" \
 				+"<heading>14</heading>" \
-				+"<tilt>69</tilt>"\
-				+"<range>200000</range>"\
-				+"<altitudeMode>relativeToGround</altitudeMode>"\
+				+"<tilt>69</tilt>" \
+				+"<range>200000</range>" \
+				+"<altitudeMode>relativeToGround</altitudeMode>" \
 				+"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
 
@@ -302,5 +308,8 @@ def sendStatsToLG(request):
 	fileName = request.POST.get("fileName")
 	sendKmlGlobal(fileName)
 	stations = Station.objects.all()
+
+	ip = getIp()
+
 	return render(request, 'floybd/weather/weatherStats.html',
-				  {'kml': 'http://localhost:8000/static/kmls/' + fileName, 'stations': stations, 'fileName': fileName})
+				  {'kml': 'http://'+ip+':8000/static/kmls/' + fileName, 'stations': stations, 'fileName': fileName})

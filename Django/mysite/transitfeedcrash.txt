@@ -1,0 +1,46 @@
+Yikes, the program threw an unexpected exception!
+
+Hopefully a complete report has been saved to transitfeedcrash.txt,
+though if you are seeing this message we've already disappointed you once
+today. Please include the report in a new issue at
+https://github.com/google/transitfeed/issues
+or an email to the public group transitfeed@googlegroups.com. Sorry!
+
+------------------------------------------------------------
+transitfeed version 1.2.15
+
+File "static/utils/gtfs/kmlwriter.py", line 810, in main
+       writer.show_stop_hierarchy = options.show_stop_hierarchy
+ -->   writer.Write(feed, output_path)
+     
+    feed = <transitfeed.schedule.Schedule object at 0x7fab8aaabc10>
+    args = ['static/upload/gtfs/test..zip', '/static/kmls/test.kml']
+    input_path = static/upload/gtfs/test..zip
+    writer = <__main__.KMLWriter object at 0x7fab8aaabcd0>
+    parser = <transitfeed.util.OptionParserLongError instance at 0x7fab8aad13b0>
+    loader = <transitfeed.loader.Loader instance at 0x7fab8aab2c20>
+    output_path = /static/kmls/test.kml
+    usage = %prog [options] <input GTFS.zip> [<output.kml>]
+
+Reads GTFS file or directory <input GTFS.zip> and creates a KML file
+<output.kml> that contains the geographical features of the input. If
+<output.kml> is omitted a default filename is picked based on
+<input GTFS.zip>. By default the KML contains all stops and shapes.
+
+For more information see
+https://github.com/google/transitfeed/wiki/KMLWriter
+
+    options = {'show_trips': None, 'split_routes': None, 'date_filter': None, 'shape_points': None, 'altitude_per_sec': 1.0, 'show_stop_hierarchy': None}
+
+File "static/utils/gtfs/kmlwriter.py", line 729, in Write
+         else:
+ -->       output = open(output_file, 'w')
+         output.write("""<?xml version="1.0" encoding="UTF-8"?>\n""")
+    schedule = <transitfeed.schedule.Schedule object at 0x7fab8aaabc10>
+    doc = <Element 'Document' at 0x7fab8a3150d0>
+    self = <__main__.KMLWriter object at 0x7fab8aaabcd0>
+    output_file = /static/kmls/test.kml
+    open_tag = <Element 'open' at 0x7fab8a315150>
+    root = <Element 'kml' at 0x7fab8aaabdd0>
+
+IOError: [Errno 2] No such file or directory: '/static/kmls/test.kml'

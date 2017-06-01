@@ -6,27 +6,16 @@
     })
 </script>
 <div class="container">
-	<form name="form" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
-		{% csrf_token %}
-		<fieldset><legend>Values</legend>
-			<p>Date From: <input name = "date" type="text" id="datepicker">
-			<br/>
-			Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
-			Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
-			<br/>
-			Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
-			Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
-			<br/>
-			<input type="submit" value="Get Earthquakes" class="btn"/>
-		</fieldset>
-	</form>
-
-	<button id="delete-button" class="btn btn-default">Delete Selected Shape</button>
-
-
-	<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
-	<script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
+        <form action="{% url 'floybd:uploadGTFS' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            Title: <input type="text" name="title" required>
+            <p>
+                {{ form.file.errors }}
+                {{ form.file }}
+            </p>
+            <p><input type="submit" value="Upload" /></p>
+            <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+        </form>
 
 
 </div>
