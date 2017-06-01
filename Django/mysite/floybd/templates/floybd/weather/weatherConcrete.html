@@ -24,7 +24,7 @@
 	<form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
 		{% csrf_token %}
 		<p>Date: <input name = "date" type="text" id="datepicker"></p>
-  		<input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations" value="allStations">Get All Stations
+  		<input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations" value="1">Get All Stations
 		<select id="combobox" name="station">
 		{% for entry in stations %}
 		    <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>

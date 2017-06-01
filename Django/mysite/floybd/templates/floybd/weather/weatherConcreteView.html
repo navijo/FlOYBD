@@ -68,10 +68,10 @@
 		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="date" value="{{  date }}">
-			<input type="hidden" name="allStations" value="allStations">
-			<input type="hidden" name="fileUrl" value="kml">
+			<input type="hidden" name="allStations" value="1">
+			<input type="hidden" name="fileUrl" value="{{ kml }}">
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<input type="button" value="Go Back" onclick="javascript:history.back()" class="btn btn-default"/>
+			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
 		</center>
 		<div class="span6 center-block" id="mapAll" style="height: 75%;width: 100%;"></div>
@@ -86,7 +86,6 @@
 
 			var myParser = new geoXML3.parser({map: map});
 			myParser.parse('{{ kml }}');
-
 		  }
 
 		</script>

@@ -40,6 +40,7 @@ def getEarthquakes(request):
 	return render(request, 'floybd/earthquakes/viewEarthquakes.html',
 				  {'kml': fileUrl, 'center_lat': center_lat, 'center_lon': center_lon,'date':date,'millis':millis})
 
+
 def createJSFile(jsonData):
 	data = {}
 	data["type"] = "FeatureCollection"
@@ -61,6 +62,7 @@ def createJSFile(jsonData):
 	file.close()
 
 	return jsFile
+
 
 def populateInfoWindow(row,json):
 	place = row["place"]
@@ -86,6 +88,7 @@ def populateInfoWindow(row,json):
 	'</div>' +\
 	'</div>'
 	return contentString
+
 
 def createKml(jsonData,date,millis):
 	cleanKMLS()
