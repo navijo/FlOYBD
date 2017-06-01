@@ -185,30 +185,33 @@ def getStats():
 	dateTo = dataDict['dateTo']
 	station_id = dataDict['station_id']
 
-
-	if allTime:
-		loadGlobalWeatherStats()
-		if allStations:
-			returnJson = generalFunctions.dataFrameToJsonStr(stations_limits)
-			stopEnvironment(sc)
-			return jsonify(returnJson)
+	try:
+		if allTime:
+			loadGlobalWeatherStats()
+			if allStations:
+				returnJson = generalFunctions.dataFrameToJsonStr(stations_limits)
+				stopEnvironment(sc)
+				return jsonify(returnJson)
+			else:
+				tmpDf = sparkFunctions.getLimitsForStation(stations_limits,station_id)
+				returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
+				stopEnvironment(sc)
+				return jsonify(returnJson)
 		else:
-			tmpDf = sparkFunctions.getLimitsForStation(stations_limits,station_id)
-			returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
-			stopEnvironment(sc)
-			return jsonify(returnJson)
-	else:
-		loadCleanDaily()
-		if(allStations):
-			tmpDf = sparkFunctions.getLimitsAllStationsWithInterval(clean_daily,dateFrom,dateTo)
-			returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
-			stopEnvironment(sc)
-			return jsonify(returnJson)
-		else:
-			tmpDf = sparkFunctions.getLimitsStationWithInterval(clean_daily,station_id,dateFrom,dateTo)
-			returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
-			stopEnvironment(sc)
-			return jsonify(returnJson)
+			loadCleanDaily()
+			if(allStations):
+				tmpDf = sparkFunctions.getLimitsAllStationsWithInterval(clean_daily,dateFrom,dateTo)
+				returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
+				stopEnvironment(sc)
+				return jsonify(returnJson)
+			else:
+				tmpDf = sparkFunctions.getLimitsStationWithInterval(clean_daily,station_id,dateFrom,dateTo)
+				returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
+				stopEnvironment(sc)
+				return jsonify(returnJson)
+	except:
+		print("Ooops, something went wrong getting the stats")
+		stopEnvironment(sc)
 	
 
 
@@ -258,9 +261,12 @@ def stopEnvironment(context):
 
 
 if __name__ == "__main__":
-
-	sys.path.insert(1, '/home/ubuntu/TFM/dataminingScripts/weather/ml')
-	app.run(host= '0.0.0.0')
-	if 'sc' in globals():
+	try:
+		sys.path.insert(1, '/home/ubuntu/TFM/dataminingScripts/weather/ml')
+		app.run(host= '0.0.0.0')
+		if 'sc' in globals():
+			sc.stop()
+	except:
+		print("Oooops, something went wrong when closing the app")
 		sc.stop()
 
