@@ -23,6 +23,7 @@ urlpatterns = [
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
     url('sendConcreteValuesToLG', viewsWeather.sendConcreteValuesToLG, name='sendConcreteValuesToLG'),
     url('getPrediction', viewsWeather.getPrediction, name='getPrediction'),
+    url('sendPredictionsToLG', viewsWeather.sendPredictionsToLG, name='sendPredictionsToLG'),
     url('getEarthquakes', viewsEarthquakes.getEarthquakes, name='getEarthquakes'),
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
@@ -30,7 +31,6 @@ urlpatterns = [
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
     url('uploadGTFS', viewsGTFS.uploadGTFS, name='uploadGTFS'),
     url('sendGTFSToLG', viewsGTFS.sendGTFSToLG, name='sendGTFSToLG'),
-
 
 ]
 

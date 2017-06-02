@@ -162,13 +162,67 @@ def getPrediction(request):
     payload = json.dumps(jsonData)
 
     response = requests.post('http://130.206.117.178:5000/getPrediction',
-							 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-							 data=payload)
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                             data=payload)
 
-    result = json.loads(response.json())
+    if response.json():
+        result = json.loads(response.json())
+        concreteStation = Station.objects.get(station_id=station_id)
+        predictionStr = ""
 
-    return render(request, 'floybd/weather/weatherPrediction.html', {'result':result,'stations': stations, 'columnsList': columnsList})
+        for row in result:
+            jsonRow = json.loads(row)
+            kml = simplekml.Kml()
 
+            for column in columnsToPredict:
+                if jsonRow.get("prediction_"+column) is not None:
+                    predictionStr += '<br/><b>'+column+': </b>' + str(jsonRow.get("prediction_"+column))
+
+        contentString = '<div id="content">' + \
+                        '<div id="siteNotice">' + \
+                        '</div>' + \
+                        '<div id="bodyContent">' + \
+                        '<p>' + predictionStr + '</p>' + \
+                        '</div>' + \
+                        '</div>'
+        kml.newpoint(name=concreteStation.name, description=contentString,
+                     coords=[(concreteStation.longitude, concreteStation.latitude)])
+
+        millis = int(round(time.time() * 1000))
+        fileName = "prediction_" + str(millis) + ".kml"
+        currentDir = os.getcwd()
+        dir1 = os.path.join(currentDir, "static/kmls")
+        dirPath2 = os.path.join(dir1, fileName)
+
+        ip = getIp()
+        kml.save(dirPath2)
+
+        kmlpath = "http://"+ip+":8000/static/kmls/"+fileName
+
+
+
+        return render(request, 'floybd/weather/weatherPredictionView.html',
+                      {'fileName': fileName, 'kml': kmlpath,
+                       'concreteStation': concreteStation})
+    else:
+        return render(request, 'floybd/weather/weatherPredictionView.html')
+
+
+def sendPredictionsToLG(request):
+    fileName = request.POST.get("fileName")
+    ip = getIp()
+    kmlpath = "http://"+ip+":8000/static/kmls/"+fileName;
+
+    station_id = request.POST.get("station_id")
+
+    concreteStation = Station.objects.get(station_id=station_id)
+
+    sendKml(fileName,concreteStation)
+
+
+    return render(request, 'floybd/weather/weatherPredictionView.html',
+                  {'fileName': fileName, 'kml': kmlpath,
+                   'concreteStation': concreteStation})
 
 def weatherStats(request):
     stations = Station.objects.all()
@@ -232,7 +286,7 @@ def getStats(request):
             contentString = '<div id="content">' + \
                             '<div id="siteNotice">' + \
                             '</div>' + \
-                            '<h1 id="firstheading" class="firstheading">' + concretestation.name + '</h1>' + \
+                            '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
                             '<div id="bodycontent">' + \
                             '<p>' + \
                             '<br/><b>max temp: </b>' + str(row.get("avg(max_temp)")) + \
@@ -255,7 +309,6 @@ def getStats(request):
         kml.newpoint(name=stationData["name"], description=stationData["contentString"],
                      coords=[(stationData["longitude"], stationData["latitude"])])
 
-
     millis = int(round(time.time() * 1000))
     fileName = "stats_" + str(millis) + ".kml"
     currentDir = os.getcwd()
@@ -269,7 +322,7 @@ def getStats(request):
 
 def sendKmlGlobal(fileName):
     ip = getIp()
-    command = "echo 'http://"+ip+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://"+str(ip)+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
@@ -294,7 +347,6 @@ def sendKml(fileName, concreteStation):
                 +"<altitudeMode>relativeToGround</altitudeMode>" \
                 +"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-
         command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
         os.system(command)
 
@@ -309,3 +361,5 @@ def sendStatsToLG(request):
     return render(request, 'floybd/weather/weatherStats.html',
                   {'kml': 'http://'+ip+':8000/static/kmls/' + fileName,
                    'stations': stations, 'fileName': fileName})
+
+
