@@ -135,6 +135,7 @@ def getPrediction():
 	dataStr = str(data,'utf-8')
 	dataDict = json.loads(dataStr)
 	initEnvironment()
+	loadStations()
 
 	station_id = dataDict["station_id"]
 	columns = dataDict['columnsToPredict']
@@ -149,7 +150,7 @@ def getPrediction():
 			#predictionJson = generalFunctions.dataFrameToJsonStr(weatherPrediction)
 		else:
 			predictionJson = "No Model"
-		stopEnvironment()
+		stopEnvironment(sc)
 		print(predictionJson)
 		return jsonify(predictionJson)
 	else:

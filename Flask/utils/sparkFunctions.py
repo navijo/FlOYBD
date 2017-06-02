@@ -1,20 +1,22 @@
 from datetime import datetime
-from cassandra.cluster import Cluster
-import pyspark
-from pyspark import SparkContext,SparkConf
 
+from cassandra.cluster import Cluster
+from cassandra.query import named_tuple_factory
+
+from pyspark import SparkContext,SparkConf
 from pyspark.ml.regression import LinearRegression,LinearRegressionModel
+from pyspark.ml.tuning import TrainValidationSplitModel
+from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import max,min,col,avg,count
+from pyspark.sql.types import *
+
+from utils import generalFunctions
+
 import os
 import time
 import pickle
-from pyspark.ml.tuning import TrainValidationSplitModel
-from pyspark.ml.feature import VectorAssembler
-
-from pyspark.sql.functions import max,min,col,avg,count
-
-from pyspark.sql.types import *
-from cassandra.query import named_tuple_factory
-from utils import generalFunctions
+import json
+import pyspark
 
 def getConcreteWeatherData(daily_measures,station_id,date,allStations):
 	datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
@@ -138,7 +140,7 @@ def predict(sql,sc,columns,station_id,currentWeather):
 		returnedPredictions.append(generalFunctions.dataframeToJson(predictions1))
 
 	#resultDataframe = sql.createDataFrame(returnedPredictions)
-	return returnedPredictions
+	return json.dumps(returnedPredictions)
 
 
 def getLimitsForStation(stations_limits,station_id):
