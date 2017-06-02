@@ -111,6 +111,19 @@ def predict(sql,sc,columns,station_id,currentWeather):
 
 	resultDataframe = sql.createDataFrame(sc.emptyRDD(), schema)
 
+
+	fields1 = [StructField("station_id",StringType(), True),
+	StructField("max_temp", FloatType(), True),\
+	 StructField("med_temp", FloatType(), True),\
+	 StructField("min_temp", FloatType(), True),\
+	 StructField("max_pressure", FloatType(), True),\
+	 StructField("min_pressure", FloatType(), True),\
+	 StructField("precip", FloatType(), True),\
+	 StructField("insolation", FloatType(), True)]
+
+	schema1 = StructType(fields1)
+
+	resultDataframe = sql.createDataFrame(sc.emptyRDD(), schema)
 	firstTime = True
 
 	for column in columns:
@@ -119,20 +132,30 @@ def predict(sql,sc,columns,station_id,currentWeather):
 			print("####No Model")
 			break
 
+		lrModel = LinearRegressionModel.load(modelPath)
+
 		assembler = VectorAssembler(inputCols=[column],outputCol="features")
 				
-		lrModel = LinearRegressionModel.load(modelPath)
-	
 		df_for_predict = sql.createDataFrame([(currentWeather["station_id"],
-		 float(currentWeather["max_temp"]), float(currentWeather["med_temp"]),float(currentWeather["min_temp"]),
-			 float(currentWeather["max_pres"]),float(currentWeather["min_pres"]),
-			 float(currentWeather["precip"]),float(currentWeather["insolation"]))],
-		 ["station_id","max_temp","med_temp","min_temp","max_pressure","min_pressure","precip","insolation"])
+		 float(currentWeather["max_temp"]),# if column != "max_temp" else None,
+		 float(currentWeather["med_temp"]),#  if column != "med_temp" else None,
+		 float(currentWeather["min_temp"]),#  if column != "min_temp" else None,
+		 float(currentWeather["max_pres"]),#  if column != "max_pres" else None,
+		 float(currentWeather["min_pres"]),#  if column != "min_pres" else None,
+		 float(currentWeather["precip"]),#  if column != "precip" else None,
+		 float(currentWeather["insolation"]),# if column != "insolation" else None,
+		 )],schema1)
 
+		
 		assembledTestData = assembler.transform(df_for_predict)
 		prediction_data = assembledTestData.withColumn("label",df_for_predict[column]).withColumn("features",assembledTestData.features)
 
 		predictions = lrModel.transform(prediction_data).select("station_id",column,"prediction")
+		#predictions.show()
+
+		#predictions = lrModel.evaluate(prediction_data)
+		#print(predictions.predictions.show())
+
 		predictions1 = predictions.withColumn(str("prediction_"+column),predictions.prediction)
 		#predictions = lrModel.transform(prediction_data)
 
