@@ -20,3 +20,5 @@ Django/\.idea/
 Django/mysite/static/kmls/
 
 Django/mysite/static/upload/gtfs/
+
+Django/mysite/transitfeedcrash\.txt
