@@ -1,4 +1,5 @@
 #!/bin/bash
 source cronEnv.sh
-python cleanAndInsert.py > cleanLog.txt &
+cd ~/GSOC17/FlOYBD/DataGatheringAndCleaning
+python cleanAndInsertWeather.py > cleanLog.txt &
 
