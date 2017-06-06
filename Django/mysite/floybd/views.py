@@ -15,5 +15,4 @@ def eartquakesIndex(request):
 
 
 def gtfs(request):
-    form = UploadFileForm()
-    return render(request, 'floybd/indexGTFS.html', {'form': form})
+    return render(request, 'floybd/indexGTFS.html')

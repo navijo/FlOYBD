@@ -3,6 +3,7 @@ import requests
 import datetime
 # Create your models here.
 from django.utils.encoding import python_2_unicode_compatible
+from .gtfs_models import *
 
 @python_2_unicode_compatible
 class Station(models.Model):
@@ -34,5 +35,4 @@ class ApiKey(models.Model):
         valid_date = self.creation_date + datetime.timedelta(days=10)
         self.valid_date = valid_date
         super(ApiKey, self).save()
-
 
