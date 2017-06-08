@@ -131,8 +131,7 @@ def parseStopTimes(basePath):
             if 'stop_sequence' in data.columns and row['stop_sequence'] is not None \
                     and not np.isnan(row['stop_sequence']):
                 stop_times.stop_sequence = row['stop_sequence']
-            if 'stop_headsign' in data.columns and row['stop_headsign'] is not None \
-                    and not np.isnan(row['stop_headsign']):
+            if 'stop_headsign' in data.columns and row['stop_headsign'] is not None:
                 stop_times.stop_headsign = row['stop_headsign']
             if 'pickup_type' in data.columns and row['pickup_type'] is not None \
                     and not np.isnan(row['pickup_type']):

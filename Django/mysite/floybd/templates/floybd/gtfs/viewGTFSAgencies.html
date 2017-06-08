@@ -1,12 +1,30 @@
 {% include "floybd/header.html" %}
 
+
+
 {% load i18n %}
 {% trans "Get Values" as getValues %}
 {% trans "Send Values to LG" as sendValues %}
 
+<script type="text/javascript">
+    $(document).ready(function() {
+     var events = $('#events');
+    var table = $('#gtfsTable').DataTable( {
+            columnDefs: [ {
+                orderable: false,
+                targets:   0
+            } ],
+            select: {
+                style:    'multi',
+                selector: 'td:first-child'
+            },
+            order: [[ 1, 'asc' ]]
+        } );
+} );
+
+</script>
 
 <div class="container">
-
 
 		<center>
 			<h3>Agencies</h3>
@@ -15,13 +33,43 @@
 
 		<form name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
 			{% csrf_token %}
-
+            <table id="gtfsTable" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Timezone</th>
+            </tr>
+        </thead>
+        <tbody>
 			{% for entry in agencies %}
-				<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>
-			{% endfor %}
-             <input type="submit" value="{{ getValues }}" class="btn"/>
+            <tr>
+                <td>
+                    <input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">
+                </td>
+                <td>
+                    {{ entry.agency_id }}
+                </td>
+                 <td>
+                    {{ entry.agency_name }}
+                </td>
+                <td>
+                    <a href="{{ entry.agency_url}}">{{ entry.agency_url}}</a>
+                </td>
+                <td>
+                    {{ entry.agency_timezone}}
+                </td>
+				<!--<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>-->
+            </tr>
+            {% endfor %}
+            <input type="submit" value="{{ getValues }}" class="btn"/>
 			<a href="{% url 'floybd:gtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-		</form>
+        </tbody>
+            </table>
+
+        </form>
 
 	{% endif %}
 	</center>

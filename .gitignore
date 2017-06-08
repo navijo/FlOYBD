@@ -28,3 +28,7 @@ Django/mysite/db\.sqlite3
 DataMining/weather/ml/predictionMLIB\.py
 
 Django/mysite/floybd/migrations/merda/
+
+*.sqlite3_backup
+
+Django/mysite/floybd/migrations/

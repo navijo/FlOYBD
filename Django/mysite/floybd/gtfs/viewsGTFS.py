@@ -59,12 +59,12 @@ def handle_uploaded_file(f, title, millis):
 
 def parseGTFS(title):
 
-    parseAgency("static/upload/gtfs/"+title)
-    parseCalendar("static/upload/gtfs/"+title)
-    parseCalendarDates("static/upload/gtfs/" + title)
-    parseStops("static/upload/gtfs/" + title)
-    parseRoutes("static/upload/gtfs/" + title)
-    parseTrips("static/upload/gtfs/" + title)
+    #parseAgency("static/upload/gtfs/"+title)
+    #parseCalendar("static/upload/gtfs/"+title)
+    #parseCalendarDates("static/upload/gtfs/" + title)
+    #parseStops("static/upload/gtfs/" + title)
+    #parseRoutes("static/upload/gtfs/" + title)
+    #parseTrips("static/upload/gtfs/" + title)
     parseStopTimes("static/upload/gtfs/" + title)
 
 
@@ -277,9 +277,9 @@ def getAgenciesAndGenerateKML(request):
 
                 trips_file.write(tripStr)
 
-                if trip.service not in calendars_added:
-                    calendars_added.append(trip.service)
-                    calendar = Calendar.objects.get(service_id=trip.service)
+                if trip.service_id not in calendars_added:
+                    calendars_added.append(trip.service_id)
+                    calendar = Calendar.objects.get(service_id=trip.service_id)
 
                     calendarStr = str(calendar.service_id) +\
                                       "," + str(calendar.start_date.strftime("%Y%m%d")) + \
