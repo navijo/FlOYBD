@@ -1,0 +1,28 @@
+{% include "floybd/header.html" %}
+
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+
+<div class="container">
+
+
+		<center>
+			<h3>Agencies</h3>
+
+	{% if agencies != None %}
+
+		<form name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
+			{% csrf_token %}
+
+			{% for entry in agencies %}
+				<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>
+			{% endfor %}
+             <input type="submit" value="{{ getValues }}" class="btn"/>
+			<a href="{% url 'floybd:gtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+		</form>
+
+	{% endif %}
+	</center>
+</div>

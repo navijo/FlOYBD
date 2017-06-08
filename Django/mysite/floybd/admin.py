@@ -1,17 +1,17 @@
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 # Register your models here.
-from django.forms import  ModelForm
+from django.forms import ModelForm
 from django import forms
-from django.db import models
+
 from django.http import HttpResponseRedirect
 from django.conf.urls import url
-import requests
+
 import json
 from datetime import datetime
+from django.contrib.admin import widgets
 
-from .models import Station
-from .models import ApiKey
+from .models import *
 
 
 class StationAdmin(admin.ModelAdmin):
@@ -71,3 +71,81 @@ class ApiKeyAdmin(admin.ModelAdmin):
     ]
 
 admin.site.register(ApiKey, ApiKeyAdmin)
+
+
+class AgencyAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Agency
+admin.site.register(Agency, AgencyAdmin)
+
+
+class CalendarForm(ModelForm):
+    start_date = forms.DateField(widget=widgets.AdminDateWidget(format='%Y%m%d'))
+    end_date = forms.DateField(widget=widgets.AdminDateWidget(format='%Y%m%d'))
+
+    class Meta:
+        model = Calendar
+        fields = ['service_id', 'monday', 'tuesday', 'wednesday', 'thursday',
+                  'friday', 'saturday', 'sunday', 'start_date', 'end_date']
+
+
+class CalendarAdmin(admin.ModelAdmin):
+    form = CalendarForm
+
+admin.site.register(Calendar, CalendarAdmin)
+
+
+class CalendarDateForm(ModelForm):
+    date = forms.DateField(widget=widgets.AdminDateWidget(format='%Y%m%d'))
+
+    class Meta:
+        model = Calendar_date
+        fields = ['service_id', 'date', 'exception_type']
+
+
+class CalendarDateAdmin(admin.ModelAdmin):
+    form = CalendarDateForm
+
+admin.site.register(Calendar_date, CalendarDateAdmin)
+
+
+class FareAttributeAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Fare_Attribute
+admin.site.register(Fare_Attribute, FareAttributeAdmin)
+
+
+class RouteAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Route
+admin.site.register(Route, RouteAdmin)
+
+
+class TripAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Trip
+admin.site.register(Trip, TripAdmin)
+
+
+class StopAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Stop
+admin.site.register(Stop, StopAdmin)
+
+
+class Stop_timeForm(ModelForm):
+    arrival_time = forms.TimeField(widget=widgets.AdminTimeWidget(format='%HH:%MM:%SS'))
+    departure_time = forms.TimeField(widget=widgets.AdminTimeWidget(format='%HH:%MM:%SS'))
+
+    class Meta:
+        model = Stop_time
+        fields = ['trip_id', 'arrival_time', 'departure_time', 'stop_id', 'stop_sequence',
+                  'stop_headsign', 'pickup_type', 'drop_off_type', 'timepoint']
+
+
+
+class Stop_timeAdmin(admin.ModelAdmin):
+    form = Stop_timeForm
+
+admin.site.register(Stop_time, Stop_timeAdmin)
+

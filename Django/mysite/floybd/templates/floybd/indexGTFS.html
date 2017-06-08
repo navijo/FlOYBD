@@ -1,21 +1,8 @@
 {% include "floybd/header.html" %}
-{% load static %}
-<script>
-  $( function() {
-    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
-    })
-</script>
 <div class="container">
-        <form action="{% url 'floybd:uploadGTFS' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            Title: <input type="text" name="title" required>
-            <p>
-                {{ form.file.errors }}
-                {{ form.file }}
-            </p>
-            <p><input type="submit" value="Upload" /></p>
-            <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-        </form>
-
-
+    <center>
+        <a href="{% url 'floybd:viewgtfs' %}" class="btn btn-default">View GTFS</a>
+	    <a href="{% url 'floybd:uploadgtfs' %}" class="btn btn-default">Upload New GTFS</a>
+        <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+    </center>
 </div>

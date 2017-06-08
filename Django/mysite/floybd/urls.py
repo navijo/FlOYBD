@@ -16,7 +16,10 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^weatherStats', viewsWeather.weatherStats, name='weatherStats'),
     url(r'^weather', views.weatherIndex, name='weather'),
-    url(r'^gtfs', views.gtfs, name='gtfs'),
+    url('uploadgtfs', viewsGTFS.uploadgtfs, name='uploadgtfs'),
+    url('viewgtfs', viewsGTFS.viewgtfs, name='viewgtfs'),
+    url('gtfs', views.gtfs, name='gtfs'),
+
     url(r'^dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
     url(r'^predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
     url(r'^earthquakes/$', views.eartquakesIndex, name='earthquakes'),
@@ -31,6 +34,9 @@ urlpatterns = [
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
     url('uploadGTFS', viewsGTFS.uploadGTFS, name='uploadGTFS'),
     url('sendGTFSToLG', viewsGTFS.sendGTFSToLG, name='sendGTFSToLG'),
+    url('getAgenciesAndGenerateKML', viewsGTFS.getAgenciesAndGenerateKML,
+        name='getAgenciesAndGenerateKML'),
+
 
 ]
 
