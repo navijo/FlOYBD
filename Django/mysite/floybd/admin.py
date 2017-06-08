@@ -51,7 +51,7 @@ class ApiKeyForm(ModelForm):
         call = requests.get('http://130.206.117.178:5000/getKey')
         jsonResponse = call.text
         jsonData = json.loads(jsonResponse)
-        timestamp = datetime.strptime(jsonData["valid_until"], "%Y-%m-%d %H:%M:%S").date()
+        timestamp = datetime.datetime.strptime(jsonData["valid_until"], "%Y-%m-%d %H:%M:%S").date()
         if not kwargs.get('initial'):
             kwargs['initial'] = {}
         kwargs['initial'].update({'valid_date': timestamp})
@@ -121,10 +121,7 @@ class RouteAdmin(admin.ModelAdmin):
 admin.site.register(Route, RouteAdmin)
 
 
-class TripAdmin(admin.ModelAdmin):
-    class Meta:
-        model = Trip
-admin.site.register(Trip, TripAdmin)
+
 
 
 class StopAdmin(admin.ModelAdmin):
@@ -139,13 +136,28 @@ class Stop_timeForm(ModelForm):
 
     class Meta:
         model = Stop_time
-        fields = ['trip_id', 'arrival_time', 'departure_time', 'stop_id', 'stop_sequence',
+        fields = ['trip', 'arrival_time', 'departure_time', 'stop', 'stop_sequence',
                   'stop_headsign', 'pickup_type', 'drop_off_type', 'timepoint']
-
 
 
 class Stop_timeAdmin(admin.ModelAdmin):
     form = Stop_timeForm
 
 admin.site.register(Stop_time, Stop_timeAdmin)
+
+
+class TripForm(ModelForm):
+
+    class Meta:
+        model = Trip
+        fields = ['trip_id', 'route', 'service_id', 'trip_headsign', 'trip_short_name',
+                  'direction_id', 'block_id', 'wheelchair_accessible', 'bikes_allowed']
+
+
+
+class TripAdmin(admin.ModelAdmin):
+    form = TripForm
+
+admin.site.register(Trip, TripAdmin)
+
 
