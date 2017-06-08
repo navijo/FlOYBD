@@ -51,6 +51,7 @@ def saveApiKeyGet():
 	apiKey=request.args.get('key')
 	creation_date = datetime.datetime.now()
 	generalFunctions.saveKEY(creation_date,apiKey)
+	return "Ok"
 
 
 @app.route('/getKey', methods=['GET'])
@@ -130,34 +131,37 @@ def getEarthquakes():
 
 @app.route('/getPrediction',methods=['POST'])
 def getPrediction(): 
+	try:
+		data = request.data
+		dataStr = str(data,'utf-8')
+		dataDict = json.loads(dataStr)
+		initEnvironment()
+		loadStations()
 
-	data = request.data
-	dataStr = str(data,'utf-8')
-	dataDict = json.loads(dataStr)
-	initEnvironment()
-	loadStations()
+		station_id = dataDict["station_id"]
+		columns = dataDict['columnsToPredict']
 
-	station_id = dataDict["station_id"]
-	columns = dataDict['columnsToPredict']
-
-	#try:
-	stationData = sparkFunctions.getStationInfo(stations,station_id)
-	currentWeather = generalFunctions.getCurrentWeather(station_id)
-	if(currentWeather!=0):
-		weatherPrediction = sparkFunctions.predict(sql,sc,columns,station_id,currentWeather)
-		if(weatherPrediction):
-			predictionJson = weatherPrediction
-			#predictionJson = generalFunctions.dataFrameToJsonStr(weatherPrediction)
+		#try:
+		stationData = sparkFunctions.getStationInfo(stations,station_id)
+		currentWeather = generalFunctions.getCurrentWeather(station_id)
+		if(currentWeather!=0 and currentWeather):
+			weatherPrediction = sparkFunctions.predict(sql,sc,columns,station_id,currentWeather)
+			if(weatherPrediction):
+				predictionJson = weatherPrediction
+				#predictionJson = generalFunctions.dataFrameToJsonStr(weatherPrediction)
+			else:
+				predictionJson = "No Model"
+			stopEnvironment(sc)
+			print(predictionJson)
+			return jsonify(predictionJson)
 		else:
-			predictionJson = "No Model"
+			return "No Current Weather"
+		#except:
+		#	print("Unexpected error:", sys.exc_info()[0])
 		stopEnvironment(sc)
-		print(predictionJson)
-		return jsonify(predictionJson)
-	else:
-		return "No Current Weather"
-	#except:
-	#	print("Unexpected error:", sys.exc_info()[0])
-	stopEnvironment(sc)
+	except KeyError as ke:
+		print(ke)
+		stopEnvironment(sc)
 
 
 @app.route('/getAllStations')

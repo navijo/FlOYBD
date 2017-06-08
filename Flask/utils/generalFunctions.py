@@ -19,6 +19,8 @@ def saveKEY(date,key):
 
 	valid_date = date + datetime.timedelta(days=90)
 
+	session.execute("TRUNCATE api_key")
+
 	session.execute("INSERT INTO api_key (creation_date,valid_until,\"apiKey\") VALUES (%s, %s, %s)"
 					,[date,valid_date, key])
 
@@ -122,11 +124,13 @@ def getCurrentWeather(station_id):
 	headers = {'cache-control': "no-cache"}
 	base_url = "https://opendata.aemet.es/opendata"
 	
+
 	currentWeather = getData(base_url+"/api/observacion/convencional/datos/estacion/"+station_id)
 
 	parsedCurrentWeatherJson = {}
 
-	if(currentWeather!=0):
+	if(currentWeather!=0 and currentWeather is not None):	
+
 		precip = currentWeather[0].get("prec")
 		min_temp = currentWeather[0].get("tamin")
 		max_temp = currentWeather[0].get("tamax")
@@ -143,9 +147,8 @@ def getCurrentWeather(station_id):
 		parsedCurrentWeatherJson["insolation"] = insolation if insolation is not None else 0
 
 
-		return parsedCurrentWeatherJson
-	else:
-		return 0
+	return parsedCurrentWeatherJson
+	
 
 
 def getData(url):
@@ -154,6 +157,7 @@ def getData(url):
 	"""
 	try:
 		response = requests.request("GET", url, headers=headers, params=querystring, verify=False)
+	
 		if(response):
 			jsonResponse = response.json()
 			if(jsonResponse.get('estado') == 200):

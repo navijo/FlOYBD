@@ -5,10 +5,12 @@ from cassandra.query import named_tuple_factory
 
 from pyspark import SparkContext,SparkConf
 from pyspark.ml.regression import LinearRegression,LinearRegressionModel
-from pyspark.ml.tuning import TrainValidationSplitModel
+from pyspark.ml.tuning import TrainValidationSplitModel, ParamGridBuilder
+
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import max,min,col,avg,count
 from pyspark.sql.types import *
+from pyspark.sql.functions import UserDefinedFunction
 
 from utils import generalFunctions
 
@@ -133,7 +135,8 @@ def predict(sql,sc,columns,station_id,currentWeather):
 			break
 
 		lrModel = LinearRegressionModel.load(modelPath)
-
+		
+		
 		assembler = VectorAssembler(inputCols=[column],outputCol="features")
 				
 		df_for_predict = sql.createDataFrame([(currentWeather["station_id"],
@@ -146,12 +149,16 @@ def predict(sql,sc,columns,station_id,currentWeather):
 		 float(currentWeather["insolation"]),# if column != "insolation" else None,
 		 )],schema1)
 
+
 		
 		assembledTestData = assembler.transform(df_for_predict)
 		prediction_data = assembledTestData.withColumn("label",df_for_predict[column]).withColumn("features",assembledTestData.features)
+		#prediction_data.show()
+		prediction_data1 = clearColumn(prediction_data,"label")
+		#prediction_data1.show()
 
-		predictions = lrModel.transform(prediction_data).select("station_id",column,"prediction")
-		#predictions.show()
+		predictions = lrModel.transform(prediction_data1,params={lrModel.intercept: True}).select("station_id",column,"prediction")
+		predictions.show()
 
 		#predictions = lrModel.evaluate(prediction_data)
 		#print(predictions.predictions.show())
@@ -165,6 +172,11 @@ def predict(sql,sc,columns,station_id,currentWeather):
 	#resultDataframe = sql.createDataFrame(returnedPredictions)
 	return json.dumps(returnedPredictions)
 
+
+def clearColumn(dataframe, columnName):
+	udf = UserDefinedFunction(lambda x: float(0), FloatType())
+	new_df = dataframe.select(*[udf(column).alias(columnName) if column == columnName else column for column in dataframe.columns])
+	return new_df
 
 def getLimitsForStation(stations_limits,station_id):
 	return stations_limits.filter(stations_limits.station_id == station_id)
