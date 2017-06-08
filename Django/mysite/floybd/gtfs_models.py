@@ -1,12 +1,13 @@
 from django.db import models
-
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 ## GTFS Models
 class Agency(models.Model):
     agency_id = models.CharField(primary_key=True, blank=False, null=False, max_length=200, unique=True)
     agency_url = models.URLField(blank=False, null=False)
     agency_name = models.CharField(max_length=200, blank=False, null=False)
-    agency_timezone = models.CharField(blank=False, null=False, max_length=5)
+    agency_timezone = models.CharField(blank=False, null=False, max_length=100)
     agency_lang = models.CharField(blank=True, null=True, max_length=2)
     agency_phone = models.CharField(blank=True, null=True, max_length=12)
     agency_fare_url = models.URLField(blank=True, null=True)
@@ -31,18 +32,19 @@ class Calendar(models.Model):
     def __str__(self):
         return str(self.service_id)
 
+
 class Calendar_date(models.Model):
     exception_types = (
         (1, 'Added'),
         (2, 'Removed')
     )
-
-    service_id = models.CharField(primary_key=True, unique=True, max_length=200)
+    #auto_increment_id = models.AutoField(primary_key=True,default=0)
+    service_id = models.CharField(max_length=200)
     date = models.DateField(null=False, blank=False)
     exception_type = models.IntegerField(choices=exception_types, null=False, blank=False)
 
     def __str__(self):
-        return str(self.service_id)
+        return str(self.service_id+" for " + str(self.date))
 
 
 class Fare_Attribute(models.Model):
@@ -81,7 +83,7 @@ class Route(models.Model):
     )
 
     route_id = models.CharField(primary_key=True, unique=True, max_length=200)
-    agency_id = models.ForeignKey('Agency', on_delete=models.CASCADE, null=True, blank=True)
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, null=True, blank=True)
     route_short_name = models.CharField(null=False, blank=False, max_length=200)
     route_long_name = models.CharField(null=False, blank=False, max_length=200)
     route_desc = models.CharField(null=True, blank=True, max_length=200)
@@ -92,6 +94,14 @@ class Route(models.Model):
 
     def __str__(self):
         return str(self.route_id+" " + self.route_short_name)
+
+    def GetPatternIdTripDict(self):
+        """Return a dictionary that maps pattern_id to a list of Trip objects."""
+        d = {}
+        trips = Trip.objects.filter(route_id=self.route_id)
+        for t in trips:
+            d.setdefault(t.pattern_id, []).append(t)
+        return d
 
 
 class Trip(models.Model):
@@ -105,8 +115,12 @@ class Trip(models.Model):
         (1, 'Inbound'))
 
     trip_id = models.CharField(primary_key=True, unique=True, max_length=200)
-    route_id = models.ForeignKey('Route', on_delete=models.CASCADE)
-    service_id = models.ForeignKey('Calendar', on_delete=models.CASCADE)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    dynamic_key = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+
+    service_id = models.CharField(max_length=200)
+    content_object = GenericForeignKey('dynamic_key', 'service_id')
+
     trip_headsign = models.CharField(null=True, blank=True, max_length=200)
     trip_short_name = models.CharField(null=True, blank=True, max_length=200)
     direction_id = models.IntegerField(choices=direction_choices, null=True, blank=True)
@@ -163,16 +177,16 @@ class Stop_time(models.Model):
         (0, 'Times are considered approximate'),
         (1, 'Times are considered exact'))
 
-    trip_id = models.ForeignKey('Trip', on_delete=models.CASCADE)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     arrival_time = models.TimeField(null=False, blank=False, help_text="HH:MM:SS")
     departure_time = models.TimeField(null=False, blank=False, help_text="HH:MM:SS")
-    stop_id = models.ForeignKey('Stop', on_delete=models.CASCADE)
+    stop = models.ForeignKey(Stop, related_name='stops', on_delete=models.CASCADE)
     stop_sequence = models.PositiveIntegerField(null=True, blank=True)
     stop_headsign = models.CharField(null=True, blank=True, max_length=200)
     pickup_type = models.IntegerField(choices=pickup_choices, blank=True, null=True, default=0)
     drop_off_type = models.IntegerField(choices=drop_off_choices, blank=True, null=True, default=0)
-    timepoint = models.IntegerField(choices=times_choices, blank=True, null=True)
+    timepoint = models.IntegerField(choices=times_choices, blank=True, null=True, default=1)
 
     def __str__(self):
-        return str(self.trip_id + " " + self.stop_id + " " + self.arrival_time
-                   + " " + self.departure_time)
+        return str(self.trip_id) + " " + str(self.stop) + " " + str(self.arrival_time)\
+               + " " + str(self.departure_time)

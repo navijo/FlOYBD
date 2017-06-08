@@ -6,9 +6,13 @@ from ..models import Route
 from ..models import Stop
 from ..models import Stop_time
 from ..models import Trip
+from ..models import Calendar_date
 
 from datetime import datetime
 from django.db.utils import IntegrityError
+import traceback
+import numpy as np
+from django.contrib.contenttypes.models import ContentType
 
 def parseAgency(basePath):
     print("Processing Agencies")
@@ -48,6 +52,21 @@ def parseCalendar(basePath):
         calendar.save()
 
 
+def parseCalendarDates(basepath):
+    print("Processing Calendar Dates")
+
+    data = pd.read_csv(basepath + '/calendar_dates.txt', engine='python')
+    for index, row in data.iterrows():
+        calendar_date = Calendar_date()
+        calendar_date.service_id = row['service_id']
+
+        date = datetime.strptime(str(row['date']), '%Y%m%d')
+        calendar_date.date = date
+
+        calendar_date.exception_type = int(row['exception_type'])
+
+        calendar_date.save()
+
 def parseRoutes(basePath):
     print("Processing Routes")
     data = pd.read_csv(basePath + '/routes.txt', engine='python')
@@ -60,7 +79,7 @@ def parseRoutes(basePath):
             route.route_long_name = row['route_long_name']
             if 'agency_id' in data.columns and row['agency_id'] is not None:
                 agency = Agency.objects.get(agency_id=str(row['agency_id']))
-                route.agency_id = agency
+                route.agency = agency
                 route.save()
             else:
                 print("Agency Id not found")
@@ -95,33 +114,43 @@ def parseStopTimes(basePath):
             if trip is None:
                 print("No Existent Trip" + str(row['trip_id']))
                 continue
-            stop_times.trip_id = trip
+            stop_times.trip = trip
 
-            arrivalTime = datetime.strptime(str(row['arrival_time']), '%HH:%MM:%SS')
+            arrivalTime = datetime.strptime(str(row['arrival_time']), '%H:%M:%S')
             stop_times.arrival_time = arrivalTime
 
-            departuretime = datetime.strptime(str(row['departure_time']), '%HH:%MM:%SS')
-            stop_times.departure_time =departuretime
+            departuretime = datetime.strptime(str(row['departure_time']), '%H:%M:%S')
+            stop_times.departure_time = departuretime
 
             stop = Stop.objects.get(stop_id=row['stop_id'])
             if stop is None:
                 print("No Existent Stop" + str(row['stop_id']))
                 continue
-            stop_times.stop_id = stop
+            stop_times.stop = stop
 
-            if 'stop_sequence' in data.columns and row['stop_sequence'] is not None:
+            if 'stop_sequence' in data.columns and row['stop_sequence'] is not None \
+                    and not np.isnan(row['stop_sequence']):
                 stop_times.stop_sequence = row['stop_sequence']
-            if 'stop_headsign' in data.columns and row['stop_headsign'] is not None:
+            if 'stop_headsign' in data.columns and row['stop_headsign'] is not None \
+                    and not np.isnan(row['stop_headsign']):
                 stop_times.stop_headsign = row['stop_headsign']
-            if 'pickup_type' in data.columns and row['pickup_type'] is not None:
+            if 'pickup_type' in data.columns and row['pickup_type'] is not None \
+                    and not np.isnan(row['pickup_type']):
                 stop_times.pickup_type = row['pickup_type']
-            if 'drop_off_type' in data.columns and row['drop_off_type'] is not None:
+            if 'drop_off_type' in data.columns and row['drop_off_type'] is not None \
+                    and not np.isnan(row['drop_off_type']):
                 stop_times.drop_off_type = row['drop_off_type']
-            if 'shape_dist_traveled' in data.columns and row['shape_dist_traveled'] is not None:
+            if 'shape_dist_traveled' in data.columns and row['shape_dist_traveled'] is not None \
+                    and not np.isnan(row['shape_dist_traveled']):
                 stop_times.shape_dist_traveled = row['shape_dist_traveled']
+            if 'timepoint' in data.columns and row['timepoint'] is not None \
+                    and not np.isnan(row['timepoint']):
+                stop_times.timepoint = row['timepoint']
+
             stop_times.save()
-        except ValueError:
-            print(index)
+        except ValueError as e:
+            print(index, e)
+            traceback.print_exc()
 
 
 
@@ -130,14 +159,41 @@ def parseTrips(basePath):
     data = pd.read_csv(basePath + '/trips.txt', engine='python')
     for index, row in data.iterrows():
         try:
-            trip = Trip()
+           # trip = Trip()
             route = Route.objects.get(route_id=row['route_id'])
-            trip.route_id = route
-            trip.trip_id = row['trip_id']
-            trip.trip_headsign = row['trip_headsign']
-            calendar = Calendar.objects.get(service_id=row['service_id'])
-            trip.service_id = calendar
+            #trip.route = route
+            #trip.trip_id = row['trip_id']
+            #trip.trip_headsign = row['trip_headsign']
+            calendar_type = ContentType.objects.get(app_label='floybd', model='calendar')
+            calendar = calendar_type.get_object_for_this_type(service_id=row['service_id'])
+            #calendar = Calendar.objects.get(service_id=row['service_id'])
+            #trip.service = calendar
+
+            trip = Trip(
+                route=route,
+                trip_id=row['trip_id'],
+                trip_headsign=row['trip_headsign'],
+                content_object=ContentType.objects.get_for_model(calendar),
+                service_id=calendar.service_id
+            )
+
             trip.save()
         except Calendar.DoesNotExist:
             print("Calendar not exist " + str(row['service_id']))
+            route = Route.objects.get(route_id=row['route_id'])
+            #calendar_date = Calendar_date.objects.filter(service_id=row['service_id'])
+            calendar_date_types = ContentType.objects.get(app_label='floybd', model='calendar_date')
+            #calendar_dates = calendar_date_types.get_object_for_this_type(service_id=row['service_id'])
+            calendar_dates = Calendar_date.objects.filter(service_id=row['service_id'])
+            calendar_date = calendar_dates.first()
+            trip = Trip(
+                route=route,
+                trip_id=row['trip_id'],
+                trip_headsign=row['trip_headsign'],
+                content_object=ContentType.objects.get_for_model(calendar_date),
+                service_id=calendar_date.service_id
+            )
+
+            #trip.service = calendar_date
+            trip.save()
             continue
