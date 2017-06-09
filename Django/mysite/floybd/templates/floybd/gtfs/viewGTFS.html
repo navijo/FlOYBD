@@ -10,16 +10,13 @@
 
 
 		<center>
-			<h3>FILE UPLOAD OK! </h3>
-
-
 	{% if kml != None %}
 
 		<form name="form" action="{% url 'floybd:sendGTFSToLG' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="kmlPath" value="{{  kml }}">
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<a href="{% url 'floybd:gtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+			<a href="{% url 'floybd:viewgtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
 		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
 		<script>

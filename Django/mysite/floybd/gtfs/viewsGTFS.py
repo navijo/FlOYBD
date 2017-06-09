@@ -231,6 +231,11 @@ def getAgenciesAndGenerateKML(request):
     folderName = "static/kmls/"+str(millis)
     os.mkdir(folderName)
 
+    flyToLatMax = 0
+    flyToLatMin = 0
+    flyToLonMax = 0
+    flyToLonMin = 0
+
     agencies_file = open(folderName+"/agency.txt", 'w')
     agencies_file.write("agency_url,agency_name,agency_id,agency_timezone\n")
 
@@ -315,6 +320,24 @@ def getAgenciesAndGenerateKML(request):
 
         for stop_id in stops_added:
             stop = Stop.objects.get(stop_id=stop_id)
+
+            if flyToLatMax == 0:
+                flyToLatMax = stop.stop_lat
+                flyToLatMin = stop.stop_lat
+            elif stop.stop_lat > flyToLatMax:
+                flyToLatMax = stop.stop_lat
+            elif stop.stop_lat < flyToLatMin:
+                flyToLatMin = stop.stop_lat
+
+            if flyToLonMax == 0:
+                flyToLonMax = stop.stop_lon
+                flyToLonMin = stop.stop_lon
+            elif stop.stop_lon > flyToLonMax:
+                flyToLonMax = stop.stop_lon
+            elif stop.stop_lon < flyToLonMin:
+                flyToLonMin = stop.stop_lon
+
+
             stopStr = str(stop.stop_lon) + \
                       "," + str(stop.stop_name) + \
                       "," +str(stop.stop_lat) + \
@@ -334,6 +357,7 @@ def getAgenciesAndGenerateKML(request):
     zipName = folderName+".zip"
     kmlName = str(millis)+".kml"
 
+
     command1 = "python2 static/utils/gtfs/kmlwriter.py "+zipName+" static/kmls/"+kmlName
     os.system(command1)
 
@@ -343,7 +367,23 @@ def getAgenciesAndGenerateKML(request):
               "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
+    flyToLon = (flyToLonMax + flyToLonMin)/2
+    flyToLat = (flyToLatMax + flyToLatMin) / 2
+
+    flyTo = "flytoview=<LookAt>" \
+            + "<longitude>" + str(flyToLon) + "</longitude>" \
+            + "<latitude>" + str(flyToLat) + "</latitude>" \
+            + "<altitude>100</altitude>" \
+            + "<heading>14</heading>" \
+            + "<tilt>69</tilt>" \
+            + "<range>200000</range>" \
+            + "<altitudeMode>relativeToGround</altitudeMode>" \
+            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+    os.system(command)
+
     agencies = Agency.objects.all()
-    return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
 
 

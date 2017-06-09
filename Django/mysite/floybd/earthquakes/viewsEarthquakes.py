@@ -202,7 +202,7 @@ def sendConcreteValuesToLG(request):
 
     if not showAll:
         #Start the tour
-        command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt"
+        command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
         os.system(command)
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
