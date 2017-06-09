@@ -97,10 +97,10 @@ class KMLWriter(object):
 
   def __init__(self):
     """Initialise."""
-    self.show_trips = False
-    self.show_stop_hierarchy = False
-    self.split_routes = False
-    self.shape_points = False
+    self.show_trips = True
+    self.show_stop_hierarchy = True
+    self.split_routes = True
+    self.shape_points = True
     self.altitude_per_sec = 0.0
     self.date_filter = None
 
@@ -531,7 +531,7 @@ class KMLWriter(object):
       return None
     trips = list(route.trips)
     trips.sort(key=lambda x: x.trip_id)
-    trips_folder = self._CreateFolder(parent, 'Trips', visible=False)
+    trips_folder = self._CreateFolder(parent, 'Trips', visible=True)
     for trip in trips:
       if (self.date_filter and
           not trip.service_period.IsActiveOn(self.date_filter)):
@@ -553,7 +553,7 @@ class KMLWriter(object):
       placemark = self._CreatePlacemark(trips_folder,
                                         trip.trip_id,
                                         style_id=style_id,
-                                        visible=False,
+                                        visible=True,
                                         description=description)
       self._CreateLineString(placemark, coordinate_list)
     return trips_folder
@@ -632,7 +632,7 @@ class KMLWriter(object):
       folder_name = 'Routes - %s' % type_name
     else:
       folder_name = 'Routes'
-    routes_folder = self._CreateFolder(doc, folder_name, visible=False)
+    routes_folder = self._CreateFolder(doc, folder_name, visible=True)
 
     for route in routes:
       style_id = self._CreateStyleForRoute(doc, route)
@@ -640,8 +640,8 @@ class KMLWriter(object):
                                         GetRouteName(route),
                                         description=GetRouteDescription(route))
       self._CreateRouteShapesFolder(schedule, route_folder, route,
-                                    style_id, False)
-      self._CreateRoutePatternsFolder(route_folder, route, style_id, False)
+                                    style_id, True)
+      self._CreateRoutePatternsFolder(route_folder, route, style_id, True)
       if self.show_trips:
         self._CreateRouteTripsFolder(route_folder, route, style_id, schedule)
     return routes_folder
@@ -685,7 +685,7 @@ class KMLWriter(object):
     """
 
     folder_name = shape.shape_id + ' Shape Points'
-    folder = self._CreateFolder(shapes_folder, folder_name, visible=False)
+    folder = self._CreateFolder(shapes_folder, folder_name, visible=True)
     for (index, (lat, lon, dist)) in enumerate(shape.points):
       placemark = self._CreatePlacemark(folder, str(index+1))
       point = ET.SubElement(placemark, 'Point')

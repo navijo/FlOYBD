@@ -14,6 +14,8 @@ from .GTFSUtils import *
 from ..gtfs_models import Agency
 from .GTFSKMLWriter import *
 
+import xml.etree.ElementTree as ET
+
 def uploadGTFS(request):
     if request.method == 'POST':
         title = request.POST['title']
@@ -363,7 +365,10 @@ def getAgenciesAndGenerateKML(request):
 
     ip = getIp()
 
+    carKml = extractLinesCoordinates("static/kmls/"+kmlName)
+
     command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
+              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
               "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -383,7 +388,44 @@ def getAgenciesAndGenerateKML(request):
     command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
     os.system(command)
 
+
+
     agencies = Agency.objects.all()
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
 
+def extractLinesCoordinates(filePath):
+    newKmlName = "car.kml"
+    kml = simplekml.Kml()
 
+    tour = kml.newgxtour(name="GTFSTour")
+    playlist = tour.newgxplaylist()
+
+    tree = ET.parse(filePath)
+    lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
+
+    for attributes in lineStrings:
+        for subAttribute in attributes:
+            if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
+                allCoords =  subAttribute.text
+                splittedPairsCoords = allCoords.split(" ")
+                for pair in splittedPairsCoords:
+                    lonLan = pair.split(",")
+                    #print("Lon:" + lonLan[0])
+                    #print("Lat:" + lonLan[1])
+                    pnt = kml.newpoint(name='Car')
+                    pnt.coords = [(lonLan[0], lonLan[1])]
+                    pnt.visibility = 0
+                    pnt.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=1)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                        .format(pnt.placemark.id)
+
+                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=1)
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                        .format(pnt.placemark.id)
+
+                    #print(subAttribute.tag, subAttribute.text)
+                playlist.newgxwait(gxduration=3)
+    kml.save("static/kmls/"+newKmlName)
+    return newKmlName
