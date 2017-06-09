@@ -32,3 +32,5 @@ Django/mysite/floybd/migrations/merda/
 *.sqlite3_backup
 
 Django/mysite/floybd/migrations/
+
+Django/mysite/db \(copia\)\.sqlite3_backAll

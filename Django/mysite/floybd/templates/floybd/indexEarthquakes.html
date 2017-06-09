@@ -9,7 +9,10 @@
 	<form name="form" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
 		{% csrf_token %}
 		<fieldset><legend>Values</legend>
-			<p>Date From: <input name = "date" type="text" id="datepicker">
+			<p>
+				Date From: <input name = "date" type="text" id="datepicker">
+				<input type="checkbox" id="showAll" name="showAll" value="1">Show All Earthquakes at a time
+			</p>
 			<br/>
 			Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
 			Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>

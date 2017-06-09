@@ -147,7 +147,7 @@ def parseStopTimes(basePath):
                 stop_times.timepoint = row['timepoint']
 
             stop_times.save()
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             print(index, e)
             traceback.print_exc()
 
