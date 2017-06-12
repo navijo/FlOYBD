@@ -152,7 +152,7 @@ if __name__ == "__main__":
 	print ("SparkContext => ",sc)
 	print ("SQLContext => ",sql)
 
-	#shutil.rmtree('/home/ubuntu/TFM/flask/models')
+	shutil.rmtree('/home/ubuntu/TFM/flask/models')
 	
 	stations = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="station")
 	clean_data = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="clean_daily_measurement")
