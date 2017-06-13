@@ -33,6 +33,9 @@ ALLOWED_HOSTS = ['130.206.117.178', 'localhost', '127.0.0.1', '192.168.88.243']
 INSTALLED_APPS = [
     'bootstrap3',
     'floybd',
+    'material',
+    'material.frontend',
+    'material.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
