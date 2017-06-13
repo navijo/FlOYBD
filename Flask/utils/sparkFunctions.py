@@ -20,6 +20,16 @@ import pickle
 import json
 import pyspark
 
+
+def getWeatherDataInterval(clean_daily,station_id,dateFrom,dateTo):
+	datetime_object_to = datetime.strptime(dateTo, '%Y-%m-%d').date()
+	datetime_object_from = datetime.strptime(dateFrom, '%Y-%m-%d').date()
+
+	measurements = clean_daily.filter((clean_daily.measure_date>=datetime_object_from) &
+	 (clean_daily.measure_date<=datetime_object_to) & (clean_daily.station_id==station_id))
+
+	return measurements
+
 def getConcreteWeatherData(daily_measures,station_id,date,allStations):
 	datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
 

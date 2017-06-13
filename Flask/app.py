@@ -217,6 +217,29 @@ def getStats():
 	except:
 		print("Ooops, something went wrong getting the stats")
 		stopEnvironment(sc)
+
+
+@app.route('/getWeatherDataInterval',methods=['POST'])
+def getWeatherDataInterval():
+	initEnvironment()
+
+	data = request.data
+	dataStr = str(data,'utf-8')
+	dataDict = json.loads(dataStr)
+
+	dateFrom = dataDict['dateFrom']
+	dateTo = dataDict['dateTo']
+	station_id = dataDict['station_id']
+
+	try:
+		loadCleanDaily()
+		tmpDf = sparkFunctions.getWeatherDataInterval(clean_daily,station_id,dateFrom,dateTo)
+		returnJson = generalFunctions.dataFrameToJsonStr(tmpDf)
+		stopEnvironment(sc)
+		return jsonify(returnJson)
+	except:
+		print("Ooops, something went wrong getting the stats")
+		stopEnvironment(sc)
 	
 
 
