@@ -11,21 +11,24 @@
 
 {% load coma_point %}
 
-<div class="container">
-	<form name="form" action="{% url 'floybd:getPrediction' %}" method="post" class="form">
-		{% csrf_token %}
-  		<select id="combobox" name="station">
-		{% for entry in stations %}
-		    <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
-		{% endfor %}
-		</select>
-		<br/>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+			<form name="form" action="{% url 'floybd:getPrediction' %}" method="post" class="form">
+				{% csrf_token %}
+				<select id="combobox" name="station">
+				{% for entry in stations %}
+					<option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+				{% endfor %}
+				</select>
+				<br/>
 
-		{% for entry in columnsList %}
-			<input type="checkbox" name="columnToPredict" value="{{ entry }}">{{ entry }}<br/>
-		{% endfor %}
-		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-		<input type="submit" value="Predict Values" class="btn"/>
-	</form>
-
+				{% for entry in columnsList %}
+					<input type="checkbox" id="columnToPredict" name="columnToPredict" value="{{ entry }}"><label for="columnToPredict">{{ entry }}<br/>
+				{% endfor %}
+				<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+				<input type="submit" value="Predict Values" class="btn"/>
+			</form>
+		</div>
+	</div>
 </div>

@@ -16,3 +16,4 @@ def eartquakesIndex(request):
 
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
+

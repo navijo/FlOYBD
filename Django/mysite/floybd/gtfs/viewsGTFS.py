@@ -388,9 +388,6 @@ def getAgenciesAndGenerateKML(request):
     command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
     os.system(command)
 
-
-
-    agencies = Agency.objects.all()
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
 
 def extractLinesCoordinates(filePath):

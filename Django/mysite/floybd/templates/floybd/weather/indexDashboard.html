@@ -1,0 +1,213 @@
+{% include "floybd/header.html" %}
+
+<script>
+  $( function() {
+    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
+    })
+
+    function getDashBoardData(){
+        var selectedStation = $("#combobox").val()
+         var daysBefore = $("#daysBefore").val()
+         $.ajax({
+             url: 'viewDashboard/',
+            data: {
+              'station': selectedStation,
+               'daysBefore': daysBefore
+            },
+            dataType: 'json',
+            success: function (data) {
+              if (data.stationData) {
+                createTempChart(data.stationData)
+                createPressureChart(data.stationData)
+                createWindDirChart(data.stationData)
+                createPrecipChart(data.stationData)
+              }
+            }
+      });
+    }
+
+    function createTempChart(data){
+        var chart = bb.generate({
+            "data": {
+             "x": "x",
+                "json": data,
+                keys: {
+                    x: 'measure_date',
+                    value: ["max_temp","med_temp","min_temp"]
+                },
+            "type": "bar",
+            "labels": true,
+            "colors": {
+              "max_temp": "#ff0000",
+              "med_temp": "#00ff00",
+              "min_temp": "#0000ff"
+                }
+            },
+            "axis": {
+                "x": {
+                  "type": "timeseries",
+                  "count": data.length,
+                  "tick": {
+                    "format": "%Y-%m-%d"
+                  }
+                }
+              },
+               "grid": {
+                "y": {
+                  "show": true
+                }
+              },
+             "bar": {
+                "width": {
+                "ratio": 0.3
+                }
+            },
+            "bindto": "#tempChart"
+        });
+    }
+
+    function createPressureChart(data){
+        var chart = bb.generate({
+            "data": {
+             "x": "x",
+                "json": data,
+                keys: {
+                    x: 'measure_date',
+                    value: ["max_pressure","min_pressure"]
+                },
+            "type": "spline"
+            },
+            "axis": {
+                "x": {
+                  "type": "timeseries",
+                  "count": data.length,
+                  "tick": {
+                    "format": "%Y-%m-%d"
+                  }
+                }
+              },
+              "grid": {
+                "y": {
+                  "show": true
+                }
+              },
+             "bar": {
+                "width": {
+                "ratio": 0.3
+                }
+            },
+            "bindto": "#pressureChart"
+        });
+    }
+
+    function createPrecipChart(data){
+        var chart = bb.generate({
+            "data": {
+             "x": "x",
+                "json": data,
+                keys: {
+                    x: 'measure_date',
+                    value: ["precip","insolation"]
+                },
+            "types": {
+              "insolation": "area",
+            "precip": "area-spline"
+                 },
+            },
+            "axis": {
+                "x": {
+                  "type": "timeseries",
+                  "count": data.length,
+                  "tick": {
+                    "format": "%Y-%m-%d"
+                  }
+                }
+              },
+              "grid": {
+                "y": {
+                  "show": true
+                }
+              },
+             "bar": {
+                "width": {
+                "ratio": 0.3
+                }
+            },
+            "bindto": "#precipInsoChart"
+        });
+    }
+
+    function createWindDirChart(data){
+        var chart = bb.generate({
+            "data": {
+             "x": "x",
+                "json": data,
+                keys: {
+                    x: 'measure_date',
+                    value: ["wind_streak","wind_med_vel"]
+                },
+            "type": "spline"
+            },
+            "axis": {
+                "x": {
+                  "type": "timeseries",
+                  "count": data.length,
+                  "tick": {
+                    "format": "%Y-%m-%d"
+                  }
+                }
+              },
+              "grid": {
+                "y": {
+                  "show": true
+                }
+              },
+             "bar": {
+                "width": {
+                "ratio": 0.3
+                }
+            },
+            "bindto": "#windChart"
+        });
+    }
+</script>
+
+{% load static %}
+<script src="{% static 'js/geoxml3.js' %}"></script>
+
+{% load coma_point %}
+{% load material_form %}
+
+<div class="container-fluid">
+	<form name="form" action="{% url 'floybd:viewDashboard' %}" method="post" class="form">
+		{% csrf_token %}
+        {% form form=form %}{% endform %}
+  		<select id="combobox" name="station">
+		{% for entry in stations %}
+		    <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+		{% endfor %}
+		</select>
+        Backward Days:<input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length==3) return false;" maxlength="2" size="2" />
+		<br/>
+
+		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+        <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="btn"/>
+
+	</form>
+    <div class="row">
+        <div class="col-xs-6">
+            <div id="tempChart"></div>
+        </div>
+         <div class="col-xs-6">
+             <div id="pressureChart"></div>
+         </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <div id="precipInsoChart"></div>
+        </div>
+         <div class="col-xs-6">
+             <div id="windChart"></div>
+         </div>
+    </div>
+</div>

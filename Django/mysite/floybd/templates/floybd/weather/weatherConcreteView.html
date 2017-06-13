@@ -9,11 +9,13 @@
 
 {% load coma_point %}
 
-<div class="container">
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
 
 	{% if concreteStation != None %}
 
-		<center>
+		<div class="mui--text-center">
 			<h3>Viewing weather for <b>{{  concreteStation.name }}</b> on <b>{{  date }}</b> </h3>
 
 		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
@@ -24,8 +26,8 @@
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
 			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
-		</center>
-		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
+		</div>
+		<div class="mui--text-center" id="map" style="height: 75%;width: 100%;"></div>
 		<script>
 		  var map;
 		  function initMap() {
@@ -62,7 +64,7 @@
 
 	{% if kml != None %}
 
-		<center>
+		<div class="mui--text-center">
 			<h3>Viewing weather for all stations on <b>{{  date }}</b> </h3>
 
 		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
@@ -73,8 +75,8 @@
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
 			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
-		</center>
-		<div class="span6 center-block" id="mapAll" style="height: 75%;width: 100%;"></div>
+		</div>
+		<div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
 		<script>
 		  var map;
 		  function initMap() {
@@ -92,4 +94,6 @@
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
 		  async defer></script>
 	{% endif %}
+		</div>
+	</div>
 </div>

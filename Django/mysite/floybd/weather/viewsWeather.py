@@ -7,8 +7,10 @@ import os
 import json
 import time
 import datetime
+from datetime import timedelta
 import simplekml
 from ..utils import *
+from django.http import JsonResponse
 
 
 def getConcreteValues(request):
@@ -333,7 +335,7 @@ def sendKml(fileName, concreteStation):
 
     ip = getIp()
 
-    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.234 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     if concreteStation is not None:
@@ -347,7 +349,7 @@ def sendKml(fileName, concreteStation):
                 +"<altitudeMode>relativeToGround</altitudeMode>" \
                 +"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-        command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+        command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.234 'cat - > /tmp/query.txt'"
         os.system(command)
 
 
@@ -363,3 +365,34 @@ def sendStatsToLG(request):
                    'stations': stations, 'fileName': fileName})
 
 
+def citydashboard(request):
+    stations = Station.objects.all()
+    return render(request, 'floybd/weather/indexDashboard.html', {'stations': stations})
+
+
+def viewDashboard(request):
+    station = request.GET.get('station', None)
+    daysBefore = request.GET.get('daysBefore', None)
+
+    today = time.strftime("%Y-%m-%d")
+    previousDate = datetime.datetime.today() - timedelta(days=int(daysBefore))
+    jsonData = {}
+    jsonData["station_id"] = station
+    jsonData["dateTo"] = today
+    jsonData["dateFrom"] = previousDate.strftime("%Y-%m-%d")
+
+
+    payload = json.dumps(jsonData)
+
+    response = requests.post('http://130.206.117.178:5000/getWeatherDataInterval',
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                             data=payload)
+
+    result = json.loads(response.json())
+    if result:
+        data = {
+            'stationData': result
+        }
+    else:
+        data = {}
+    return JsonResponse(data)

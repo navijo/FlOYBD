@@ -1,9 +1,13 @@
 {% include "floybd/header.html" %}
 {# Display a form #}
-<div class="container">
-    <center>
-        <a href="{% url 'floybd:weather' %}" class="btn btn-default">Weather</a>
-	    <a href="{% url 'floybd:earthquakes' %}" class="btn btn-default">Earthquakes</a>
-        <a href="{% url 'floybd:gtfs' %}" class="btn btn-default">GTFS</a>
-    </center>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+            <div class="mui--text-center">
+                <a href="{% url 'floybd:weather' %}" class="btn btn-default">Weather</a>
+                <a href="{% url 'floybd:earthquakes' %}" class="btn btn-default">Earthquakes</a>
+                <a href="{% url 'floybd:gtfs' %}" class="btn btn-default">GTFS</a>
+            </div>
+        </div>
+    </div>
 </div>

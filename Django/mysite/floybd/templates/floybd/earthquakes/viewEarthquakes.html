@@ -8,10 +8,10 @@
 
 {% load static %}
 <script src="{% static 'js/geoxml3.js' %}"></script>
-<div class="container">
-
-
-		<center>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+		<div class="mui--text-center">
 			<h3>Viewing earthquakes on <b>{{  date }}</b> </h3>
 
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
@@ -26,7 +26,7 @@
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
 			<a href="{% url 'floybd:earthquakes' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
-		</center>
+		</div>
 		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
 	{% if kml != None %}
 		<script>
@@ -114,5 +114,6 @@
 
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=visualization&callback=initMap"
 		  async defer></script>
-
+		</div>
+	</div>
 </div>

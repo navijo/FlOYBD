@@ -14,9 +14,11 @@
 
 {% load coma_point %}
 
-<div class="container">
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
 	{% if kml != None %}
-		<center>
+		<div class="mui--text-center">
 			<h3>Prediction for station <b>{{ concreteStation.name }}</b> </h3>
 
 		<form name="form" action="{% url 'floybd:sendPredictionsToLG' %}" method="post" class="form">
@@ -26,9 +28,9 @@
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
 			<a href="{% url 'floybd:predictWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
-		</center>
+		</div>
 
-    	<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
+    	<div class="mui--text-center" id="map" style="height: 75%;width: 100%;"></div>
 		<script>
 		  var map;
 		  function initMap() {
@@ -48,5 +50,6 @@
 	{% else %}
 		<p>No Results</p>
 	{% endif %}
-
+		</div>
+	</div>
 </div>

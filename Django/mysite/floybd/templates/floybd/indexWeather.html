@@ -1,10 +1,15 @@
 {% include "floybd/header.html" %}
 {# Display a form #}
-<div class="container">
-    <center>
-        <a href="{% url 'floybd:dayWeather' %}" class="btn btn-default">Weather Concrete Day</a>
-	    <a href="{% url 'floybd:predictWeather' %}" class="btn btn-default">Weather Predictions</a>
-        <a href="{% url 'floybd:weatherStats' %}" class="btn btn-default">Weather Stats</a>
-        <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-    </center>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+            <div class="mui--text-center">
+                <a href="{% url 'floybd:dayWeather' %}" class="btn btn-default">Weather Concrete Day</a>
+                <a href="{% url 'floybd:predictWeather' %}" class="btn btn-default">Weather Predictions</a>
+                <a href="{% url 'floybd:weatherStats' %}" class="btn btn-default">Weather Stats</a>
+                <a href="{% url 'floybd:citydashboard' %}" class="btn btn-default">City Dashboard</a>
+                <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+            </div>
+        </div>
+    </div>
 </div>

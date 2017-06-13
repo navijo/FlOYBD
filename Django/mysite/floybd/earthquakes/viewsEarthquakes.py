@@ -33,11 +33,11 @@ def getEarthquakes(request):
                             '&min_lat='+min_lat+'&max_lon='+max_lon+'&min_lon='+min_lon)
 
     jsonData = json.loads(response.json())
-
-    print("Obtained " +str(len(jsonData)) +" earthquakes")
+    numberObtained = len(jsonData)
+    print("Obtained " +str(numberObtained) +" earthquakes")
 
     millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, showAll)
+    fileUrl = createKml(jsonData, date, millis, showAll,numberObtained)
     #jsFile = createJSFile(jsonData)
 
     #return render(request, 'floybd/earthquakes/viewEarthquakes.html',{'data':strJson,'kml':fileUrl,'center_lat':center_lat,'center_lon':center_lon})
@@ -98,13 +98,19 @@ def populateInfoWindow(row,json):
     return contentString
 
 
-def createKml(jsonData, date, millis, showAll):
+def createKml(jsonData, date, millis, showAll, numberObtained):
     #cleanKMLS()
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
     playlist = tour.newgxplaylist()
 
+    #if numberObtained > 1000:
+     #   balloonDuration = numberObtained/10000
+    #else:
+    #    balloonDuration = numberObtained / 1000
+    balloonDuration = 1
+    print("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
         place = row["place"]
@@ -133,7 +139,7 @@ def createKml(jsonData, date, millis, showAll):
                     color = simplekml.Color.red
 
                 if not showAll:
-                    playlist.newgxwait(gxduration=0.3)
+                    playlist.newgxwait(gxduration=3*balloonDuration)
 
                 polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                     radius=2000 * absMagnitude, number_of_vertices=100)
@@ -145,16 +151,17 @@ def createKml(jsonData, date, millis, showAll):
                 if not showAll:
                     pol.visibility = 0
 
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>'\
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>'\
                         .format(pol.placemark.id)
 
+                    #<gx:balloonVisibility>1</gx:balloonVisibility>
                     #pol.timestamp.when = datetimeStr
                     #pol.timespan.begin = datetimeStr
                     #pol.timespan.end = fechaFinStr
 
-                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=0.1)
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration)
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
             else:
@@ -198,10 +205,11 @@ def sendConcreteValuesToLG(request):
     fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
     fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
 
-    sendKml(fileName,center_lat,center_lon)
+    sendKml(fileName, center_lat,center_lon)
 
     if not showAll:
         #Start the tour
+        time.sleep(5)
         command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
         os.system(command)
 
@@ -214,10 +222,11 @@ def sendKml(fileName, center_lat, center_lon):
     #Javi : 192.168.88.234
     #Gerard: 192.168.88.198
 
+    lgIp = "192.168.88.234"
     ip = getIp()
 
     command = "echo 'http://"+ip+":8000/static/kmls/"+fileName +\
-              "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+              "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     flyTo = "flytoview=<LookAt>" \
@@ -228,9 +237,10 @@ def sendKml(fileName, center_lat, center_lon):
             + "<tilt>69</tilt>" \
             + "<range>200000</range>" \
             + "<altitudeMode>relativeToGround</altitudeMode>" \
-            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
+            + "</LookAt>"
 
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
     os.system(command)
 
 
