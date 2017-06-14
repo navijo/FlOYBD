@@ -1,14 +1,16 @@
 {% include "floybd/header.html" %}
 {% load static %}
 
+<div id="content-wrapper">
+	<div class="mui--appbar-height"></div>
 <div class="mui-container-fluid">
     <div class="mui-row">
         <div class="mui-col-md-12">
             <div class="mui--text-center">
                 <form action="{% url 'floybd:uploadGTFS' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    Title: <input type="text" name="title" required>
                     <p>
+                        Title: <input type="text" name="title" required>
                         {{ form.file.errors }}
                         {{ form.file }}
                     </p>
@@ -16,6 +18,7 @@
                     <a href="{% url 'floybd:gtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
                 </form>
             </div>
+        </div>
         </div>
         </div>
 </div>

@@ -17,9 +17,9 @@
 
      function showHideComboStations(){
 		if($("#allStations").prop("checked")){
-			$("#combobox").hide()
+			$("#comboboxDiv").hide()
 		}else{
-			$("#combobox").show()
+			$("#comboboxDiv").show()
 		}
     }
 
@@ -30,46 +30,57 @@
 			$("#dateDiv").show()
 		}
     }
+
 </script>
-<<div class="mui-container-fluid">
-    <div class="mui-row">
-        <div class="mui-col-md-12">
-	{% if kml == None %}
-	<form name="form" action="{% url 'floybd:getStats' %}" method="post" class="form">
-		{% csrf_token %}
-		<p>
-		<input type="checkbox" id="allTime" onchange="showHideComboDate()" name="allTime" value="1">Get Stats All Time
-		<div id="dateDiv">
-			Date From: <input name = "dateFrom" type="text" id="datepickerFrom">
-			Date To: <input name = "dateTo" type="text" id="datepickerTo">
-		</div>
-		</p>
+<div id="content-wrapper">
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
+            <div class="mui-col-md-12">
+                {% if kml == None %}
+                  <h1>Weather Stats</h1>
+                <form name="form" action="{% url 'floybd:getStats' %}" method="post" class="form">
+                    {% csrf_token %}
+                    <p>
+                    <input type="checkbox" id="allTime" onchange="showHideComboDate()" name="allTime" value="1"><label for="allTime">Get
+                        Stats All Time</label>
+                        <div id="dateDiv">
+                            Date From: <input name="dateFrom" type="text" id="datepickerFrom">
+                            Date To: <input name="dateTo" type="text" id="datepickerTo">
+                        </div>
+                    </p>
+                    <p>
+                    <input type="checkbox" id="allStations" onchange="showHideComboStations()" name="allStations"
+                           value="1"><label for="allStations">Get All Stations</label>
+                    <div id="comboboxDiv">
+                        <select id="combobox" name="station">
+                            {% for entry in stations %}
+                            <option value="{{ entry.station_id }}">{{ entry.name }} - {{ entry.station_id }} ( {{ entry.province }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    </p>
+                    <p>
+                    <a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+                    <input type="submit" value="{{ getValues }}" class="btn"/>
+                    </p>
+                </form>
+                {% else %}
 
+                <div class="mui--text-center">
+                    <h3>Viewing Stats </h3>
 
-		<input type="checkbox" id="allStations" onchange="showHideComboStations()" name="allStations" value="1">Get All Stations
-		<select id="combobox" name="station">
-			{% for entry in stations %}
-			<option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
-			{% endfor %}
-		</select>
-		<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-		<input type="submit" value="{{ getValues }}" class="btn"/>
-	</form>
-	{% else %}
-
-		<div class="mui--text-center">
-			<h3>Viewing Stats </h3>
-
-		<form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
-			{% csrf_token %}
-			<input type="hidden" name="allStations" value="allStations">
-			<input type="hidden" name="fileName" value="{{ fileName }}">
-			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<a href="{% url 'floybd:weatherStats' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-		</form>
-		</div>
-		<div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
-		<script>
+                    <form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
+                        {% csrf_token %}
+                        <input type="hidden" name="allStations" value="allStations">
+                        <input type="hidden" name="fileName" value="{{ fileName }}">
+                        <input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
+                        <a href="{% url 'floybd:weatherStats' %}"><input type="button" value="Go Back"
+                                                                         class="btn btn-default"/></a>
+                    </form>
+                </div>
+                <div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
+                <script>
 		  var map;
 		  function initMap() {
 			map = new google.maps.Map(document.getElementById('mapAll'), {
@@ -82,10 +93,18 @@
 
 		  }
 
-		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
-		  async defer></script>
-	{% endif %}
-		</div>
-	</div>
+
+                </script>
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
+                        async defer></script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
+<footer id="footer">
+    <div class="mui-container-fluid">
+        <br>
+        GSOC 2017 - Ivan Josa
+    </div>
+</footer>

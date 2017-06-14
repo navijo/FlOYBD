@@ -15,10 +15,11 @@ app_name = 'floybd'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
-    url(r'^weather', views.weatherIndex, name='weather'),
+
     url(r'^weatherStats', viewsWeather.weatherStats, name='weatherStats'),
     url(r'^dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
     url(r'^predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
+    url(r'^weather', views.weatherIndex, name='weather'),
 
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
     url('sendConcreteValuesToLG', viewsWeather.sendConcreteValuesToLG, name='sendConcreteValuesToLG'),

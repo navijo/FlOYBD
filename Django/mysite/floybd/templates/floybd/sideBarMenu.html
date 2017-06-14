@@ -1,0 +1,45 @@
+{% load static %}
+
+<div id="sidedrawer" class="mui--no-user-select">
+  <div id="sidedrawer-brand" class="mui--appbar-line-height">
+  <span class="mui--text-title">FLOYBD</span>
+</div>
+<div class="mui-divider"></div>
+<ul>
+  <li>
+    <strong><img src="https://png.icons8.com/partly-cloudy-day/color/24" title="Weather" width="20%">
+     Weather</strong>
+    <ul>
+        <li class="menu"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>
+        <li class="menu"><a href="{% url 'floybd:dayWeather' %}">Weather Concrete Day</a></li>
+        <li class="menu"><a href="{% url 'floybd:predictWeather' %}">Weather Predictions</a></li>
+        <li class="menu"><a href="{% url 'floybd:weatherStats' %}">Weather Stats</a></li>
+        <li class="menu"><a href="{% url 'floybd:citydashboard' %}">City Dashboard</a></li>
+    </ul>
+  </li>
+  <li>
+    <strong><img src="https://png.icons8.com/earthquakes/color/24" title="Earthquakes"
+                 width="20%"> Earthquakes</strong>
+    <ul>
+      <li class="menu"><a href="{% url 'floybd:earthquakes' %}">Earthquakes</a></li>
+    </ul>
+  </li>
+  <li>
+    <strong><img src="https://png.icons8.com/in-transit/color/24" title="GTFS"
+                 width="20%"> GTFS</strong>
+    <ul>
+        <li class="menu"><a href="{% url 'floybd:viewgtfs' %}">View GTFS</a></li>
+        <li class="menu"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
+    </ul>
+  </li>
+</ul>
+</div>
+<header id="header">
+  <div class="mui-appbar mui--appbar-line-height">
+    <div class="mui-container-fluid">
+      <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
+      <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
+      <span class="mui--text-title mui--visible-xs-inline-block">Fly Over Your Big Data</span>
+    </div>
+  </div>
+</header>

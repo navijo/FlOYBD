@@ -1,5 +1,6 @@
 {% include "floybd/header.html" %}
 {# Display a form #}
+<div id="content-wrapper">
 <div class="mui-container-fluid">
     <div class="mui-row">
         <div class="mui-col-md-12">
@@ -8,8 +9,14 @@
                 <a href="{% url 'floybd:predictWeather' %}" class="btn btn-default">Weather Predictions</a>
                 <a href="{% url 'floybd:weatherStats' %}" class="btn btn-default">Weather Stats</a>
                 <a href="{% url 'floybd:citydashboard' %}" class="btn btn-default">City Dashboard</a>
-                <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
             </div>
         </div>
     </div>
 </div>
+</div>
+<footer id="footer">
+  <div class="mui-container-fluid">
+    <br>
+   GSOC 2017 - Ivan Josa
+  </div>
+</footer>

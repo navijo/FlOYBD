@@ -5,37 +5,64 @@
   $( function() {
     $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
     })
-</script>
-<div class="mui-container-fluid">
-	 <div class="mui-row">
-		   <div class="mui-col-md-4">
-			   <div class="mui--text-center">
-				<form name="form" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
-					{% csrf_token %}
 
-					<fieldset><legend>Values</legend>
-						<p>
-							Date From: <input name = "date" type="text" class="ui-datepicker-material-date" id="datepicker">
-							<input type="checkbox" id="showAll" name="showAll" value="1"><label for="showAll">Show All Earthquakes at a time</label>
-						</p>
-						<br/>
-						Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
-						Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
-						<br/>
-						Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
-						Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
-						<br/>
-						<input type="submit" value="Get Earthquakes" class="btn"/>
-						<a href="{% url 'floybd:index' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-					</fieldset>
-				</form>
-			   </div>
-			   <div class="mui-col-md-8">
-				   <button id="delete-button" class="btn btn-default">Delete Selected Shape</button>
-					<div id="map" style="height: 75%;width: 100%;"></div>
-					<script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
-					<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
-			   </div>
-		   </div>
-	 </div>
+
+
+</script>
+<div id="content-wrapper">
+    <h1>Earthquakes</h1>
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
+            <!--<div class="col-xs-4">-->
+            <div class="mui--text-center">
+                <form name="form" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
+                    {% csrf_token %}
+
+                    <fieldset>
+                        <legend>Values</legend>
+
+                        <div class="mui-row">
+                            <div class="col-xs-6">
+                                <input type="checkbox" id="showAll" name="showAll" onclick="showHideDate()"
+                                       value="1"><label for="showAll">Show
+                                All Earthquakes at a time</label>
+                            </div>
+                            <div class="col-xs-6">
+                                Date From: <input required name="date" type="text" class="ui-datepicker-material-date"
+                                                  id="datepicker">
+                            </div>
+
+                        </div>
+                    </fieldset>
+
+
+                    <div class="col-xs-6">
+                        Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
+                        Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
+                    </div>
+                    <div class="col-xs-6">
+
+                        Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
+                        Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
+                    </div>
+                    <input type="submit" value="Get Earthquakes" class="btn"/>
+                    <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back"
+                                                              class="btn btn-default"/></a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="mui-row">
+        <!-- </div>-->
+        <!--  <div class="col-xs-8">-->
+        <button id="delete-button" class="btn btn-default">Delete Selected Shape</button>
+        <div id="map" style="height: 75%;width: 100%;"></div>
+        <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
+        <script async defer
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
+        <!-- </div>-->
+    </div>
+</div>
 </div>

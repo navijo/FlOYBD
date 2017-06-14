@@ -14,27 +14,53 @@
 
     function showHideCombo(){
    		if($("#allStations").prop("checked")){
-			$("#combobox").hide()
+			$("#comboDiv").hide()
 		}else{
-			$("#combobox").show()
+			$("#comboDiv").show()
 		}
     }
+
 </script>
-<div class="mui-container-fluid">
-    <div class="mui-row">
-        <div class="mui-col-md-12">
-			<form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
-				{% csrf_token %}
-				<p>Date: <input name = "date" type="text" id="datepicker"></p>
-				<input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations" value="1"><label for="allStations">Get All Stations</label>
-				<select id="combobox" name="station">
-				{% for entry in stations %}
-					<option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
-				{% endfor %}
-				</select>
-				<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-				<input type="submit" value="{{ getValues }}" class="btn"/>
-			</form>
-		</div>
-	</div>
+<div id="content-wrapper">
+    <h1>Weather Concrete Day</h1>
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+
+        <form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="col-xs-6">
+                   Date: <input name="date" type="text" id="datepicker" required>
+                </div>
+                <div class="col-xs-6">
+                    <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
+                           value="1"><label for="allStations">Get All Stations</label>
+
+                    <div id="comboDiv">
+                        <select id="combobox" name="station">
+                            {% for entry in stations %}
+                            <option value="{{ entry.station_id }}">
+                                {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mui-row">
+                <div class="col-xs-12">
+                    <a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+                    <input type="submit" value="{{ getValues }}" class="btn"/>
+
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+<footer id="footer">
+    <div class="mui-container-fluid">
+        <br>
+        GSOC 2017 - Ivan Josa
+    </div>
+</footer>

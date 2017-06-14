@@ -14,16 +14,15 @@
                 orderable: false,
                 targets:   0
             } ],
-            select: {
-                style:    'multi',
-                selector: 'td:first-child'
-            },
+
             order: [[ 1, 'asc' ]]
         } );
 } );
 
 </script>
 
+<div id="content-wrapper">
+	<div class="mui--appbar-height"></div>
 <div class="mui-container-fluid">
     <div class="mui-row">
         <div class="mui-col-md-12">
@@ -49,7 +48,7 @@
                 {% for entry in agencies %}
                 <tr>
                     <td>
-                        <input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">
+                        <input type="checkbox" id="{{ entry.agency_id }}" name="agenciesSelected" value="{{ entry.agency_id }}"><label for="{{ entry.agency_id }}"></label>
                     </td>
                     <td>
                         {{ entry.agency_id }}
@@ -74,6 +73,7 @@
             </form>
 
         {% endif %}
+        </div>
         </div>
         </div>
     </div>
