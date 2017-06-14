@@ -15,6 +15,9 @@ from utils import sparkFunctions, generalFunctions
 
 from flask import jsonify
 
+import traceback
+import logging
+
 app = Flask(__name__, static_url_path='')
 
 def timing(func):
@@ -265,22 +268,26 @@ def loadEarthquakes():
 
 def initEnvironment():
 	global sc,sql
-	conf = SparkConf()
-	#conf.setMaster("spark://192.168.246.236:7077")
-	conf.setMaster("local[*]")
-	conf.setAppName("Flask")
-	conf.set("spark.cassandra.connection.host","192.168.246.236")
-	conf.set("spark.executor.memory", "10g")
-	conf.set("spark.num.executors","1")
-	
-	sc = SparkContext(conf=conf)
-	#sc = SparkContext("local[*]")
-	#sc.setLogLevel("INFO")
-	sql = SQLContext(sc)
-	spark = SparkSession(sc)
+	try:
+		conf = SparkConf()
+		#conf.setMaster("spark://192.168.246.236:7077")
+		conf.setMaster("local[*]")
+		conf.setAppName("Flask")
+		conf.set("spark.cassandra.connection.host","192.168.246.236")
+		conf.set("spark.executor.memory", "10g")
+		conf.set("spark.num.executors","1")
+		
+		sc = SparkContext(conf=conf)
+		#sc = SparkContext("local[*]")
+		#sc.setLogLevel("INFO")
+		sql = SQLContext(sc)
+		spark = SparkSession(sc)
 
-	print ("SparkContext => ",sc)
-	print ("SQLContext => ",sql)
+		print ("SparkContext => ",sc)
+		print ("SQLContext => ",sql)
+	except:
+		sc.stop()
+		initEnvironment()
 
 
 def stopEnvironment(context):
@@ -294,7 +301,9 @@ if __name__ == "__main__":
 		app.run(host= '0.0.0.0')
 		if 'sc' in globals():
 			sc.stop()
-	except:
+	except Exception as e:
+		logging.error(traceback.format_exc())
 		print("Oooops, something went wrong when closing the app")
-		sc.stop()
+		if 'sc' in globals():
+			sc.stop()
 
