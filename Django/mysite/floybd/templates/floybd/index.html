@@ -1,21 +1,20 @@
 {% include "floybd/header.html" %}
 {# Display a form #}
 
-<div class="mui-container-fluid">
-    <div class="mui-row">
+<div id="content-wrapper">
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
         <div class="mui-col-md-12">
             <div class="mui--text-center">
+                <h1>Fly Over Your Big Data</h1>
                 <a href="{% url 'floybd:weather' %}" class="btn btn-default">Weather</a>
                 <a href="{% url 'floybd:earthquakes' %}" class="btn btn-default">Earthquakes</a>
                 <a href="{% url 'floybd:gtfs' %}" class="btn btn-default">GTFS</a>
             </div>
         </div>
+        </div>
     </div>
 </div>
 
-<footer id="footer">
-  <div class="mui-container-fluid">
-    <br>
-   GSOC 2017 - Ivan Josa
-  </div>
-</footer>
+{% include "floybd/footer.html" %}

@@ -1,11 +1,9 @@
 {% extends "admin/change_list.html" %}
-{% load i18n admin_static admin_list %}
+{% load i18n admin_urls admin_static admin_list material_admin %}
 
+{% block brand-logo %}{{ cl.opts.verbose_name_plural|title }}
 
-    {% block object-tools-items %}
-     {{ block.super }}
-    <li>
-        <a href="importStations/" class="grp-state-focus addlink">Import Stations</a>
-    </li>
-
+ <a href="importStations/">	<input type="button" value="Import Stations" class="btn btn-default"/></a>
 {% endblock %}
+
+
