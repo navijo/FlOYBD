@@ -4,7 +4,36 @@
 <script>
   $( function() {
 
-    
+    $("#earthquakesForm").submit(function (e) {
+        $('html,body').scrollTop(0);
+        e.preventDefault();
+        var form_data = $(this).serialize();
+        var form_url = $(this).attr("action");
+        var form_method = $(this).attr("method").toUpperCase();
+
+        $('#spinnerDiv').show()
+        $('.modal').toggleClass('show');
+         FLEXPAPER.utils.addSpinner({
+            element     : 'spinner-target',
+            width       : 500,
+            height      : 500,
+            logo        : "{% static 'img/ChimpManager.gif' %}"
+        });
+
+        $.ajax({
+            url: form_url,
+            type: form_method,
+            data: form_data,
+            cache: false,
+            success: function (returnhtml) {
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+                FLEXPAPER.utils.removeSpinner('spinner-target');
+                $("body").html(returnhtml)
+            }
+        });
+        })
+
 
 
      $('#date').datetimepicker({
@@ -22,9 +51,17 @@
     <h1>Earthquakes</h1>
     <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
-        <div class="mui-row">
-            <!--<div class="col-xs-4">-->
+         <div class="mui--text-center">
+             <div id="spinnerDiv" style="display:none">
+             <div class="modal"> </div>
+                <div class="overlay loading-indicator">
+                 <div id="spinner-target" style="left:50%;top:50%;"></div>
+               </div>
+            </div>
+         </div>
+          <div class="mui-row">
             <div class="mui--text-center">
+
                 <form id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
                     {% csrf_token %}
                         <div class="mui-row">
@@ -53,21 +90,16 @@
                             Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
                         </div>
                     </fieldset>
-                    <input type="submit" value="Get Earthquakes" class="btn"/>
-                    <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back"
-                                                              class="btn btn-default"/></a>
+                    <input type="submit" value="Get Earthquakes" class="mui-btn mui-btn--primary"/>
 
                 </form>
             </div>
         </div>
     </div>
-        <div class="mui--text-center">
-            <div id="spinner-target" style="left:50%;top:50%;"></div>
-        </div>
     <div class="mui-row">
         <!-- </div>-->
         <!--  <div class="col-xs-8">-->
-        <button id="delete-button" class="btn btn-default">Delete Selected Shape</button>
+        <button id="delete-button" class="mui-btn mui-btn--danger">Delete Selected Shape</button>
         <div id="map" style="height: 75%;width: 100%;"></div>
         <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
         <script async defer
@@ -76,4 +108,5 @@
     </div>
 </div>
 </div>
+  <div class="mui--appbar-height"></div>
 {% include "floybd/footer.html" %}

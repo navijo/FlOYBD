@@ -64,11 +64,9 @@
                     <!--<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>-->
                 </tr>
                 {% endfor %}
-                <input type="submit" value="{{ getValues }}" class="btn"/>
-                <a href="{% url 'floybd:gtfs' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
             </tbody>
                 </table>
-
+            <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
             </form>
 
         {% endif %}
