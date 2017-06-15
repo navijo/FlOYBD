@@ -1,14 +1,14 @@
 {% include "floybd/header.html" %}
 
 
-
+{% load static %}
 {% load i18n %}
 {% trans "Get Values" as getValues %}
 {% trans "Send Values to LG" as sendValues %}
 
 <script type="text/javascript">
     $(document).ready(function() {
-     var events = $('#events');
+
     var table = $('#gtfsTable').DataTable( {
             columnDefs: [ {
                 orderable: false,
@@ -17,12 +17,52 @@
 
             order: [[ 1, 'asc' ]]
         } );
+
+
+         $("#gtfsForm").submit(function (e) {
+            $('html,body').scrollTop(0);
+            e.preventDefault();
+            var form_data = $(this).serialize();
+            var form_url = $(this).attr("action");
+            var form_method = $(this).attr("method").toUpperCase();
+
+            $('#spinnerDiv').show()
+            $('.modal').toggleClass('show');
+             FLEXPAPER.utils.addSpinner({
+                element     : 'spinner-target',
+                width       : 500,
+                height      : 500,
+                logo        : "{% static 'img/ChimpManager.gif' %}"
+            });
+
+            $.ajax({
+                url: form_url,
+                type: form_method,
+                data: form_data,
+                cache: false,
+                success: function (returnhtml) {
+                   $('.modal').toggleClass('hide');
+                   $('#spinnerDiv').hide()
+                    FLEXPAPER.utils.removeSpinner('spinner-target');
+                    $("body").html(returnhtml)
+                }
+            });
+        })
+
 } );
 
 </script>
 
 <div id="content-wrapper">
 <div class="mui-container-fluid">
+      <div class="mui--text-center">
+             <div id="spinnerDiv" style="display:none">
+             <div class="modal"> </div>
+                <div class="overlay loading-indicator">
+                 <div id="spinner-target" style="left:50%;top:50%;"></div>
+               </div>
+            </div>
+         </div>
     <div class="mui-row">
         <div class="mui-col-md-12">
 
@@ -31,7 +71,7 @@
 
         {% if agencies != None %}
 
-            <form name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
+            <form id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
                 {% csrf_token %}
                 <table id="gtfsTable" class="mdl-data-table" cellspacing="0" width="100%">
             <thead>

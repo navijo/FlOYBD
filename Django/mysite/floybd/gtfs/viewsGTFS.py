@@ -61,12 +61,12 @@ def handle_uploaded_file(f, title, millis):
 
 def parseGTFS(title):
 
-    #parseAgency("static/upload/gtfs/"+title)
-    #parseCalendar("static/upload/gtfs/"+title)
-    #parseCalendarDates("static/upload/gtfs/" + title)
-    #parseStops("static/upload/gtfs/" + title)
-    #parseRoutes("static/upload/gtfs/" + title)
-    #parseTrips("static/upload/gtfs/" + title)
+    parseAgency("static/upload/gtfs/"+title)
+    parseCalendar("static/upload/gtfs/"+title)
+    parseCalendarDates("static/upload/gtfs/" + title)
+    parseStops("static/upload/gtfs/" + title)
+    parseRoutes("static/upload/gtfs/" + title)
+    parseTrips("static/upload/gtfs/" + title)
     parseStopTimes("static/upload/gtfs/" + title)
 
 
