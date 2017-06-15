@@ -9,7 +9,10 @@
 
 <script>
   $( function() {
-    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
+    $('#datetimepicker-default').datetimepicker({
+			'format' : "YYYY-MM-DD",
+			'maxDate' : new Date()
+		});
     })
 
     function showHideCombo(){
@@ -18,6 +21,14 @@
 		}else{
 			$("#comboDiv").show()
 		}
+     }
+
+    function getLang()
+    {
+     if (navigator.languages != undefined)
+         return navigator.languages[0];
+     else
+        return navigator.language;
     }
 
 </script>
@@ -30,7 +41,10 @@
             {% csrf_token %}
             <div class="mui-row">
                 <div class="col-xs-6">
-                   Date: <input name="date" type="text" id="datepicker" required>
+                    <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
+                        <label class="control-label" for="datetimepicker-default">Date</label>
+                        <input required type="text" name="date" id="datetimepicker-default" class="form-control" />
+                    </div>
                 </div>
                 <div class="col-xs-6">
                     <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"

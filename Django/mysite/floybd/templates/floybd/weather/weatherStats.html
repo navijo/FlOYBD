@@ -11,8 +11,24 @@
 
 <script>
   $( function() {
-    $( "#datepickerFrom" ).datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
-    $( "#datepickerTo" ).datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
+   $('#datepickerFrom').datetimepicker({
+			'format' : "YYYY-MM-DD",
+			'maxDate' : new Date()
+		});
+
+     $('#datepickerTo').datetimepicker({
+			'format' : "YYYY-MM-DD",
+			useCurrent: false,
+			'maxDate' : new Date()
+		});
+
+        $("#datepickerFrom").on("dp.change", function (e) {
+            $('#datepickerTo').data("DateTimePicker").minDate(e.date);
+        });
+
+        $("#datepickerTo").on("dp.change", function (e) {
+            $('#datepickerFrom').data("DateTimePicker").maxDate(e.date);
+        });
     })
 
      function showHideComboStations(){
@@ -33,7 +49,6 @@
 
 </script>
 <div id="content-wrapper">
-    <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
         <div class="mui-row">
             <div class="mui-col-md-12">
@@ -45,8 +60,14 @@
                     <input type="checkbox" id="allTime" onchange="showHideComboDate()" name="allTime" value="1"><label for="allTime">Get
                         Stats All Time</label>
                         <div id="dateDiv">
-                            Date From: <input name="dateFrom" type="text" id="datepickerFrom">
-                            Date To: <input name="dateTo" type="text" id="datepickerTo">
+                         <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
+                            <label class="control-label" for="datepickerFrom">Date From</label>
+                            <input required type="text" name="dateFrom" id="datepickerFrom" class="form-control" />
+                        </div>
+                         <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
+                                <label class="control-label" for="datepickerTo">Date to</label>
+                                <input required type="text" name="dateTo" id="datepickerTo" class="form-control" />
+                            </div>
                         </div>
                     </p>
                     <p>

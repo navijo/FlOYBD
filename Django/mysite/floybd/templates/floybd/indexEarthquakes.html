@@ -3,7 +3,16 @@
 
 <script>
   $( function() {
-    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
+
+    
+
+
+     $('#date').datetimepicker({
+			'format' : "YYYY-MM-DD",
+			useCurrent: false,
+			'maxDate' : new Date()
+		});
+
     })
 
 
@@ -16,36 +25,34 @@
         <div class="mui-row">
             <!--<div class="col-xs-4">-->
             <div class="mui--text-center">
-                <form name="form" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
+                <form id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
                     {% csrf_token %}
-
-                    <fieldset>
-                        <legend>Values</legend>
-
                         <div class="mui-row">
+                            <div class="mui-panel">
                             <div class="col-xs-6">
-                                <input type="checkbox" id="showAll" name="showAll" onclick="showHideDate()"
-                                       value="1"><label for="showAll">Show
+                                <input type="checkbox" id="showAll" name="showAll" value="1"><label for="showAll">Show
                                 All Earthquakes at a time</label>
                             </div>
                             <div class="col-xs-6">
-                                Date From: <input required name="date" type="text" class="ui-datepicker-material-date"
-                                                  id="datepicker">
+                                 <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
+                                    <label class="control-label" for="date">Date</label>
+                                    <input required type="text" name="date" id="date" class="form-control" />
+                                 </div>
                             </div>
+                            </div>
+                        </div>
+                    <fieldset>
+                        <legend>Coordinates</legend>
+                        <div class="col-xs-6">
+                            Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
+                            Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
+                        </div>
+                        <div class="col-xs-6">
 
+                            Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
+                            Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
                         </div>
                     </fieldset>
-
-
-                    <div class="col-xs-6">
-                        Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
-                        Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
-                    </div>
-                    <div class="col-xs-6">
-
-                        Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
-                        Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
-                    </div>
                     <input type="submit" value="Get Earthquakes" class="btn"/>
                     <a href="{% url 'floybd:index' %}"><input type="button" value="Go Back"
                                                               class="btn btn-default"/></a>
@@ -54,6 +61,9 @@
             </div>
         </div>
     </div>
+        <div class="mui--text-center">
+            <div id="spinner-target" style="left:50%;top:50%;"></div>
+        </div>
     <div class="mui-row">
         <!-- </div>-->
         <!--  <div class="col-xs-8">-->

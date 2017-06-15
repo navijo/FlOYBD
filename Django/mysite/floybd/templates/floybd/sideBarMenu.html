@@ -1,5 +1,43 @@
 {% load static %}
 
+<script>
+  function activateAboutModal() {
+    // initialize modal element
+    var modalEl = document.createElement('div');
+    modalEl.style.width = '400px';
+    modalEl.style.height = '300px';
+    modalEl.style.margin = '100px auto';
+    modalEl.style.backgroundColor = '#fff';
+
+    var para = document.createElement("p");
+    var node = document.createTextNode("GSOC 2017 - Ivan Josa");
+    para.appendChild(node);
+
+    modalEl.appendChild(para);
+
+    // show modal
+    mui.overlay('on', modalEl);
+  }
+
+  function activateHelpModal() {
+    // initialize modal element
+    var modalEl = document.createElement('div');
+    modalEl.style.width = '400px';
+    modalEl.style.height = '300px';
+    modalEl.style.margin = '100px auto';
+    modalEl.style.backgroundColor = '#fff';
+
+    var para = document.createElement("p");
+    var node = document.createTextNode("Help Me!");
+    para.appendChild(node);
+
+    modalEl.appendChild(para);
+
+    // show modal
+    mui.overlay('on', modalEl);
+  }
+</script>
+
 <div id="sidedrawer" class="mui--no-user-select">
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
   <span class="mui--text-title">FLOYBD</span>
@@ -32,6 +70,14 @@
         <li class="menu"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
     </ul>
   </li>
+    <li>
+        <strong><img src="{% static 'img/more.png' %}" width="20%"/>More</strong>
+        <ul>
+            <li class="menu"><a href="#" onclick="activateHelpModal()">Help</a></li>
+            <li class="menu"><a href="#" onclick="activateAboutModal()">About</a></li>
+            <li class="menu"><a href="{% url 'floybd:uploadgtfs' %}">Settings</a></li>
+        </ul>
+    </li>
 </ul>
 </div>
 <header id="header">

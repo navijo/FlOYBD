@@ -1,4 +1,5 @@
 {% include "floybd/header.html" %}
+{% load static %}
 
 <script>
   $( function() {
@@ -27,7 +28,7 @@
 					<br/>
 
 					{% for entry in columnsList %}
-					<input type="checkbox" id="columnToPredict" name="columnToPredict" value="{{ entry }}"><label for="columnToPredict">{{ entry }}</label><br/>
+						<input type="checkbox" id="{{ entry }}" name="columnToPredict" value="{{ entry }}"><label for="{{ entry }}">{{ entry }}</label><br/>
 					{% endfor %}
 					<a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 					<input type="submit" value="Predict Values" class="btn"/>
