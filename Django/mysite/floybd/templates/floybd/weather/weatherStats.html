@@ -41,9 +41,11 @@
 
      function showHideComboDate(){
 		if($("#allTime").prop("checked")){
-			$("#dateDiv").hide()
+			$("#datepickerFrom").prop('disabled', true);
+			$("#datepickerTo").prop('disabled', true);
 		}else{
-			$("#dateDiv").show()
+		    $("#datepickerFrom").prop('disabled', false);
+			$("#datepickerTo").prop('disabled', false);
 		}
     }
 

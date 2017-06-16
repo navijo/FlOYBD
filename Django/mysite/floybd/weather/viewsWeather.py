@@ -134,7 +134,7 @@ def sendConcreteValuesToLG(request):
     #kmlPath = "http://localhost:8000/static/" + fileName
     return render(request, 'floybd/weather/weatherConcreteView.html',
                   {'stations': stations, 'concreteStation': concreteStation,
-                   'weatherData':weatherData,'date': date})
+                   'weatherData': weatherData, 'date': date})
 
 
 def weatherConcreteIndex(request):
@@ -147,7 +147,7 @@ def weatherPredictions(request):
     columnsList = ["max_temp", "med_temp", "min_temp", "max_pressure", "min_pressure",
                    "precip", "insolation"]
     return render(request, 'floybd/weather/weatherPrediction.html',
-                  {'stations': stations, 'columnsList':columnsList})
+                  {'stations': stations, 'columnsList': columnsList})
 
 
 def getPrediction(request):
@@ -316,15 +316,17 @@ def getStats(request):
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
+    ip = getIp()
 
     kml.save(dirPath2)
 
-    return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://192.168.88.243:8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
+    return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://'+ip+':8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
 
 
 def sendKmlGlobal(fileName):
     ip = getIp()
-    command = "echo 'http://"+str(ip)+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+    lgIp = "192.168.88.198"
+    command = "echo 'http://"+str(ip)+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
@@ -334,8 +336,9 @@ def sendKml(fileName, concreteStation):
     #Gerard: 192.168.88.198
 
     ip = getIp()
+    lgIp = "192.168.88.198"
 
-    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@192.168.88.234 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     if concreteStation is not None:
@@ -349,7 +352,7 @@ def sendKml(fileName, concreteStation):
                 +"<altitudeMode>relativeToGround</altitudeMode>" \
                 +"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-        command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@192.168.88.234 'cat - > /tmp/query.txt'"
+        command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
         os.system(command)
 
 
