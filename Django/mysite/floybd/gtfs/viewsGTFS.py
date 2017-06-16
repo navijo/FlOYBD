@@ -371,11 +371,6 @@ def getAgenciesAndGenerateKML(request):
 
     carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis)
 
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
-              "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
-
     flyToLon = (flyToLonMax + flyToLonMin)/2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
@@ -384,7 +379,7 @@ def getAgenciesAndGenerateKML(request):
             + "<latitude>" + str(flyToLat) + "</latitude>" \
             + "<altitude>100</altitude>" \
             + "<heading>14</heading>" \
-            + "<tilt>69</tilt>" \
+            + "<tilt>45</tilt>" \
             + "<range>200000</range>" \
             + "<altitudeMode>relativeToGround</altitudeMode>" \
             + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
@@ -393,18 +388,20 @@ def getAgenciesAndGenerateKML(request):
     os.system(command)
 
     time.sleep(5)
-    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+    command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
+              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
+              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
+    time.sleep(1)
+    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
     os.system(command)
 
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
 
 def extractLinesCoordinates(filePath, millis):
-    newKmlName = "car_"+str(millis)+".kml"
+
     kml = simplekml.Kml()
-
-    tour = kml.newgxtour(name="GTFSTour")
-
-    playlist = tour.newgxplaylist()
 
     tree = ET.parse(filePath)
     lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
@@ -436,8 +433,6 @@ def extractLinesCoordinates(filePath, millis):
                         linePoints.append(pnt)
                 cars[carCounter] = linePoints
         carCounter += 1
-    print("We theoretically have " + str(carCounter) + " cars")
-    print("We have " + str(len(cars))+" cars")
 
     newKmlName = "car_" + str(millis) + ".kml"
     kml1 = simplekml.Kml()
@@ -445,13 +440,11 @@ def extractLinesCoordinates(filePath, millis):
     tour1 = kml1.newgxtour(name="GTFSTour")
 
     playlist1 = tour1.newgxplaylist()
-
+    folder = kml1.newfolder(name="Cars")
+    firstPlacemark = True
     for key, value in cars.items():
-        print("Key:" + str(key))
         numberOfItems = len(value)
-        print("numberOfItems:" + str(numberOfItems))
         for index, current in enumerate(value):
-            print("Index: ", index)
             if index+1 >= numberOfItems:
                 break
             nextelem = value[index + 1]
@@ -466,8 +459,8 @@ def extractLinesCoordinates(filePath, millis):
             objectiveLatitude = float(pNLatitude)
             objectiveLongitude = float(pNLongitude)
 
-            latitudeModificator = (objectiveLatitude - startLatitude)/100
-            longitudeModificator = (objectiveLongitude - startLongitude)/100
+            latitudeModificator = (objectiveLatitude - startLatitude)/50
+            longitudeModificator = (objectiveLongitude - startLongitude)/50
 
             incrementLatitude = True if latitudeModificator > 0 else False
             incrementLongitude = True if longitudeModificator > 0 else False
@@ -484,9 +477,13 @@ def extractLinesCoordinates(filePath, millis):
             currentPoint = None
             while not latitudeAchieved and not longitudeAchieved:
 
-                currentPoint = kml1.newpoint(name='Car')
+                currentPoint = folder.newpoint(name='Car')
                 currentPoint.coords = [(startLongitude, startLatitude)]
-                currentPoint.visibility = 0
+                if firstPlacemark:
+                    firstPlacemark = False
+                    currentPoint.visibility = 1
+                else:
+                    currentPoint.visibility = 0
                 currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
 
                 animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=0.1)
@@ -514,6 +511,8 @@ def extractLinesCoordinates(filePath, millis):
                 startLongitude <= objectiveLongitude)
 
             playlist1.newgxwait(gxduration=3)
+
+    print("Writing car file " + newKmlName)
     kml1.save("static/kmls/"+newKmlName)
     return newKmlName
 
