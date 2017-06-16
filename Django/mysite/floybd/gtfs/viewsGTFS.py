@@ -13,6 +13,7 @@ from ..utils import *
 from .GTFSUtils import *
 from ..gtfs_models import Agency
 from .GTFSKMLWriter import *
+from itertools import cycle
 
 import xml.etree.ElementTree as ET
 
@@ -364,12 +365,15 @@ def getAgenciesAndGenerateKML(request):
     os.system(command1)
 
     ip = getIp()
+    #Javi : 192.168.88.234
+    #Gerard: 192.168.88.198
+    lgIp = "192.168.88.234"
 
-    carKml = extractLinesCoordinates("static/kmls/"+kmlName)
+    carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis)
 
     command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
               "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
-              "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+              "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     flyToLon = (flyToLonMax + flyToLonMin)/2
@@ -385,30 +389,157 @@ def getAgenciesAndGenerateKML(request):
             + "<altitudeMode>relativeToGround</altitudeMode>" \
             + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    os.system(command)
+
+    time.sleep(5)
+    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
     os.system(command)
 
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
 
-def extractLinesCoordinates(filePath):
-    newKmlName = "car.kml"
+def extractLinesCoordinates(filePath, millis):
+    newKmlName = "car_"+str(millis)+".kml"
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="GTFSTour")
+
     playlist = tour.newgxplaylist()
 
     tree = ET.parse(filePath)
     lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
-
+    counter = 0
+    cars = {}
+    print("We have " + str(len(lineStrings))+" lines")
+    carCounter = 0
     for attributes in lineStrings:
+
+
         for subAttribute in attributes:
             if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
-                allCoords =  subAttribute.text
+                linePoints = []
+                allCoords = subAttribute.text
                 splittedPairsCoords = allCoords.split(" ")
                 for pair in splittedPairsCoords:
+                    counter += 1
+                    if counter % 2 == 0:
+                        continue
+
                     lonLan = pair.split(",")
-                    #print("Lon:" + lonLan[0])
-                    #print("Lat:" + lonLan[1])
+
+                    pnt = kml.newpoint(name='Car')
+                    pnt.coords = [(lonLan[0], lonLan[1])]
+                    pnt.visibility = 0
+                    pnt.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+
+                    if pnt not in linePoints:
+                        linePoints.append(pnt)
+                cars[carCounter] = linePoints
+        carCounter += 1
+    print("We theoretically have " + str(carCounter) + " cars")
+    print("We have " + str(len(cars))+" cars")
+
+    newKmlName = "car_" + str(millis) + ".kml"
+    kml1 = simplekml.Kml()
+
+    tour1 = kml1.newgxtour(name="GTFSTour")
+
+    playlist1 = tour1.newgxplaylist()
+
+    for key, value in cars.items():
+        print("Key:" + str(key))
+        numberOfItems = len(value)
+        print("numberOfItems:" + str(numberOfItems))
+        for index, current in enumerate(value):
+            print("Index: ", index)
+            if index+1 >= numberOfItems:
+                break
+            nextelem = value[index + 1]
+
+            pLatitude = str(current.coords).split(",")[1]
+            pLongitude = str(current.coords).split(",")[0]
+            pNLatitude = str(nextelem.coords).split(",")[1]
+            pNLongitude = str(nextelem.coords).split(",")[0]
+
+            startLatitude = float(pLatitude)
+            startLongitude = float(pLongitude)
+            objectiveLatitude = float(pNLatitude)
+            objectiveLongitude = float(pNLongitude)
+
+            latitudeModificator = (objectiveLatitude - startLatitude)/100
+            longitudeModificator = (objectiveLongitude - startLongitude)/100
+
+            incrementLatitude = True if latitudeModificator > 0 else False
+            incrementLongitude = True if longitudeModificator > 0 else False
+
+            print("Start latitude:", str(startLatitude))
+            print("Start longitude:", str(startLongitude))
+            print("Objective latitude:", str(objectiveLatitude))
+            print("Objective longitude:", str(objectiveLongitude))
+            print("longitudeModificator:", str(longitudeModificator))
+            print("latitudeModificator:", str(latitudeModificator))
+
+            latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (startLatitude <= objectiveLatitude)
+            longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (startLongitude <= objectiveLongitude)
+            currentPoint = None
+            while not latitudeAchieved and not longitudeAchieved:
+
+                currentPoint = kml1.newpoint(name='Car')
+                currentPoint.coords = [(startLongitude, startLatitude)]
+                currentPoint.visibility = 0
+                currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+
+                animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=0.1)
+                animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                    .format(currentPoint.placemark.id)
+
+                animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=0.1)
+                animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                    .format(currentPoint.placemark.id)
+
+                playlist1.newgxwait(gxduration=0.1)
+
+                if not latitudeAchieved:
+                    startLatitude += latitudeModificator
+                    print("Modified Start latitude:", str(startLatitude))
+
+                if not longitudeAchieved:
+                    startLongitude += longitudeModificator
+                    print("Modified Start longitude:", str(startLongitude))
+
+                latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
+                startLatitude <= objectiveLatitude)
+
+                longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
+                startLongitude <= objectiveLongitude)
+
+            playlist1.newgxwait(gxduration=3)
+    kml1.save("static/kmls/"+newKmlName)
+    return newKmlName
+
+
+
+def extractLinesCoordinates1(filePath, millis):
+    newKmlName = "car_"+str(millis)+".kml"
+    kml = simplekml.Kml()
+
+    tour = kml.newgxtour(name="GTFSTour")
+
+    playlist = tour.newgxplaylist()
+
+    tree = ET.parse(filePath)
+    lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
+    counter = 0
+    for attributes in lineStrings:
+
+        for subAttribute in attributes:
+            if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
+                allCoords = subAttribute.text
+                splittedPairsCoords = allCoords.split(" ")
+                for pair in splittedPairsCoords:
+
+                    lonLan = pair.split(",")
+
                     pnt = kml.newpoint(name='Car')
                     pnt.coords = [(lonLan[0], lonLan[1])]
                     pnt.visibility = 0
@@ -418,9 +549,13 @@ def extractLinesCoordinates(filePath):
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
                         .format(pnt.placemark.id)
 
+
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=1)
                     animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
                         .format(pnt.placemark.id)
+
+
+
 
                     #print(subAttribute.tag, subAttribute.text)
                 playlist.newgxwait(gxduration=3)
