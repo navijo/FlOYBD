@@ -31,17 +31,6 @@ def timing(func):
     return newfunc
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-
-@app.route('/get')
-def get():
-     return send_from_directory(directory='.', filename='cylinders_weather1492600389.kml',as_attachment=True,
-        mimetype='application/octet-stream')
-
-
 @app.route('/saveAPIKey', methods=['POST'])
 def saveApiKey():
 	creation_date=request.form['date']
@@ -166,6 +155,32 @@ def getPrediction():
 		print(ke)
 		stopEnvironment(sc)
 
+@app.route('/getPredictionStats',methods=['POST'])
+def getPredictionStats(): 
+	try:
+		data = request.data
+		dataStr = str(data,'utf-8')
+		dataDict = json.loads(dataStr)
+		initEnvironment()
+		loadCleanDaily()
+
+		station_id = dataDict["station_id"]
+		fecha = dataDict['fecha']
+
+		station_daily = clean_daily.filter(clean_daily.station_id==station_id)
+		weatherPrediction = sparkFunctions.predictStats(fecha,station_id,station_daily)
+		
+		if(weatherPrediction):
+			predictionJson = generalFunctions.dataFrameToJsonStr(weatherPrediction)
+		else:
+			predictionJson = "No Prediction"
+		stopEnvironment(sc)
+		print(predictionJson)
+		return jsonify(predictionJson)
+	except KeyError as ke:
+			print(ke)
+			stopEnvironment(sc)
+
 
 @app.route('/getAllStations')
 def getAllStations(): 
@@ -264,6 +279,17 @@ def loadEarthquakes():
 	global earthquakes
 	earthquakes = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="earthquake")
 
+
+@app.route('/getStatsImage')
+def getStatsImage():
+	basePath = "/home/ubuntu/GSOC17/FlOYBD/Flask/graphs/"
+	station_id  = request.args.get('station_id')
+	imageType = request.args.get('imageType')
+
+	fileName = station_id+"_"+imageType
+
+	return send_from_directory(directory=basePath+station_id, filename=fileName+".png",as_attachment=True,
+        mimetype='image/png')
 
 
 def initEnvironment():

@@ -10,7 +10,7 @@ from pyspark.ml.tuning import TrainValidationSplitModel, ParamGridBuilder
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import max,min,col,avg,count
 from pyspark.sql.types import *
-from pyspark.sql.functions import UserDefinedFunction
+from pyspark.sql.functions import *
 
 from utils import generalFunctions
 
@@ -94,6 +94,23 @@ def loadModelFromDatabase(columnName,station_id):
 			lrModel = TrainValidationSplitModel(loadedModel)
 			return row[0]
 
+
+def predictStats(fecha,station_id,station_daily):
+	datetime_object = datetime.strptime(fecha, '%Y-%m-%d').date()
+
+	newdf = station_daily.select(month(station_daily.measure_date).alias('dt_month'), 
+		dayofmonth(station_daily.measure_date).alias('dt_day'),
+		station_daily.max_temp, station_daily.med_temp, station_daily.min_temp,
+		station_daily.max_pressure, station_daily.min_pressure,
+		station_daily.precip, station_daily.insolation)
+
+	dayMonthDF = newdf.filter((newdf.dt_month == datetime_object.month) & (newdf.dt_day == datetime_object.day))
+	statsDF = dayMonthDF.select(avg("max_temp").alias("max_temp"),avg("med_temp").alias("med_temp"),avg("min_temp").alias("min_temp"),
+		avg("max_pressure").alias("max_pressure"),avg("min_pressure").alias("min_pressure"),
+		avg("precip").alias("precip"),avg("insolation").alias("insolation"))
+	return statsDF
+
+	
 
 def predict(sql,sc,columns,station_id,currentWeather):
 	columnsToPredict = ["max_temp","med_temp","min_temp","max_pressure","min_pressure","precip","insolation"]
