@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .forms import UploadFileForm
+import os
+import shutil
 
 
 def index(request):
@@ -17,3 +18,9 @@ def eartquakesIndex(request):
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
 
+
+def clearKML(request):
+    print("Deletings kmls folder")
+    shutil.rmtree('static/kmls')
+    os.makedirs("static/kmls")
+    return render(request, 'floybd/index.html')

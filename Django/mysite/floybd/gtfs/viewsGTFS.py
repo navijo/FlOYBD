@@ -14,8 +14,10 @@ from .GTFSUtils import *
 from ..gtfs_models import Agency
 from .GTFSKMLWriter import *
 from itertools import cycle
+import random
 
 import xml.etree.ElementTree as ET
+
 
 def uploadGTFS(request):
     if request.method == 'POST':
@@ -61,7 +63,6 @@ def handle_uploaded_file(f, title, millis):
 
 
 def parseGTFS(title):
-
     parseAgency("static/upload/gtfs/"+title)
     parseCalendar("static/upload/gtfs/"+title)
     parseCalendarDates("static/upload/gtfs/" + title)
@@ -69,8 +70,6 @@ def parseGTFS(title):
     parseRoutes("static/upload/gtfs/" + title)
     parseTrips("static/upload/gtfs/" + title)
     parseStopTimes("static/upload/gtfs/" + title)
-
-
 
 
 def get_extension(file):
@@ -117,12 +116,33 @@ def decompressFile(file, title, extension):
 
 def sendGTFSToLG(request):
     kmlPath = request.POST["kmlPath"]
+    flyToLat = request.POST["flyToLat"]
+    flyToLon = request.POST["flyToLon"]
     form = UploadFileForm()
+    lgIp = "192.168.88.234"
 
-    command = "echo '" + kmlPath + "' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /var/www/html/kmls.txt'"
+    command = "echo '" + kmlPath + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'form': form, 'kml': kmlPath})
+    flyTo = "flytoview=<LookAt>" \
+            + "<longitude>" + str(flyToLon) + "</longitude>" \
+            + "<latitude>" + str(flyToLat) + "</latitude>" \
+            + "<altitude>10</altitude>" \
+            + "<heading>14</heading>" \
+            + "<tilt>45</tilt>" \
+            + "<range>20000</range>" \
+            + "<altitudeMode>relativeToGround</altitudeMode>" \
+            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    os.system(command)
+
+    time.sleep(5)
+    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
+    os.system(command)
+
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'form': form, 'kml': kmlPath,
+                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat})
 
 
 def uploadgtfs(request):
@@ -137,96 +157,9 @@ def viewgtfs(request):
     return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
 
 
-def getAgenciesAndGenerateKML1(request):
-    agencies = request.POST.getlist('agenciesSelected')
-
-    gtfsKml = simplekml.Kml()
-    stops_folder = gtfsKml.newfolder(name='Stops')
-    routes_folder = gtfsKml.newfolder(name='Routes')
-    for selectedAgency in agencies:
-        print("selectedAgency:" + str(selectedAgency))
-        agency = Agency.objects.get(agency_id=selectedAgency)
-        print("Agency:" + str(agency.agency_name))
-        #getRoutesForAgency
-        routes = Route.objects.filter(agency=agency)
-        for route in routes:
-            print("Route:" + str(route.route_long_name))
-            # getTripForRoute
-            trips = Trip.objects.filter(route_id=route.route_id)
-            for trip in trips:
-                print("Trip: " + str(trip.trip_id) + "\t" + str(trip.trip_headsign))
-                #getCalendarForTrip
-                calendar = Calendar.objects.filter(service_id=trip.service_id)
-                #getCalendarInfo
-                # getStopTimesForTrip
-                stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
-                for stop_time in stop_times:
-                    print("Stop Time: " +
-                          str(stop_time.arrival_time) +
-                          "\t" +
-                          str(stop_time.departure_time) +
-                          "\t" +
-                          str(stop_time.stop_id) +
-                          "\n")
-                    stop = stop_time.stop
-                    print("Stop: " + str(stop.stop_name))
-                   # for stop in stops:
-                     #   print("Stop: " + str(stop.name))
-                    stops_folder.newpoint(name=stop.stop_name, description=stop.stop_desc,
-                                              coords=[(stop.stop_lon, stop.stop_lat)])
-
-
-    kmlPath = "static/kmls/gtfs.kml"
-    gtfsKml.save(kmlPath)
-
-    agencies = Agency.objects.all()
-    return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
-    #return kmlPath
-
-
-
-def getAgenciesAndGenerateKML2(request):
-    agencies = request.POST.getlist('agenciesSelected')
-
-    doc = init()
-
-    for selectedAgency in agencies:
-        stopsList = []
-        routesList = []
-        print("selectedAgency:" + str(selectedAgency))
-        agency = Agency.objects.get(agency_id=selectedAgency)
-        print("Agency:" + str(agency.agency_name))
-        routes = Route.objects.filter(agency=agency)
-        for route in routes:
-            print("Route:" + str(route.route_long_name))
-            routesList.append(route)
-            trips = Trip.objects.filter(route_id=route.route_id)
-            print(type(trips))
-            for trip in trips:
-                print("Trip: " + str(trip.trip_id) + "\t" + str(trip.trip_headsign))
-                stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
-                for stop_time in stop_times:
-                    stop = stop_time.stop
-                    stopsList.append(stop)
-                    print("Stop: " + str(stop.stop_name))
-
-        createStopsFolder(doc, stopsList)
-        CreateRoutesFolder(doc, routesList)
-
-    SetIndentation(doc)
-    end(doc, "gtfs")
-
-
-    kmlPath = "static/kmls/gtfs.kml"
-
-
-    agencies = Agency.objects.all()
-    return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
-
-
 def getAgenciesAndGenerateKML(request):
     agencies = request.POST.getlist('agenciesSelected')
-
+    maxCars = int(request.POST.get('maxCars'))
     calendars_added = []
     stops_added = []
 
@@ -360,7 +293,6 @@ def getAgenciesAndGenerateKML(request):
     zipName = folderName+".zip"
     kmlName = str(millis)+".kml"
 
-
     command1 = "python2 static/utils/gtfs/kmlwriter.py "+zipName+" static/kmls/"+kmlName
     os.system(command1)
 
@@ -369,7 +301,7 @@ def getAgenciesAndGenerateKML(request):
     #Gerard: 192.168.88.198
     lgIp = "192.168.88.234"
 
-    car1Kml = extractLinesCoordinates("static/kmls/"+kmlName, millis)
+    carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis, maxCars)
 
     flyToLon = (flyToLonMax + flyToLonMin)/2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
@@ -377,7 +309,7 @@ def getAgenciesAndGenerateKML(request):
     flyTo = "flytoview=<LookAt>" \
             + "<longitude>" + str(flyToLon) + "</longitude>" \
             + "<latitude>" + str(flyToLat) + "</latitude>" \
-            + "<altitude>100</altitude>" \
+            + "<altitude>10</altitude>" \
             + "<heading>14</heading>" \
             + "<tilt>45</tilt>" \
             + "<range>200000</range>" \
@@ -389,7 +321,7 @@ def getAgenciesAndGenerateKML(request):
 
     time.sleep(5)
     command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":8000/static/kmls/" + car1Kml + \
+              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -397,9 +329,11 @@ def getAgenciesAndGenerateKML(request):
     command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
     os.system(command)
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName})
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName,
+                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat})
 
-def extractLinesCoordinates(filePath, millis):
+
+def extractLinesCoordinates(filePath, millis, maxCars):
 
     kml = simplekml.Kml()
 
@@ -410,7 +344,6 @@ def extractLinesCoordinates(filePath, millis):
     print("We have " + str(len(lineStrings))+" lines")
     carCounter = 0
     for attributes in lineStrings:
-
 
         for subAttribute in attributes:
             if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
@@ -435,25 +368,30 @@ def extractLinesCoordinates(filePath, millis):
         carCounter += 1
 
     newKmlName = "car_" + str(millis) + ".kml"
-    #newKmlName2 = "car2_" + str(millis) + ".kml"
     kml1 = simplekml.Kml()
-    #kml2 = simplekml.Kml()
-
     tour1 = kml1.newgxtour(name="GTFSTour")
-
     playlist1 = tour1.newgxplaylist()
     folder1 = kml1.newfolder(name="Cars")
-    #folder2 = kml2.newfolder(name="Cars")
+
     firstPlacemark = True
-    counter = 0
+    #counter = 0
+    carCounter = 0
+
+    if maxCars <= carCounter:
+        maxCars = carCounter
+
     for key, value in cars.items():
         numberOfItems = len(value)
-
-        if counter % 2 == 0:
+        #counter += 1
+        if random.randint(1, 10) % 2 == 0:
+            print("Skipped Car")
             continue
+        if carCounter >= maxCars:
+            break
+        carCounter += 1
 
         for index, current in enumerate(value):
-
+            firstPoint = True
             if index+1 >= numberOfItems:
                 break
             nextelem = value[index + 1]
@@ -468,8 +406,8 @@ def extractLinesCoordinates(filePath, millis):
             objectiveLatitude = float(pNLatitude)
             objectiveLongitude = float(pNLongitude)
 
-            latitudeModificator = (objectiveLatitude - startLatitude)/50
-            longitudeModificator = (objectiveLongitude - startLongitude)/50
+            latitudeModificator = (objectiveLatitude - startLatitude)/500
+            longitudeModificator = (objectiveLongitude - startLongitude)/500
 
             incrementLatitude = True if latitudeModificator > 0 else False
             incrementLongitude = True if longitudeModificator > 0 else False
@@ -483,11 +421,11 @@ def extractLinesCoordinates(filePath, millis):
 
             latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (startLatitude <= objectiveLatitude)
             longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (startLongitude <= objectiveLongitude)
-            currentPoint = None
 
+
+            counter = 0
 
             while not latitudeAchieved and not longitudeAchieved:
-
                 currentPoint = folder1.newpoint(name='Car')
                 currentPoint.coords = [(startLongitude, startLatitude)]
                 if firstPlacemark:
@@ -495,17 +433,26 @@ def extractLinesCoordinates(filePath, millis):
                     currentPoint.visibility = 1
                 else:
                     currentPoint.visibility = 0
+
                 currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
 
-                animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=0.1)
+                animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=0.0001)
                 animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
                     .format(currentPoint.placemark.id)
 
-                animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=0.1)
+                #if counter % 5 == 0:
+                flyto = playlist1.newgxflyto(gxduration=0.1, gxflytomode=simplekml.GxFlyToMode.smooth)
+                flyto.camera.longitude = startLongitude
+                flyto.camera.latitude = startLatitude
+                flyto.camera.altitude = 50000
+                flyto.camera.range = 30000
+                playlist1.newgxwait(gxduration=0.1)
+
+                animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=0.0001)
                 animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
                     .format(currentPoint.placemark.id)
 
-                playlist1.newgxwait(gxduration=0.1)
+                playlist1.newgxwait(gxduration=0.0001)
 
                 if not latitudeAchieved:
                     startLatitude += latitudeModificator
@@ -521,55 +468,11 @@ def extractLinesCoordinates(filePath, millis):
                 longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
                 startLongitude <= objectiveLongitude)
 
-            playlist1.newgxwait(gxduration=3)
-        counter += 1
+                counter += 1
 
+            playlist1.newgxwait(gxduration=2)
+
+    print("Total Cars: ", carCounter)
     print("Writing car file " + newKmlName)
     kml1.save("static/kmls/"+newKmlName)
-    #kml2.save("static/kmls/" + newKmlName2)
-    return newKmlName
-
-
-
-def extractLinesCoordinates1(filePath, millis):
-    newKmlName = "car_"+str(millis)+".kml"
-    kml = simplekml.Kml()
-
-    tour = kml.newgxtour(name="GTFSTour")
-
-    playlist = tour.newgxplaylist()
-
-    tree = ET.parse(filePath)
-    lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
-    counter = 0
-    for attributes in lineStrings:
-
-        for subAttribute in attributes:
-            if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
-                allCoords = subAttribute.text
-                splittedPairsCoords = allCoords.split(" ")
-                for pair in splittedPairsCoords:
-
-                    lonLan = pair.split(",")
-
-                    pnt = kml.newpoint(name='Car')
-                    pnt.coords = [(lonLan[0], lonLan[1])]
-                    pnt.visibility = 0
-                    pnt.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
-
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=1)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
-                        .format(pnt.placemark.id)
-
-
-                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=1)
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
-                        .format(pnt.placemark.id)
-
-
-
-
-                    #print(subAttribute.tag, subAttribute.text)
-                playlist.newgxwait(gxduration=3)
-    kml.save("static/kmls/"+newKmlName)
     return newKmlName
