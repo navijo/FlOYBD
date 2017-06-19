@@ -112,12 +112,16 @@ def decompressFile(file, title, extension):
 
 def sendGTFSToLG(request):
     kmlPath = request.POST["kmlPath"]
+    carKml = request.POST["carKML"]
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
     form = UploadFileForm()
     lgIp = getLGIp()
+    ip = getDjangoIp()
 
-    command = "echo '" + kmlPath + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
+    command = "echo '"+kmlPath + \
+              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
+              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     flyTo = "flytoview=<LookAt>" \
@@ -326,7 +330,8 @@ def getAgenciesAndGenerateKML(request):
     os.system(command)
 
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName,
-                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat})
+                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat,
+                                                         'carKml': carKml})
 
 
 def extractLinesCoordinates(filePath, millis, maxCars):
@@ -402,8 +407,10 @@ def extractLinesCoordinates(filePath, millis, maxCars):
             objectiveLatitude = float(pNLatitude)
             objectiveLongitude = float(pNLongitude)
 
-            latitudeModificator = (objectiveLatitude - startLatitude)/500
-            longitudeModificator = (objectiveLongitude - startLongitude)/500
+            distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
+
+            latitudeModificator = (objectiveLatitude - startLatitude)/float(distance)
+            longitudeModificator = (objectiveLongitude - startLongitude)/float(distance)
 
             incrementLatitude = True if latitudeModificator > 0 else False
             incrementLongitude = True if longitudeModificator > 0 else False

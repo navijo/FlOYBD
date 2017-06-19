@@ -13,6 +13,29 @@ import traceback
 import numpy as np
 from django.contrib.contenttypes.models import ContentType
 
+from math import sin, cos, sqrt, atan2, radians
+
+def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point3Lon):
+    # approximate radius of earth in km
+    R = 6373.0
+
+    lat1 = radians(point1Lat)
+    lon1 = radians(point1Lon)
+    lat2 = radians(point2Lat)
+    lon2 = radians(point3Lon)
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c
+
+    print("Distance:", distance)
+    return distance
+
+
 def parseAgency(basePath):
     print("Processing Agencies")
     data = pd.read_csv(basePath+'/agency.txt', engine='python')
