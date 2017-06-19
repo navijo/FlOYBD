@@ -8,6 +8,7 @@ from . import views
 from .earthquakes import viewsEarthquakes
 from .weather import viewsWeather
 from .gtfs import viewsGTFS
+from django.http import HttpResponseRedirect
 
 app_name = 'floybd'
 
@@ -45,7 +46,10 @@ urlpatterns = [
         name='getAgenciesAndGenerateKML'),
 
     url('citydashboard', viewsWeather.citydashboard, name='citydashboard'),
-    url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard')
+    url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),
+
+    url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings')
+
 ]
 
 

@@ -161,3 +161,15 @@ class TripAdmin(admin.ModelAdmin):
 admin.site.register(Trip, TripAdmin)
 
 
+class SettingsForm(ModelForm):
+
+    class Meta:
+        model = Setting
+        fields = ['key', 'value']
+
+class SettingsAdmin(admin.ModelAdmin):
+    form = SettingsForm
+
+admin.site.register(Setting, SettingsAdmin)
+
+

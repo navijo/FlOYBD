@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import os
 import shutil
+from .models import Setting
 
 
 def index(request):
@@ -24,3 +25,8 @@ def clearKML(request):
     shutil.rmtree('static/kmls')
     os.makedirs("static/kmls")
     return render(request, 'floybd/index.html')
+
+
+def settingsIndex(request):
+    settings = Setting.objects.all()
+    return render(request, 'floybd/settings/settings.html', {'settings': settings})

@@ -24,8 +24,7 @@ def uploadGTFS(request):
             millis = int(round(time.time() * 1000))
             form.title = title
             handle_uploaded_file(request.FILES['file'], form.title, millis)
-            #kmlPath = handle_uploaded_file(request.FILES['file'], form.title, millis)
-            #return render(request, 'floybd/gtfs/viewGTFS.html', {'form': form,'kml':kmlPath})
+
             agencies = Agency.objects.all()
             return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
     else:
@@ -34,7 +33,7 @@ def uploadGTFS(request):
 
 
 def handle_uploaded_file(f, title, millis):
-    ip = getIp()
+    ip = getDjangoIp()
     if not os.path.exists("static/upload/gtfs"):
         print("Creating upload/gtfs folder")
         os.makedirs("static/upload/gtfs")
@@ -116,7 +115,7 @@ def sendGTFSToLG(request):
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
     form = UploadFileForm()
-    lgIp = "192.168.88.234"
+    lgIp = getLGIp()
 
     command = "echo '" + kmlPath + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
@@ -293,10 +292,10 @@ def getAgenciesAndGenerateKML(request):
     command1 = "python2 static/utils/gtfs/kmlwriter.py "+zipName+" static/kmls/"+kmlName
     os.system(command1)
 
-    ip = getIp()
+    ip = getDjangoIp()
     #Javi : 192.168.88.234
     #Gerard: 192.168.88.198
-    lgIp = "192.168.88.234"
+    lgIp = getLGIp()
 
     carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis, maxCars)
 

@@ -21,6 +21,8 @@ def getEarthquakes(request):
     showAllParam = request.POST.get('showAll', 0)
     showAll = showAllParam == str(1)
 
+    sparkIp = getSparkIp()
+
     max_lat = request.POST['max_lat']
     min_lat = request.POST['min_lat']
     max_lon = request.POST['max_lon']
@@ -29,7 +31,7 @@ def getEarthquakes(request):
     center_lat = (float(max_lat) + float(min_lat))/2
     center_lon = (float(max_lon) + float(min_lon))/2
 
-    response = requests.get('http://130.206.117.178:5000/getEarthquakes?date='+date+'&max_lat='+max_lat+
+    response = requests.get('http://'+sparkIp+':5000/getEarthquakes?date='+date+'&max_lat='+max_lat+
                             '&min_lat='+min_lat+'&max_lon='+max_lon+'&min_lon='+min_lon)
 
     jsonData = json.loads(response.json())
@@ -184,7 +186,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
     dirPath2 = os.path.join(dir1, fileName)
     kml.save(dirPath2)
 
-    ip = getIp()
+    ip = getDjangoIp()
 
     fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
     return fileUrl
@@ -200,7 +202,7 @@ def sendConcreteValuesToLG(request):
     center_lat = request.POST['center_lat']
     center_lon = request.POST['center_lon']
 
-    ip = getIp()
+    ip = getDjangoIp()
 
     fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
     fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
@@ -222,8 +224,8 @@ def sendKml(fileName, center_lat, center_lon):
     #Javi : 192.168.88.234
     #Gerard: 192.168.88.198
 
-    lgIp = "192.168.88.234"
-    ip = getIp()
+    lgIp = getLGIp()
+    ip = getDjangoIp()
 
     command = "echo 'http://"+ip+":8000/static/kmls/"+fileName +\
               "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"

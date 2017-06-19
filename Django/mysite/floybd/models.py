@@ -38,6 +38,9 @@ class ApiKey(models.Model):
 
 
 class Setting(models.Model):
-    key = models.CharField(max_length=10)
+    key = models.CharField(max_length=50)
     value = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.key
 
