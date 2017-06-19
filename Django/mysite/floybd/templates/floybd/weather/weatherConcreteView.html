@@ -2,7 +2,7 @@
 {# Display a form #}
 {% load i18n %}
 {% trans "Get Values" as getValues %}
-{% trans "Send Values to LG" as sendValues %}
+{% trans "Generate Cylinders and Send Vlues to LG" as sendValues %}
 
 {% load static %}
 <script src="{% static 'js/geoxml3.js' %}"></script>
@@ -25,8 +25,8 @@
 			<input type="hidden" name="weatherData" value="{{  weatherData }}">
 			<input type="hidden" name="date" value="{{  date }}">
 			<input type="hidden" name="station" value="{{ concreteStation.station_id }}">
-			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 		</form>
 		</div>
 		<div class="mui--text-center" id="map" style="height: 75%;width: 100%;"></div>
@@ -74,8 +74,8 @@
 			<input type="hidden" name="date" value="{{  date }}">
 			<input type="hidden" name="allStations" value="1">
 			<input type="hidden" name="fileUrl" value="{{ kml }}">
-			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
+			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 		</form>
 		</div>
 		<div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>

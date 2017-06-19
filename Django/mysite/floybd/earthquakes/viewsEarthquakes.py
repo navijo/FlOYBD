@@ -12,7 +12,7 @@ import datetime
 from datetime import timedelta
 import shutil
 import time
-from ..utils import *
+from ..utils.utils import *
 
 
 def getEarthquakes(request):

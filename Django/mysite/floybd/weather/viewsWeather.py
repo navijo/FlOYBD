@@ -9,7 +9,7 @@ import time
 import datetime
 from datetime import timedelta
 import simplekml
-from ..utils import *
+from ..utils.utils import *
 from django.http import JsonResponse
 
 
@@ -73,7 +73,7 @@ def getConcreteValues(request):
 
         kml.save(dirPath2)
         return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'kml': 'http://'+ip+':8000/static/kmls/'+fileName,'date': date})
+                      {'kml': 'http://'+ip+':8000/static/kmls/'+fileName, 'date': date})
     else:
         concreteStation = Station.objects.get(station_id=station_id)
         contentString = stationsWeather[station_id]["contentString"]
@@ -129,7 +129,7 @@ def sendConcreteValuesToLG(request):
     stations = Station.objects.all()
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKml(fileName,concreteStation)
+    sendKml(fileName, concreteStation)
 
     #kmlPath = "http://localhost:8000/static/" + fileName
     return render(request, 'floybd/weather/weatherConcreteView.html',
@@ -216,7 +216,7 @@ def sendPredictionsToLG(request):
 
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKml(fileName,concreteStation)
+    sendKml(fileName, concreteStation)
 
 
     return render(request, 'floybd/weather/weatherPredictionView.html',
@@ -334,7 +334,7 @@ def sendKml(fileName, concreteStation):
     #Gerard: 192.168.88.198
 
     ip = getIp()
-    lgIp = "192.168.88.198"
+    lgIp = "192.168.88.234"
 
     command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)

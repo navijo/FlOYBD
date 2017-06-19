@@ -36,3 +36,8 @@ class ApiKey(models.Model):
         self.valid_date = valid_date
         super(ApiKey, self).save()
 
+
+class Setting(models.Model):
+    key = models.CharField(max_length=10)
+    value = models.CharField(max_length=50)
+

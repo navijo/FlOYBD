@@ -1,22 +1,19 @@
-
-from django.shortcuts import render
-from ..forms import UploadFileForm
-
-import simplekml
-
 import os
+import random
 import shutil
 import tarfile
-import zipfile
 import time
-from ..utils import *
-from .GTFSUtils import *
-from ..gtfs_models import Agency
-from .GTFSKMLWriter import *
-from itertools import cycle
-import random
 
-import xml.etree.ElementTree as ET
+import zipfile
+
+import simplekml
+from django.shortcuts import render
+
+from ..utils.GTFSUtils import *
+from .GTFSKMLWriter import *
+from ..forms import UploadFileForm
+from ..gtfs_models import Agency
+from ..utils.utils import *
 
 
 def uploadGTFS(request):
