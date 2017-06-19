@@ -100,9 +100,11 @@ def prepareJson(weatherData,stationData):
 	calculatedData = json.loads(weatherData)
 	#print(calculatedData)
 	maxTemp = calculatedData["max_temp"]
+	medTemp = calculatedData["med_temp"]
 	minTemp = calculatedData["min_temp"]
 	temps = []
 	temps.append(maxTemp)
+	temps.append(medTemp)
 	temps.append(minTemp)
 
 	finalData = {}

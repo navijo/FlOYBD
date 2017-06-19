@@ -20,15 +20,17 @@ class CylindersKmlExtended(object):
     def parseData(self):
         for element in self.data:
             for innerElement in element:
-                if(not innerElement['description'][0]==None and not innerElement['description'][1]==None):
+                if(not innerElement['description'][0]==None and not innerElement['description'][1]==None and not innerElement['description'][2]==None):
                     self.newCylinder(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
                     self.newPointer(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
 
     def newPointer(self, name, description, coordinates, extra):
         pointer_max = self.kml_var.newpoint(name=str(description[0])+ u'\u2103')
-        pointer_min = self.kml_var.newpoint(name=str(description[1])+ u'\u2103')
+        pointer_med = self.kml_var.newpoint(name=str(description[1])+ u'\u2103')
+        pointer_min = self.kml_var.newpoint(name=str(description[2])+ u'\u2103')
         self.generatePointer(pointer_max, description[0], coordinates, 'max')
-        self.generatePointer(pointer_min, description[1], coordinates, 'min')
+        self.generatePointer(pointer_med, description[1], coordinates, 'med')
+        self.generatePointer(pointer_min, description[2], coordinates, 'min')
 
         if extra:
             print ('There is extra !')
@@ -42,15 +44,20 @@ class CylindersKmlExtended(object):
         if flag == 'min':
             point.style.labelstyle.color = simplekml.Color.lightblue
             point.coords = [(float(coordinates['lng'])-0.025, float(coordinates['lat'])-0.025, 2200*int(temp))]
+        elif flag == 'med':
+            point.style.labelstyle.color = simplekml.Color.green
+            point.coords = [(float(coordinates['lng']), float(coordinates['lat']), 2200*int(temp))]
         elif flag == 'max':
             point.style.labelstyle.color = simplekml.Color.red
-            point.coords = [(float(coordinates['lng']), float(coordinates['lat']), 2200*int(temp))]
+            point.coords = [(float(coordinates['lng'])+0.025, float(coordinates['lat'])+0.025, 2200*int(temp))]
 
     def newCylinder(self, name, description, coordinates, extra):
         shape_polycircle_max = self.kml_var.newmultigeometry(name=name+'-max')
+        shape_polycircle_med = self.kml_var.newmultigeometry(name=name+'-med')
         shape_polycircle_min = self.kml_var.newmultigeometry(name=name+'-min')
         self.generateCylinder(shape_polycircle_max, description[0], coordinates, 'max')
-        self.generateCylinder(shape_polycircle_min, description[1], coordinates, 'min')
+        self.generateCylinder(shape_polycircle_med, description[1], coordinates, 'med')
+        self.generateCylinder(shape_polycircle_min, description[2], coordinates, 'min')
 
         if extra:
             print ('There is extra !')
@@ -59,9 +66,12 @@ class CylindersKmlExtended(object):
         if flag == 'min':
             polycircle = polycircles.Polycircle(latitude=float(coordinates['lat'])-0.025,
             longitude=float(coordinates['lng'])-0.025, radius=1000, number_of_vertices=100)
-        elif flag == 'max':
+        elif flag == 'med':
             polycircle = polycircles.Polycircle(latitude=float(coordinates['lat']),
             longitude=float(coordinates['lng']), radius=1000, number_of_vertices=100)
+        elif flag == 'max':
+            polycircle = polycircles.Polycircle(latitude=float(coordinates['lat'])+0.025,
+            longitude=float(coordinates['lng'])+0.025, radius=1000, number_of_vertices=100)
 
         latloncircle = polycircle.to_lon_lat()
         latlonaltcircle = []
@@ -124,6 +134,9 @@ class CylindersKmlExtended(object):
         if flag == 'min':
             polygon.style.polystyle.color = simplekml.Color.blue
             polygon.style.linestyle.color = simplekml.Color.blue
+        elif flag =='med':
+            polygon.style.polystyle.color = simplekml.Color.green
+            polygon.style.linestyle.color = simplekml.Color.green
         elif flag =='max':
             polygon.style.polystyle.color = simplekml.Color.red
             polygon.style.linestyle.color = simplekml.Color.red
