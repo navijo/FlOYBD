@@ -10,10 +10,12 @@ from .weather import viewsWeather
 from .gtfs import viewsGTFS
 from django.http import HttpResponseRedirect
 
+
 app_name = 'floybd'
 
 
 urlpatterns = [
+
     url(r'^$', views.index, name='index'),
 
     url(r'clearKML', views.clearKML, name='clearKML'),
@@ -48,7 +50,8 @@ urlpatterns = [
     url('citydashboard', viewsWeather.citydashboard, name='citydashboard'),
     url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),
 
-    url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings')
+    url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
+
 
 ]
 
