@@ -73,6 +73,8 @@
 
             <form id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
                 {% csrf_token %}
+                <label for="maxCars">Max Number of cars per agency (the greater, the slower)</label>
+                <input required type="number" name="maxCars" id="maxCars">
                 <table id="gtfsTable" class="mdl-data-table" cellspacing="0" width="100%">
             <thead>
                 <tr>

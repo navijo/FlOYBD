@@ -19,6 +19,8 @@
 				<form name="form" action="{% url 'floybd:sendGTFSToLG' %}" method="post" class="form">
 					{% csrf_token %}
 					<input type="hidden" name="kmlPath" value="{{  kml }}">
+					<input type="hidden" name="flyToLon" value="{{  flyToLon }}">
+					<input type="hidden" name="flyToLat" value="{{  flyToLat }}">
 					<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
 					<a href="{% url 'floybd:viewgtfs' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 				</form>

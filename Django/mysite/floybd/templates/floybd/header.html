@@ -1,3 +1,11 @@
+
+<head>
+  <title>
+    {% block title %}FLOYBD{% endblock %}
+  </title>
+
+
+
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -20,8 +28,8 @@
 {% load static %}
 {% include 'material/includes/material_css.html' %}
 {% include 'material/includes/material_js.html' %}
+<link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
 
-{% block title %}FLOYBD{% endblock %}
 
 <link rel="stylesheet" type="text/css" href="//cdn.muicss.com/mui-latest/css/mui.min.css" >
 <script src="{% static 'js/mui.min.js' %}"></script>
@@ -105,7 +113,10 @@ $titleEls.on('click', function() {
 
 
 </script>
+</head>
 
 {% include "floybd/sideBarMenu.html" %}
 
 <div class="mui--appbar-height"></div>
+
+
