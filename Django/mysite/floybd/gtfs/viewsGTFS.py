@@ -369,7 +369,7 @@ def getAgenciesAndGenerateKML(request):
     #Gerard: 192.168.88.198
     lgIp = "192.168.88.234"
 
-    carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis)
+    car1Kml = extractLinesCoordinates("static/kmls/"+kmlName, millis)
 
     flyToLon = (flyToLonMax + flyToLonMin)/2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
@@ -389,7 +389,7 @@ def getAgenciesAndGenerateKML(request):
 
     time.sleep(5)
     command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
+              "\nhttp://" + ip + ":8000/static/kmls/" + car1Kml + \
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -435,16 +435,25 @@ def extractLinesCoordinates(filePath, millis):
         carCounter += 1
 
     newKmlName = "car_" + str(millis) + ".kml"
+    #newKmlName2 = "car2_" + str(millis) + ".kml"
     kml1 = simplekml.Kml()
+    #kml2 = simplekml.Kml()
 
     tour1 = kml1.newgxtour(name="GTFSTour")
 
     playlist1 = tour1.newgxplaylist()
-    folder = kml1.newfolder(name="Cars")
+    folder1 = kml1.newfolder(name="Cars")
+    #folder2 = kml2.newfolder(name="Cars")
     firstPlacemark = True
+    counter = 0
     for key, value in cars.items():
         numberOfItems = len(value)
+
+        if counter % 2 == 0:
+            continue
+
         for index, current in enumerate(value):
+
             if index+1 >= numberOfItems:
                 break
             nextelem = value[index + 1]
@@ -475,9 +484,11 @@ def extractLinesCoordinates(filePath, millis):
             latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (startLatitude <= objectiveLatitude)
             longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (startLongitude <= objectiveLongitude)
             currentPoint = None
+
+
             while not latitudeAchieved and not longitudeAchieved:
 
-                currentPoint = folder.newpoint(name='Car')
+                currentPoint = folder1.newpoint(name='Car')
                 currentPoint.coords = [(startLongitude, startLatitude)]
                 if firstPlacemark:
                     firstPlacemark = False
@@ -511,9 +522,11 @@ def extractLinesCoordinates(filePath, millis):
                 startLongitude <= objectiveLongitude)
 
             playlist1.newgxwait(gxduration=3)
+        counter += 1
 
     print("Writing car file " + newKmlName)
     kml1.save("static/kmls/"+newKmlName)
+    #kml2.save("static/kmls/" + newKmlName2)
     return newKmlName
 
 

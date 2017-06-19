@@ -54,7 +54,7 @@ buttons {
 }
 
 #footer {
-  height: 160px;
+  height: 10%;
   margin-left: 0px;
   transition: margin-left 0.2s;
 }

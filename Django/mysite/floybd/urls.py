@@ -18,11 +18,13 @@ urlpatterns = [
 
     url(r'^weatherStats', viewsWeather.weatherStats, name='weatherStats'),
     url(r'^dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
+    url(r'^predictWeatherStats', viewsWeather.weatherPredictionsStats, name='predictWeatherStats'),
     url(r'^predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
     url(r'^weather', views.weatherIndex, name='weather'),
 
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
     url('sendConcreteValuesToLG', viewsWeather.sendConcreteValuesToLG, name='sendConcreteValuesToLG'),
+    url('getPredictionStats', viewsWeather.getPredictionStats, name='getPredictionStats'),
     url('getPrediction', viewsWeather.getPrediction, name='getPrediction'),
     url('sendPredictionsToLG', viewsWeather.sendPredictionsToLG, name='sendPredictionsToLG'),
 

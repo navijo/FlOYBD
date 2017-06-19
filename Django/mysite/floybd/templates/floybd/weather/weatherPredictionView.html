@@ -13,7 +13,6 @@
 {% load coma_point %}
 
 <div id="content-wrapper">
-	<div class="mui--appbar-height"></div>
 <div class="mui-container-fluid">
     <div class="mui-row">
         <div class="mui-col-md-12">
@@ -26,7 +25,6 @@
 			<input type="hidden" name="station_id" value="{{ concreteStation.station_id }}">
 			<input type="hidden" name="fileName" value="{{ fileName }}">
 			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
-			<a href="{% url 'floybd:predictWeather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
 		</form>
 		</div>
 
@@ -36,7 +34,7 @@
 		  function initMap() {
 			map = new google.maps.Map(document.getElementById('map'), {
 			  //center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
-			  zoom: 5,
+			  zoom: 8,
 			  mapTypeId: google.maps.MapTypeId.HYBRID
 			});
 

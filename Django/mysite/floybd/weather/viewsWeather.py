@@ -151,9 +151,6 @@ def weatherPredictions(request):
 
 
 def getPrediction(request):
-    stations = Station.objects.all()
-    columnsList = ["max_temp", "med_temp", "min_temp", "max_pressure", "min_pressure", "precip", "insolation"]
-
     station_id = request.POST['station']
     columnsToPredict = request.POST.getlist('columnToPredict')
 
@@ -261,7 +258,7 @@ def getStats(request):
         concreteStation = Station.objects.get(station_id=row.get("station_id"))
         stationData = {}
 
-        if allTime==str(1):
+        if allTime == str(1):
             contentString = '<div id="content">' + \
                             '<div id="siteNotice">' + \
                             '</div>' + \
@@ -269,6 +266,8 @@ def getStats(request):
                             '<div id="bodyContent">' + \
                             '<p>' + \
                             '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
+                            '<img width="50%" height="50%" src="http://130.206.117.178:5000/' \
+                            'getStatsImage?station_id=' + row.get("station_id") + '&imageType=max_temp"/> </p>' + \
                             '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
                             '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
                             '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
@@ -281,7 +280,6 @@ def getStats(request):
                             '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
                             '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
                             '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
-                            '</p>' + \
                             '</div>' + \
                             '</div>'
         else:
@@ -325,7 +323,7 @@ def getStats(request):
 
 def sendKmlGlobal(fileName):
     ip = getIp()
-    lgIp = "192.168.88.198"
+    lgIp = "192.168.88.234"
     command = "echo 'http://"+str(ip)+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -399,3 +397,67 @@ def viewDashboard(request):
     else:
         data = {}
     return JsonResponse(data)
+
+def weatherPredictionsStats(request):
+    stations = Station.objects.all()
+
+    return render(request, 'floybd/weather/weatherPredictionStats.html',
+                  {'stations': stations})
+
+def getPredictionStats(request):
+    today = time.strftime("%Y-%m-%d")
+    station_id = request.POST['station']
+
+    jsonData = {}
+    jsonData["station_id"] = station_id
+    jsonData["fecha"] = today
+    payload = json.dumps(jsonData)
+
+    response = requests.post('http://130.206.117.178:5000/getPredictionStats',
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                             data=payload)
+
+    if response.json():
+        result = json.loads(response.json())
+        concreteStation = Station.objects.get(station_id=station_id)
+        print(result)
+        kml = simplekml.Kml()
+        if len(result) > 0:
+            contentString = '<div id="content">' + \
+                            '<div id="siteNotice">' + \
+                            '</div>' + \
+                            '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
+                            '<div id="bodycontent">' + \
+                            '<p>' + \
+                            '<br/><b>max temp: </b>' + str(result[0].get("max_temp")) + \
+                            '<br/><b>med temp: </b>' + str(result[0].get("med_temp")) + \
+                            '<br/><b>min temp: </b>' + str(result[0].get("min_temp")) + \
+                            '<br/><b>max pressure: </b>' + str(result[0].get("max_pressure")) + \
+                            '<br/><b>min pressure: </b>' + str(result[0].get("min_pressure")) + \
+                            '<br/><b>precip: </b>' + str(result[0].get("precip")) + \
+                            '<br/><b>insolation: </b>' + str(result[0].get("insolation")) + \
+                            '</p>' + \
+                            '</div>' + \
+                            '</div>'
+
+            kml.newpoint(name=concreteStation.name, description=contentString,
+                         coords=[(concreteStation.longitude, concreteStation.latitude)])
+
+        millis = int(round(time.time() * 1000))
+        fileName = "prediction_" + str(millis) + ".kml"
+        currentDir = os.getcwd()
+        dir1 = os.path.join(currentDir, "static/kmls")
+        dirPath2 = os.path.join(dir1, fileName)
+
+        ip = getIp()
+        kml.save(dirPath2)
+
+        kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
+
+        return render(request, 'floybd/weather/weatherPredictionView.html',
+                      {'fileName': fileName, 'kml': kmlpath,
+                       'concreteStation': concreteStation})
+    else:
+        return render(request, 'floybd/weather/weatherPredictionView.html')
+
+
