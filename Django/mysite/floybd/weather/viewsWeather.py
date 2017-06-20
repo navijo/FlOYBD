@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 from ..models import Station
 
@@ -25,7 +24,9 @@ def getConcreteValues(request):
 
     stations = Station.objects.all()
 
-    response = requests.get('http://'+sparkIp+':5000/getMeasurement?date='+date+'&station_id='+station_id+'&allStations='+str(getAllStations),stream=True)
+    response = requests.get(
+        'http://' + sparkIp + ':5000/getMeasurement?date=' + date + '&station_id=' + station_id + '&allStations=' + str(
+            getAllStations), stream=True)
     jsonData = json.loads(response.json())
 
     stationsWeather = {}
@@ -72,11 +73,9 @@ def getConcreteValues(request):
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
 
-
-
         kml.save(dirPath2)
         return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'kml': 'http://'+ip+':8000/static/kmls/'+fileName, 'date': date})
+                      {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName, 'date': date})
     else:
         concreteStation = Station.objects.get(station_id=station_id)
         contentString = stationsWeather[station_id]["contentString"]
@@ -103,7 +102,7 @@ def sendConcreteValuesToLG(request):
         dirPath2 = os.path.join(dir1, fileName)
 
         response = requests.get(
-            'http://'+sparkIp+':5000/getAllStationsMeasurementsKML?date=' + date,
+            'http://' + sparkIp + ':5000/getAllStationsMeasurementsKML?date=' + date,
             stream=True)
         with open(dirPath2, 'wb') as f:
             for chunk in response.iter_content(chunk_size=1024):
@@ -119,12 +118,12 @@ def sendConcreteValuesToLG(request):
         station_id = request.POST['station']
         weatherData = request.POST['weatherData']
 
-    fileName = "measurement_" + str(date)+"_"+str(millis)+ ".kml"
+    fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
 
-    response = requests.get('http://'+sparkIp+':5000/getMeasurementKml?date='
+    response = requests.get('http://' + sparkIp + ':5000/getMeasurementKml?date='
                             + date + '&station_id=' + station_id, stream=True)
     with open(dirPath2, 'wb') as f:
         for chunk in response.iter_content(chunk_size=1024):
@@ -161,12 +160,10 @@ def getPrediction(request):
     sparkIp = getSparkIp()
     ip = getDjangoIp()
 
-    jsonData = {}
-    jsonData["station_id"] = station_id
-    jsonData["columnsToPredict"] = columnsToPredict
+    jsonData = {"station_id": station_id, "columnsToPredict": columnsToPredict}
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://'+sparkIp+':5000/getPrediction',
+    response = requests.post('http://' + sparkIp + ':5000/getPrediction',
                              headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                              data=payload)
 
@@ -180,8 +177,8 @@ def getPrediction(request):
             kml = simplekml.Kml()
 
             for column in columnsToPredict:
-                if jsonRow.get("prediction_"+column) is not None:
-                    predictionStr += '<br/><b>'+column+': </b>' + str(jsonRow.get("prediction_"+column))
+                if jsonRow.get("prediction_" + column) is not None:
+                    predictionStr += '<br/><b>' + column + ': </b>' + str(jsonRow.get("prediction_" + column))
 
         contentString = '<div id="content">' + \
                         '<div id="siteNotice">' + \
@@ -199,11 +196,9 @@ def getPrediction(request):
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
 
-
         kml.save(dirPath2)
 
-        kmlpath = "http://"+ip+":8000/static/kmls/"+fileName
-
+        kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
                       {'fileName': fileName, 'kml': kmlpath,
@@ -215,7 +210,7 @@ def getPrediction(request):
 def sendPredictionsToLG(request):
     fileName = request.POST.get("fileName")
     ip = getDjangoIp()
-    kmlpath = "http://"+ip+":8000/static/kmls/"+fileName;
+    kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
 
     station_id = request.POST.get("station_id")
 
@@ -223,10 +218,10 @@ def sendPredictionsToLG(request):
 
     sendKml(fileName, concreteStation)
 
-
     return render(request, 'floybd/weather/weatherPredictionView.html',
                   {'fileName': fileName, 'kml': kmlpath,
                    'concreteStation': concreteStation})
+
 
 def weatherStats(request):
     stations = Station.objects.all()
@@ -244,20 +239,19 @@ def getStats(request):
     dateTo = request.POST.get('dateTo', 0)
     station_id = request.POST.get('station', 0)
 
-    jsonData = {}
-    jsonData["station_id"] = station_id
-    jsonData["dateTo"] = dateTo
-    jsonData["dateFrom"] = dateFrom
-    jsonData["allTime"] = allTime
-    jsonData["allStations"] = allStations
+    jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom, "allTime": allTime,
+                "allStations": allStations}
 
     payload = json.dumps(jsonData)
 
     response = requests.post('http://130.206.117.178:5000/getStats',
-        headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-        data=payload)
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                             data=payload)
 
     result = json.loads(response.json())
+    intervalData = None
+    if allTime != str(1) and allStations != str(1):
+        intervalData = True
 
     stationsWeather = {}
     kml = simplekml.Kml()
@@ -296,13 +290,13 @@ def getStats(request):
                             '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
                             '<div id="bodycontent">' + \
                             '<p>' + \
-                            '<br/><b>max temp: </b>' + str(row.get("avg(max_temp)")) + \
-                            '<br/><b>med temp: </b>' + str(row.get("avg(med_temp)")) + \
-                            '<br/><b>min temp: </b>' + str(row.get("avg(min_temp)")) + \
-                            '<br/><b>max pressure: </b>' + str(row.get("avg(max_pressure)")) + \
-                            '<br/><b>min pressure: </b>' + str(row.get("avg(min_pressure)")) + \
-                            '<br/><b>precip: </b>' + str(row.get("avg(precip)")) + \
-                            '<br/><b>insolation: </b>' + str(row.get("avg(insolation)")) + \
+                            '<br/><b>Avg max temp: </b>' + str(row.get("avg(max_temp)")) + \
+                            '<br/><b>Avg med temp: </b>' + str(row.get("avg(med_temp)")) + \
+                            '<br/><b>Avg min temp: </b>' + str(row.get("avg(min_temp)")) + \
+                            '<br/><b>Avg max pressure: </b>' + str(row.get("avg(max_pressure)")) + \
+                            '<br/><b>Avg min pressure: </b>' + str(row.get("avg(min_pressure)")) + \
+                            '<br/><b>Avg precip: </b>' + str(row.get("avg(precip)")) + \
+                            '<br/><b>Avg insolation: </b>' + str(row.get("avg(insolation)")) + \
                             '</p>' + \
                             '</div>' + \
                             '</div>'
@@ -322,42 +316,64 @@ def getStats(request):
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
 
-
     kml.save(dirPath2)
 
-    return render(request, 'floybd/weather/weatherStats.html',  {'kml': 'http://'+ip+':8000/static/kmls/'+fileName,'stations': stations,'fileName':fileName})
+    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
+                                                                'stations': stations, 'fileName': fileName,
+                                                                'intervalData': intervalData, "dateTo": dateTo,
+                                                                "dateFrom": dateFrom, "station": station_id})
+
+
+def getGraphDataForStats(request):
+    station_id = request.GET.get("station")
+    dateFrom = request.GET.get("dateFrom")
+    dateTo = request.GET.get("dateTo")
+
+    jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom}
+    payload = json.dumps(jsonData)
+
+    response = requests.post('http://' + getSparkIp() + ':5000/getWeatherDataInterval',
+                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                             data=payload)
+
+    result = json.loads(response.json())
+    if result:
+        data = {
+            'stationData': result
+        }
+    else:
+        data = {}
+
+    return JsonResponse(data)
 
 
 def sendKmlGlobal(fileName):
     ip = getDjangoIp()
     lgIp = getLGIp()
-    command = "echo 'http://"+str(ip)+":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://" + str(
+        ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
 def sendKml(fileName, concreteStation):
-
-    #Javi : 192.168.88.234
-    #Gerard: 192.168.88.198
-
     ip = getDjangoIp()
     lgIp = getLGIp()
 
-    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName+"' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     if concreteStation is not None:
         flyTo = "flytoview=<LookAt>" \
-                +"<longitude>"+str(concreteStation.longitude)+"</longitude>" \
-                +"<latitude>"+str(concreteStation.latitude)+"</latitude>" \
-                +"<altitude>100</altitude>" \
-                +"<heading>14</heading>" \
-                +"<tilt>69</tilt>" \
-                +"<range>200000</range>" \
-                +"<altitudeMode>relativeToGround</altitudeMode>" \
-                +"<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
+                + "<longitude>" + str(concreteStation.longitude) + "</longitude>" \
+                + "<latitude>" + str(concreteStation.latitude) + "</latitude>" \
+                + "<altitude>100</altitude>" \
+                + "<heading>14</heading>" \
+                + "<tilt>69</tilt>" \
+                + "<range>200000</range>" \
+                + "<altitudeMode>relativeToGround</altitudeMode>" \
+                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-        command = "echo '"+flyTo+"' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+        command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
         os.system(command)
 
 
@@ -369,7 +385,7 @@ def sendStatsToLG(request):
     ip = getDjangoIp()
 
     return render(request, 'floybd/weather/weatherStats.html',
-                  {'kml': 'http://'+ip+':8000/static/kmls/' + fileName,
+                  {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
                    'stations': stations, 'fileName': fileName})
 
 
@@ -386,15 +402,11 @@ def viewDashboard(request):
 
     today = time.strftime("%Y-%m-%d")
     previousDate = datetime.datetime.today() - timedelta(days=int(daysBefore))
-    jsonData = {}
-    jsonData["station_id"] = station
-    jsonData["dateTo"] = today
-    jsonData["dateFrom"] = previousDate.strftime("%Y-%m-%d")
-
+    jsonData = {"station_id": station, "dateTo": today, "dateFrom": previousDate.strftime("%Y-%m-%d")}
 
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://'+sparkIp+':5000/getWeatherDataInterval',
+    response = requests.post('http://' + sparkIp + ':5000/getWeatherDataInterval',
                              headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                              data=payload)
 
@@ -407,11 +419,13 @@ def viewDashboard(request):
         data = {}
     return JsonResponse(data)
 
+
 def weatherPredictionsStats(request):
     stations = Station.objects.all()
 
     return render(request, 'floybd/weather/weatherPredictionStats.html',
                   {'stations': stations})
+
 
 def getPredictionStats(request):
     today = time.strftime("%Y-%m-%d")
@@ -419,12 +433,10 @@ def getPredictionStats(request):
     sparkIp = getSparkIp()
     ip = getDjangoIp()
 
-    jsonData = {}
-    jsonData["station_id"] = station_id
-    jsonData["fecha"] = today
+    jsonData = {"station_id": station_id, "fecha": today}
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://'+sparkIp+':5000/getPredictionStats',
+    response = requests.post('http://' + sparkIp + ':5000/getPredictionStats',
                              headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                              data=payload)
 
@@ -460,7 +472,6 @@ def getPredictionStats(request):
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
 
-
         kml.save(dirPath2)
 
         kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
@@ -470,5 +481,3 @@ def getPredictionStats(request):
                        'concreteStation': concreteStation})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')
-
-

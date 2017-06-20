@@ -15,6 +15,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from math import sin, cos, sqrt, atan2, radians
 
+
 def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point3Lon):
     # approximate radius of earth in km
     R = 6373.0
@@ -89,6 +90,7 @@ def parseCalendarDates(basepath):
 
         calendar_date.save()
 
+
 def parseRoutes(basePath):
     print("Processing Routes")
     data = pd.read_csv(basePath + '/routes.txt', engine='python')
@@ -109,7 +111,6 @@ def parseRoutes(basePath):
         except Agency.DoesNotExist:
             print("Agency not exist " + str(row['agency_id']))
             continue
-
 
 
 def parseStops(basePath):
@@ -174,21 +175,14 @@ def parseStopTimes(basePath):
             traceback.print_exc()
 
 
-
 def parseTrips(basePath):
     print("Processing Trips")
     data = pd.read_csv(basePath + '/trips.txt', engine='python')
     for index, row in data.iterrows():
         try:
-           # trip = Trip()
             route = Route.objects.get(route_id=row['route_id'])
-            #trip.route = route
-            #trip.trip_id = row['trip_id']
-            #trip.trip_headsign = row['trip_headsign']
             calendar_type = ContentType.objects.get(app_label='floybd', model='calendar')
             calendar = calendar_type.get_object_for_this_type(service_id=row['service_id'])
-            #calendar = Calendar.objects.get(service_id=row['service_id'])
-            #trip.service = calendar
 
             trip = Trip(
                 route=route,
@@ -196,15 +190,12 @@ def parseTrips(basePath):
                 trip_headsign=row['trip_headsign'],
                 content_object=ContentType.objects.get_for_model(calendar),
                 service_id=calendar.service_id
-            )
+            ).save()
 
-            trip.save()
         except Calendar.DoesNotExist:
             print("Calendar not exist " + str(row['service_id']))
             route = Route.objects.get(route_id=row['route_id'])
-            #calendar_date = Calendar_date.objects.filter(service_id=row['service_id'])
-            calendar_date_types = ContentType.objects.get(app_label='floybd', model='calendar_date')
-            #calendar_dates = calendar_date_types.get_object_for_this_type(service_id=row['service_id'])
+
             calendar_dates = Calendar_date.objects.filter(service_id=row['service_id'])
             calendar_date = calendar_dates.first()
             trip = Trip(
@@ -213,8 +204,6 @@ def parseTrips(basePath):
                 trip_headsign=row['trip_headsign'],
                 content_object=ContentType.objects.get_for_model(calendar_date),
                 service_id=calendar_date.service_id
-            )
+            ).save()
 
-            #trip.service = calendar_date
-            trip.save()
             continue

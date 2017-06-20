@@ -38,6 +38,7 @@ urlpatterns = [
 
     url('getStats', viewsWeather.getStats, name='getStats'),
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
+    url('getGraphDataForStats', viewsWeather.getGraphDataForStats, name='getGraphDataForStats'),
 
     url('uploadgtfs', viewsGTFS.uploadgtfs, name='uploadgtfs'),
     url('viewgtfs', viewsGTFS.viewgtfs, name='viewgtfs'),

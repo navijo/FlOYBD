@@ -1,5 +1,6 @@
 import json
 
+
 def prepareJson(weatherData, stationData):
     stationData = json.loads(stationData)
 
@@ -13,16 +14,9 @@ def prepareJson(weatherData, stationData):
     coordinatesStr = json.dumps(coordinates)
 
     calculatedData = json.loads(weatherData)
-    #print(calculatedData)
     maxTemp = calculatedData["max_temp"]
     minTemp = calculatedData["min_temp"]
-    temps = []
-    temps.append(maxTemp)
-    temps.append(minTemp)
+    temps = [maxTemp, minTemp]
 
-    finalData = {}
-    finalData["name"] = name
-    finalData["description"] = temps
-    finalData["coordinates"] = coordinates
-    finalData["extra"] = ""
+    finalData = {"name": name, "description": temps, "coordinates": coordinates, "extra": ""}
     return finalData

@@ -29,7 +29,9 @@
 			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 		</form>
 		</div>
-		<div class="mui--text-center" id="map" style="height: 75%;width: 100%;"></div>
+			  <div class="mui--text-center">
+                   <center>
+		<div id="map" style="height: 75%;width: 100%;"></div> </center>
 		<script>
 		  var map;
 		  function initMap() {
@@ -61,6 +63,8 @@
 		</script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
 		  async defer></script>
+
+			  </div>
 
 	{% endif %}
 

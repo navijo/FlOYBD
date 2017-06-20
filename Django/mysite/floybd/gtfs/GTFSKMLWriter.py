@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from ..gtfs_models import Trip
+
 
 def init():
     root = ET.Element('kml')
@@ -10,7 +10,8 @@ def init():
 
     return doc
 
-def end(doc,name):
+
+def end(doc, name):
     output = open("static/kmls/"+name+".kml", 'wb')
     output.write(b"""<?xml version="1.0" encoding="UTF-8"?>\n""")
     ET.ElementTree(doc).write(output, 'utf-8')
@@ -21,11 +22,11 @@ def CreateFolder(parent, name, visible=True, description=None):
     name_tag = ET.SubElement(folder, 'name')
     name_tag.text = name
     if description is not None:
-      desc_tag = ET.SubElement(folder, 'description')
-      desc_tag.text = description
+        desc_tag = ET.SubElement(folder, 'description')
+        desc_tag.text = description
     if not visible:
-      visibility = ET.SubElement(folder, 'visibility')
-      visibility.text = '0'
+        visibility = ET.SubElement(folder, 'visibility')
+        visibility.text = '0'
     return folder
 
 
@@ -40,7 +41,7 @@ def StopFolderSelectionMethod(stop_folder):
     standalone_folder = CreateFolder(stop_folder, 'Stand-Alone')
 
     def FolderSelectionMethod(stop):
-      return (standalone_folder, None)
+        return (standalone_folder, None)
     return FolderSelectionMethod
 
 

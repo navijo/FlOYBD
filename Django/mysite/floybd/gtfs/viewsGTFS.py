@@ -48,19 +48,19 @@ def handle_uploaded_file(f, title, millis):
         decompressFile(f, title, extension)
         parseGTFS(title)
 
-    # kmlwriter.py google_transit.zip googleTest.kml
-    #zipName = title+extension
-    #kmlName = title+"_"+str(millis)+".kml"
-    #kmlPath = "http://"+ip+":8000/static/kmls/" + kmlName
+        # kmlwriter.py google_transit.zip googleTest.kml
+        # zipName = title+extension
+        # kmlName = title+"_"+str(millis)+".kml"
+        # kmlPath = "http://"+ip+":8000/static/kmls/" + kmlName
 
-    #command = "python2 static/utils/gtfs/kmlwriter.py static/upload/gtfs/"+zipName+" static/kmls/"+kmlName
-    #os.system(command)
-    #return kmlPath
+        # command = "python2 static/utils/gtfs/kmlwriter.py static/upload/gtfs/"+zipName+" static/kmls/"+kmlName
+        # os.system(command)
+        # return kmlPath
 
 
 def parseGTFS(title):
-    parseAgency("static/upload/gtfs/"+title)
-    parseCalendar("static/upload/gtfs/"+title)
+    parseAgency("static/upload/gtfs/" + title)
+    parseCalendar("static/upload/gtfs/" + title)
     parseCalendarDates("static/upload/gtfs/" + title)
     parseStops("static/upload/gtfs/" + title)
     parseRoutes("static/upload/gtfs/" + title)
@@ -80,7 +80,7 @@ def saveNormalFile(file, title, extension):
 
 
 def decompressFile(file, title, extension):
-    print("Decompressing..."+extension)
+    print("Decompressing..." + extension)
     if str(extension) == str('.zip'):
         print("Is Zip")
         opener, mode = zipfile.ZipFile, 'r'
@@ -95,10 +95,10 @@ def decompressFile(file, title, extension):
 
     cwd = os.getcwd()
 
-    if not os.path.exists("static/upload/gtfs/"+title):
-        os.makedirs("static/upload/gtfs/"+title)
+    if not os.path.exists("static/upload/gtfs/" + title):
+        os.makedirs("static/upload/gtfs/" + title)
 
-    os.chdir("static/upload/gtfs/"+title)
+    os.chdir("static/upload/gtfs/" + title)
 
     try:
         compressedFile = opener(file, mode)
@@ -119,7 +119,7 @@ def sendGTFSToLG(request):
     lgIp = getLGIp()
     ip = getDjangoIp()
 
-    command = "echo '"+kmlPath + \
+    command = "echo '" + kmlPath + \
               "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
@@ -134,7 +134,7 @@ def sendGTFSToLG(request):
             + "<altitudeMode>relativeToGround</altitudeMode>" \
             + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
     os.system(command)
 
     time.sleep(5)
@@ -164,7 +164,7 @@ def getAgenciesAndGenerateKML(request):
     stops_added = []
 
     millis = int(round(time.time() * 1000))
-    folderName = "static/kmls/"+str(millis)
+    folderName = "static/kmls/" + str(millis)
     os.mkdir(folderName)
 
     flyToLatMax = 0
@@ -172,7 +172,7 @@ def getAgenciesAndGenerateKML(request):
     flyToLonMax = 0
     flyToLonMin = 0
 
-    agencies_file = open(folderName+"/agency.txt", 'w')
+    agencies_file = open(folderName + "/agency.txt", 'w')
     agencies_file.write("agency_url,agency_name,agency_id,agency_timezone\n")
 
     calendar_file = open(folderName + "/calendar.txt", 'w')
@@ -193,19 +193,19 @@ def getAgenciesAndGenerateKML(request):
 
     for selectedAgency in agencies:
         agency = Agency.objects.get(agency_id=selectedAgency)
-        agencyStr = str(agency.agency_url) +\
+        agencyStr = str(agency.agency_url) + \
                     "," + str(agency.agency_name) + \
                     "," + str(agency.agency_id) + \
-                    "," + str(agency.agency_timezone)+"\n"
+                    "," + str(agency.agency_timezone) + "\n"
         agencies_file.write(agencyStr)
 
         routes = Route.objects.filter(agency=agency)
         for route in routes:
 
             routeStr = str(route.route_type) + "," + str(route.route_id) + \
-                        "," + str(route.route_short_name) + \
-                        "," + str(route.route_long_name) + \
-                        "," + str(route.agency_id)+"\n"
+                       "," + str(route.route_short_name) + \
+                       "," + str(route.route_long_name) + \
+                       "," + str(route.agency_id) + "\n"
 
             routes_file.write(routeStr)
 
@@ -213,8 +213,8 @@ def getAgenciesAndGenerateKML(request):
 
             for trip in trips:
                 tripStr = str(trip.route_id) + "," + str(trip.trip_id) + \
-                           "," + str(trip.trip_headsign) + \
-                           "," + str(trip.service_id)+"\n"
+                          "," + str(trip.trip_headsign) + \
+                          "," + str(trip.service_id) + "\n"
 
                 trips_file.write(tripStr)
 
@@ -222,36 +222,36 @@ def getAgenciesAndGenerateKML(request):
                     calendars_added.append(trip.service_id)
                     calendar = Calendar.objects.get(service_id=trip.service_id)
 
-                    calendarStr = str(calendar.service_id) +\
-                                      "," + str(calendar.start_date.strftime("%Y%m%d")) + \
-                                      "," + str(calendar.end_date.strftime("%Y%m%d")) + \
-                                      (str(",1") if calendar.monday else (str(",0"))) + \
-                                      (str(",1") if calendar.tuesday else (str(",0"))) + \
-                                      (str(",1") if calendar.wednesday else (str(",0"))) + \
-                                      (str(",1") if calendar.thursday else (str(",0"))) + \
-                                      (str(",1") if calendar.friday else (str(",0"))) + \
-                                      (str(",1") if calendar.saturday else (str(",0"))) + \
-                                      (str(",1") if calendar.sunday else (str(",0"))) +\
-                                        str("\n")
+                    calendarStr = str(calendar.service_id) + \
+                                  "," + str(calendar.start_date.strftime("%Y%m%d")) + \
+                                  "," + str(calendar.end_date.strftime("%Y%m%d")) + \
+                                  (str(",1") if calendar.monday else (str(",0"))) + \
+                                  (str(",1") if calendar.tuesday else (str(",0"))) + \
+                                  (str(",1") if calendar.wednesday else (str(",0"))) + \
+                                  (str(",1") if calendar.thursday else (str(",0"))) + \
+                                  (str(",1") if calendar.friday else (str(",0"))) + \
+                                  (str(",1") if calendar.saturday else (str(",0"))) + \
+                                  (str(",1") if calendar.sunday else (str(",0"))) + \
+                                  str("\n")
                     calendar_file.write(calendarStr)
 
                 stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
                 for stop_time in stop_times:
-                    stop_times_str = str(stop_time.trip.trip_id) +\
-                                      "," + str(stop_time.arrival_time) + \
-                                      "," + str(stop_time.departure_time) + \
-                                      "," + str(stop_time.stop_id) + \
-                                      "," + str(stop_time.stop_sequence) + \
-                                      "," + str(stop_time.stop_headsign) + \
-                                      "," + str(stop_time.pickup_type) + \
-                                      "," + str(stop_time.drop_off_type)+ \
-                                      "," + str("0")+"\n"
+                    stop_times_str = str(stop_time.trip.trip_id) + \
+                                     "," + str(stop_time.arrival_time) + \
+                                     "," + str(stop_time.departure_time) + \
+                                     "," + str(stop_time.stop_id) + \
+                                     "," + str(stop_time.stop_sequence) + \
+                                     "," + str(stop_time.stop_headsign) + \
+                                     "," + str(stop_time.pickup_type) + \
+                                     "," + str(stop_time.drop_off_type) + \
+                                     "," + str("0") + "\n"
 
                     stops_times_file.write(stop_times_str)
 
                     stop = stop_time.stop
                     if stop.stop_id not in stops_added:
-                        print("Added Stop:" +stop.stop_id )
+                        print("Added Stop:" + stop.stop_id)
                         stops_added.append(stop.stop_id)
 
         for stop_id in stops_added:
@@ -273,12 +273,11 @@ def getAgenciesAndGenerateKML(request):
             elif stop.stop_lon < flyToLonMin:
                 flyToLonMin = stop.stop_lon
 
-
             stopStr = str(stop.stop_lon) + \
                       "," + str(stop.stop_name) + \
-                      "," +str(stop.stop_lat) + \
-                      "," +str(stop.stop_id) + \
-                      "," +str(stop.location_type)+"\n"
+                      "," + str(stop.stop_lat) + \
+                      "," + str(stop.stop_id) + \
+                      "," + str(stop.location_type) + "\n"
             stops_file.write(stopStr)
 
     agencies_file.close()
@@ -290,20 +289,20 @@ def getAgenciesAndGenerateKML(request):
 
     shutil.make_archive(folderName, 'zip', folderName)
 
-    zipName = folderName+".zip"
-    kmlName = str(millis)+".kml"
+    zipName = folderName + ".zip"
+    kmlName = str(millis) + ".kml"
 
-    command1 = "python2 static/utils/gtfs/kmlwriter.py "+zipName+" static/kmls/"+kmlName
+    command1 = "python2 static/utils/gtfs/kmlwriter.py " + zipName + " static/kmls/" + kmlName
     os.system(command1)
 
     ip = getDjangoIp()
-    #Javi : 192.168.88.234
-    #Gerard: 192.168.88.198
+    # Javi : 192.168.88.234
+    # Gerard: 192.168.88.198
     lgIp = getLGIp()
 
-    carKml = extractLinesCoordinates("static/kmls/"+kmlName, millis, maxCars)
+    carKml = extractLinesCoordinates("static/kmls/" + kmlName, millis, maxCars)
 
-    flyToLon = (flyToLonMax + flyToLonMin)/2
+    flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
     flyTo = "flytoview=<LookAt>" \
@@ -316,7 +315,7 @@ def getAgenciesAndGenerateKML(request):
             + "<altitudeMode>relativeToGround</altitudeMode>" \
             + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
 
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
     os.system(command)
 
     time.sleep(5)
@@ -326,23 +325,22 @@ def getAgenciesAndGenerateKML(request):
     os.system(command)
 
     time.sleep(1)
-    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
     os.system(command)
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://'+ip+':8000/static/kmls/' + kmlName,
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + kmlName,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
                                                          'carKml': carKml})
 
 
 def extractLinesCoordinates(filePath, millis, maxCars):
-
     kml = simplekml.Kml()
 
     tree = ET.parse(filePath)
     lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
     counter = 0
     cars = {}
-    print("We have " + str(len(lineStrings))+" lines")
+    print("We have " + str(len(lineStrings)) + " lines")
     carCounter = 0
     for attributes in lineStrings:
 
@@ -375,7 +373,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
     folder1 = kml1.newfolder(name="Cars")
 
     firstPlacemark = True
-    #counter = 0
+    # counter = 0
     carCounter = 0
 
     if maxCars <= carCounter:
@@ -383,7 +381,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
     for key, value in cars.items():
         numberOfItems = len(value)
-        #counter += 1
+        # counter += 1
         if random.randint(1, 10) % 2 == 0:
             print("Skipped Car")
             continue
@@ -393,7 +391,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
         for index, current in enumerate(value):
             firstPoint = True
-            if index+1 >= numberOfItems:
+            if index + 1 >= numberOfItems:
                 break
             nextelem = value[index + 1]
 
@@ -409,8 +407,8 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
             distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
 
-            latitudeModificator = (objectiveLatitude - startLatitude)/float(distance)
-            longitudeModificator = (objectiveLongitude - startLongitude)/float(distance)
+            latitudeModificator = (objectiveLatitude - startLatitude) / float(distance)
+            longitudeModificator = (objectiveLongitude - startLongitude) / float(distance)
 
             incrementLatitude = True if latitudeModificator > 0 else False
             incrementLongitude = True if longitudeModificator > 0 else False
@@ -422,9 +420,10 @@ def extractLinesCoordinates(filePath, millis, maxCars):
             print("longitudeModificator:", str(longitudeModificator))
             print("latitudeModificator:", str(latitudeModificator))
 
-            latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (startLatitude <= objectiveLatitude)
-            longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (startLongitude <= objectiveLongitude)
-
+            latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
+                startLatitude <= objectiveLatitude)
+            longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
+                startLongitude <= objectiveLongitude)
 
             counter = 0
 
@@ -443,7 +442,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                 animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
                     .format(currentPoint.placemark.id)
 
-                #if counter % 5 == 0:
+                # if counter % 5 == 0:
                 flyto = playlist1.newgxflyto(gxduration=0.1, gxflytomode=simplekml.GxFlyToMode.smooth)
                 flyto.camera.longitude = startLongitude
                 flyto.camera.latitude = startLatitude
@@ -466,10 +465,10 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                     print("Modified Start longitude:", str(startLongitude))
 
                 latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
-                startLatitude <= objectiveLatitude)
+                    startLatitude <= objectiveLatitude)
 
                 longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
-                startLongitude <= objectiveLongitude)
+                    startLongitude <= objectiveLongitude)
 
                 counter += 1
 
@@ -477,5 +476,5 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
     print("Total Cars: ", carCounter)
     print("Writing car file " + newKmlName)
-    kml1.save("static/kmls/"+newKmlName)
+    kml1.save("static/kmls/" + newKmlName)
     return newKmlName

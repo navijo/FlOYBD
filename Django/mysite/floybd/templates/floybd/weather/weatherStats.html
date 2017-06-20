@@ -96,29 +96,57 @@
                         {% csrf_token %}
                         <input type="hidden" name="allStations" value="allStations">
                         <input type="hidden" name="fileName" value="{{ fileName }}">
-                        <input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
+                        <input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
                         <a href="{% url 'floybd:weatherStats' %}"><input type="button" value="Go Back"
-                                                                         class="btn btn-default"/></a>
+                                                                         class="mui-btn mui-btn--primary"/></a>
                     </form>
                 </div>
-                <div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
-                <script>
-		  var map;
-		  function initMap() {
-			map = new google.maps.Map(document.getElementById('mapAll'), {
-			  zoom: 8,
-			  mapTypeId: google.maps.MapTypeId.HYBRID
-			});
+                <div class="mui--text-center">
+                   <center> <div id="mapAll" style="height: 50%;width: 75%;"></div></center>
+                    <script>
+                      var map;
+                      function initMap() {
+                        map = new google.maps.Map(document.getElementById('mapAll'), {
+                          zoom: 8,
+                          mapTypeId: google.maps.MapTypeId.HYBRID
+                        });
 
-			var myParser = new geoXML3.parser({map: map});
-			myParser.parse('{{ kml }}');
+                        var myParser = new geoXML3.parser({map: map});
+                        myParser.parse('{{ kml }}');
 
-		  }
+                      }
+                    </script>
 
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
+                            async defer></script>
+                </div>
+                    {% if intervalData != None %}
+                        <script src="{% static 'js/weatherStatsGraphsScripts.js' %}"></script>
+                        <script>
+                        station = "{{ station }}";
+                        dateFrom = "{{ dateFrom }}";
+                        dateTo = "{{ dateTo }}";
+                        loadStatsData(station,dateFrom,dateTo);
 
-                </script>
-                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
-                        async defer></script>
+                        </script>
+
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div id="tempStatsChart"></div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div id="pressureStatsChart"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div id="precipInsoStatsChart"></div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div id="windStatsChart"></div>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

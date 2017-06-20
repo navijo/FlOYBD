@@ -5,6 +5,7 @@ import datetime
 from django.utils.encoding import python_2_unicode_compatible
 from .gtfs_models import *
 
+
 @python_2_unicode_compatible
 class Station(models.Model):
     station_id = models.CharField(max_length=10)

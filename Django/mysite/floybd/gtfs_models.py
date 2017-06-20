@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+
 ## GTFS Models
 class Agency(models.Model):
     agency_id = models.CharField(primary_key=True, blank=False, null=False, max_length=200, unique=True)

@@ -14,7 +14,7 @@
             element     : 'spinner-target',
             width       : 500,
             height      : 500,
-            logo        : "{% static 'img/ChimpManager.gif' %}"
+            logo        : "{% static 'img/gear.gif' %}"
         });
 
           mui.overlay('on');
@@ -34,7 +34,6 @@
                 createPressureChart(data.stationData)
                 createWindDirChart(data.stationData)
                 createPrecipChart(data.stationData)
-
               }
             }
       });
@@ -211,8 +210,8 @@
             Backward Days:<input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length==3) return false;" maxlength="2" size="2" />
             <br/>
 
-            <a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="btn btn-default"/></a>
-            <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="btn"/>
+            <a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
+            <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="mui-btn mui-btn--primary"/>
 
         </form>
         <div class="row">
