@@ -1,12 +1,16 @@
 {% include "floybd/header.html" %}
-{# Display a form #}
+
 {% load i18n %}
 {% trans "Get Values" as getValues %}
 {% trans "Generate Cylinders and Send Vlues to LG" as sendValues %}
 
 {% load static %}
 <script src="{% static 'js/geoxml3.js' %}"></script>
-
+<script>
+  $( function() {
+    markActive("item2");
+   });
+</script>
 {% load coma_point %}
 
 <div id="content-wrapper">

@@ -1,9 +1,14 @@
 {% include "floybd/header.html" %}
-{# Display a form #}
+
 {% load i18n %}
 {% trans "Get Values" as getValues %}
 {% trans "Send Values to LG" as sendValues %}
 
+<script>
+  $( function() {
+    markActive("eartquakes");
+    });
+</script>
 
 
 {% load static %}

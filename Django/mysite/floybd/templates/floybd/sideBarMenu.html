@@ -50,6 +50,11 @@
     // show modal
     mui.overlay('on', modalEl);
   }
+
+  function markActive(className){
+    $("li."+className).parent().show()
+    $("li."+className+" > a").css("color", "grey")
+  }
 </script>
 
 <div id="sidedrawer" class="mui--no-user-select">
@@ -62,36 +67,36 @@
     <strong><img src="https://png.icons8.com/partly-cloudy-day/color/24" title="Weather" width="20%">
      Weather</strong>
     <ul>
-        <li class="menu"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>
-        <li class="menu"><a href="{% url 'floybd:dayWeather' %}">Weather Concrete Day</a></li>
-        <li class="menu"><a href="{% url 'floybd:predictWeather' %}">Weather Predictions</a></li>
-        <li class="menu"><a href="{% url 'floybd:predictWeatherStats' %}">Weather Predictions based on stats</a></li>
-        <li class="menu"><a href="{% url 'floybd:weatherStats' %}">Weather Stats</a></li>
-        <li class="menu"><a href="{% url 'floybd:citydashboard' %}">City Dashboard</a></li>
+        <li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>
+        <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}">Weather Concrete Day</a></li>
+        <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}">Weather Predictions</a></li>
+        <li class="menu item4"><a href="{% url 'floybd:predictWeatherStats' %}">Weather Predictions based on stats</a></li>
+        <li class="menu item5"><a href="{% url 'floybd:weatherStats' %}">Weather Stats</a></li>
+        <li class="menu item6"><a href="{% url 'floybd:citydashboard' %}">City Dashboard</a></li>
     </ul>
   </li>
   <li>
     <strong><img src="https://png.icons8.com/earthquakes/color/24" title="Earthquakes"
                  width="20%"> Earthquakes</strong>
     <ul>
-      <li class="menu"><a href="{% url 'floybd:earthquakes' %}">Earthquakes</a></li>
+      <li class="menu eartquakes"><a href="{% url 'floybd:earthquakes' %}">Earthquakes</a></li>
     </ul>
   </li>
   <li>
     <strong><img src="https://png.icons8.com/in-transit/color/24" title="GTFS"
                  width="20%"> GTFS</strong>
     <ul>
-        <li class="menu"><a href="{% url 'floybd:viewgtfs' %}">View GTFS</a></li>
-        <li class="menu"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
+        <li class="menu item7"><a href="{% url 'floybd:viewgtfs' %}">View GTFS</a></li>
+        <li class="menu item8"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
     </ul>
   </li>
     <li>
         <strong><img src="{% static 'img/more.png' %}" width="20%"/>More</strong>
         <ul>
-            <li class="menu"><a href="#" onclick="activateHelpModal()">Help</a></li>
-            <li class="menu"><a href="#" onclick="activateAboutModal()">About</a></li>
-            <li class="menu"><a target="_blank" href="{% url 'floybd:settings' %}">Settings</a></li>
-            <li class="menu"><a href="{% url 'floybd:clearKML' %}">Clear KMLs Folder</a></li>
+            <li class="menu item9"><a href="#" onclick="activateHelpModal()">Help</a></li>
+            <li class="menu item10"><a href="#" onclick="activateAboutModal()">About</a></li>
+            <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}">Settings</a></li>
+            <li class="menu item12"><a href="{% url 'floybd:clearKML' %}">Clear KMLs Folder</a></li>
         </ul>
     </li>
 </ul>

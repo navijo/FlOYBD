@@ -11,6 +11,7 @@
 
 <script>
   $( function() {
+    markActive("item5");
    $('#datepickerFrom').datetimepicker({
 			'format' : "YYYY-MM-DD",
 			'maxDate' : new Date()
@@ -123,11 +124,10 @@
                     {% if intervalData != None %}
                         <script src="{% static 'js/weatherStatsGraphsScripts.js' %}"></script>
                         <script>
-                        station = "{{ station }}";
-                        dateFrom = "{{ dateFrom }}";
-                        dateTo = "{{ dateTo }}";
-                        loadStatsData(station,dateFrom,dateTo);
-
+                            station = "{{ station }}";
+                            dateFrom = "{{ dateFrom }}";
+                            dateTo = "{{ dateTo }}";
+                            loadStatsData(station,dateFrom,dateTo);
                         </script>
 
                         <div class="row">
