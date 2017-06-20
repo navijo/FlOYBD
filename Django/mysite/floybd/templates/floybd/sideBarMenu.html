@@ -9,11 +9,25 @@
     modalEl.style.margin = '100px auto';
     modalEl.style.backgroundColor = '#fff';
 
+    var center = document.createElement("center");
     var para = document.createElement("p");
     var node = document.createTextNode("GSOC 2017 - Ivan Josa");
-    para.appendChild(node);
 
-    modalEl.appendChild(para);
+    para.appendChild(node);
+    center.appendChild(para)
+
+    var para1 = document.createElement("p");
+    var a = document.createElement('a');
+    var linkText = document.createTextNode("Github");
+    a.appendChild(linkText);
+    a.title = "my title text";
+    a.href = "https://github.com/LiquidGalaxyLAB/FLOYBD";
+    a.target = "_blank"
+
+    para1.appendChild(a);
+    center.appendChild(para1)
+
+    modalEl.appendChild(center);
 
     // show modal
     mui.overlay('on', modalEl);
