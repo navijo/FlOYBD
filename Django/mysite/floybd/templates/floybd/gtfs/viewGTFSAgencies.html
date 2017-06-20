@@ -67,46 +67,48 @@
         <div class="mui-col-md-12">
 
             <div class="mui--text-center">
-                <h3>Agencies</h3>
+                 <div class="mui--text-display3">GTFS Agencies</div>
 
         {% if agencies != None %}
 
-            <form id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" class="form">
+            <form class="mui-form" id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" >
                 {% csrf_token %}
-                <label for="maxCars">Max Number of cars per agency (the greater, the slower)</label>
-                <input required type="number" name="maxCars" id="maxCars">
+                <div class="mui-textfield mui-textfield--float-label">
+                    <input required type="number" name="maxCars" id="maxCars">
+                     <label for="maxCars">Max Number of cars per agency (the greater, the slower)</label>
+                 </div>
                 <table id="gtfsTable" class="mdl-data-table" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Url</th>
-                    <th>Timezone</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in agencies %}
-                <tr>
-                    <td>
-                        <input type="checkbox" id="{{ entry.agency_id }}" name="agenciesSelected" value="{{ entry.agency_id }}"><label for="{{ entry.agency_id }}"></label>
-                    </td>
-                    <td>
-                        {{ entry.agency_id }}
-                    </td>
-                     <td>
-                        {{ entry.agency_name }}
-                    </td>
-                    <td>
-                        <a href="{{ entry.agency_url}}" target="_blank">{{ entry.agency_url}}</a>
-                    </td>
-                    <td>
-                        {{ entry.agency_timezone}}
-                    </td>
-                    <!--<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>-->
-                </tr>
-                {% endfor %}
-            </tbody>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Url</th>
+                            <th>Timezone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in agencies %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="{{ entry.agency_id }}" name="agenciesSelected" value="{{ entry.agency_id }}"><label for="{{ entry.agency_id }}"></label>
+                            </td>
+                            <td>
+                                {{ entry.agency_id }}
+                            </td>
+                             <td>
+                                {{ entry.agency_name }}
+                            </td>
+                            <td>
+                                <a href="{{ entry.agency_url}}" target="_blank">{{ entry.agency_url}}</a>
+                            </td>
+                            <td>
+                                {{ entry.agency_timezone}}
+                            </td>
+                            <!--<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>-->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
             </form>

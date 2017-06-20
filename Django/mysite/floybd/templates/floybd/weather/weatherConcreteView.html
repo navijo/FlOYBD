@@ -18,7 +18,7 @@
 	{% if concreteStation != None %}
 
 		<div class="mui--text-center">
-			<h3>Viewing weather for <b>{{  concreteStation.name }}</b> on <b>{{  date }}</b> </h3>
+			<div class="mui--text-display2">Viewing weather for <b>{{  concreteStation.name }}</b> on <b>{{  date }}</b> </div>
 
 		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}
@@ -71,7 +71,7 @@
 	{% if kml != None %}
 
 		<div class="mui--text-center">
-			<h3>Viewing weather for all stations on <b>{{  date }}</b> </h3>
+			<div class="mui--text-display2">Viewing weather for all stations on <b>{{  date }}</b> </div>
 
 		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}

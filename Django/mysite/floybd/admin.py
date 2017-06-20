@@ -49,12 +49,11 @@ class ApiKeyForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ApiKeyForm, self).__init__(*args, **kwargs)
         call = requests.get('http://130.206.117.178:5000/getKey')
-        jsonResponse = call.text
-        jsonData = json.loads(jsonResponse)
-        timestamp = datetime.datetime.strptime(jsonData["valid_until"], "%Y-%m-%d %H:%M:%S").date()
-        if not kwargs.get('initial'):
-            kwargs['initial'] = {}
-        kwargs['initial'].update({'valid_date': timestamp})
+        for record in call.json():
+            timestamp = datetime.datetime.strptime(record.get("valid_until"), "%Y-%m-%d %H:%M:%S")
+            if not kwargs.get('initial'):
+                kwargs['initial'] = {}
+            kwargs['initial'].update({'valid_date': timestamp})
 
     def save(self, commit=True):
         return super(ApiKeyForm, self).save(commit=commit)
@@ -65,12 +64,30 @@ class ApiKeyForm(ModelForm):
 
 
 class ApiKeyAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/floybd/api_key/change_list.html'
     form = ApiKeyForm
     fieldsets = [
         ('Descriptive', {'fields': ['creation_date', 'key', 'valid_date']}),
     ]
+    def get_urls(self):
+        urls = super(ApiKeyAdmin, self).get_urls()
+        my_urls = [url(r"^getApiKey/$", getApiKey)]
+        return my_urls + urls
 
 admin.site.register(ApiKey, ApiKeyAdmin)
+
+@staff_member_required
+def getApiKey(request):
+    response = requests.get('http://130.206.117.178:5000/getKey',
+                            headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+
+    for record in response.json():
+        creationDate = datetime.datetime.strptime(record.get("creation_date"), '%Y-%m-%d %H:%M:%S')
+        #validDate = datetime.datetime.strptime(record.get("valid_until"), '%Y-%m-%d %H:%M:%S')
+        api_key = ApiKey(creation_date=creationDate,
+                         key=record.get("api_key"))
+        api_key.save()
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 class AgencyAdmin(admin.ModelAdmin):

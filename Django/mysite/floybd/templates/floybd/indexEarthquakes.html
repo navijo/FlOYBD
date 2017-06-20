@@ -65,18 +65,20 @@
           <div class="mui-row">
             <div class="mui--text-center">
 
-                <form id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" class="form">
+                <form  class="mui-form"  id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" >
                     {% csrf_token %}
                         <div class="mui-row">
                             <div class="mui-panel">
                             <div class="col-xs-6">
-                                <input type="checkbox" id="showAll" name="showAll" value="1"><label for="showAll">Show
-                                All Earthquakes at a time</label>
+                                <div class="mui-checkbox">
+                                    <input type="checkbox" id="showAll" name="showAll" value="1"><label for="showAll">Show
+                                     All Earthquakes at a time</label>
+                                </div>
                             </div>
                             <div class="col-xs-6">
-                                 <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
-                                    <label class="control-label" for="date">Date</label>
+                                <div class="mui-textfield mui-textfield--float-label">
                                     <input required type="text" name="date" id="date" class="form-control" />
+                                     <label for="date">Date</label>
                                  </div>
                             </div>
                             </div>

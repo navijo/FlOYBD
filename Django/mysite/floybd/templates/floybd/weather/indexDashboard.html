@@ -191,7 +191,6 @@
 {% load coma_point %}
 {% load material_form %}
 <div id="content-wrapper">
-	<div class="mui--appbar-height"></div>
      <div class="mui-row">
         <div class="mui-col-md-3 mui-col-md-offset-3">
             <div id="spinner-target" style="left:60%;top:40%;"></div>
@@ -199,19 +198,21 @@
 
      </div>
     <div class="container-fluid">
-        <form id="dashboardForm" name="form" action="{% url 'floybd:viewDashboard' %}" method="post" class="form">
+         <div class="mui--text-center mui--text-display3">City Dashboard</div>
+        <form id="dashboardForm" name="form" action="{% url 'floybd:viewDashboard' %}" method="post" class="mui-form">
             {% csrf_token %}
             {% form form=form %}{% endform %}
-            <select id="combobox" name="station">
-            {% for entry in stations %}
-                <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
-            {% endfor %}
-            </select>
-            Backward Days:<input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length==3) return false;" maxlength="2" size="2" />
+                <select id="combobox" name="station">
+                    {% for entry in stations %}
+                        <option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+                    {% endfor %}
+                </select>
+            <div class="mui-textfield mui-textfield--float-label">
+               <input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length==3) return false;" maxlength="2" size="2" />
+                  <label for="daysBefore"> Backward Days:</label>
+            </div>
             <br/>
-
-            <a href="{% url 'floybd:weather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
-            <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="mui-btn mui-btn--primary"/>
+            <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="mui-btn mui-btn--raised"/>
 
         </form>
         <div class="row">

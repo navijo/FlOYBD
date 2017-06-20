@@ -33,29 +33,29 @@
 
 </script>
 <div id="content-wrapper">
-    <h1>Weather Concrete Day</h1>
+    <div class="mui--text-center mui--text-display3">Weather Concrete Day</div>
     <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
 
-        <form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="form">
+        <form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="mui-form">
             {% csrf_token %}
             <div class="mui-row">
                 <div class="col-xs-6">
-                    <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
-                        <label class="control-label" for="datetimepicker-default">Date</label>
+                     <div class="mui-textfield mui-textfield--float-label">
                         <input required type="text" name="date" id="datetimepicker-default" class="form-control" />
+                         <label for="datetimepicker-default">Date</label>
                     </div>
                 </div>
                 <div class="col-xs-6">
                     <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
                            value="1"><label for="allStations">Get All Stations</label>
 
-                    <div id="comboDiv">
+                    <div class="mui-select" id="comboDiv">
                         <select id="combobox" name="station">
                             {% for entry in stations %}
-                            <option value="{{ entry.station_id }}">
-                                {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
-                            </option>
+                                <option value="{{ entry.station_id }}">
+                                    {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
+                                </option>
                             {% endfor %}
                         </select>
                     </div>

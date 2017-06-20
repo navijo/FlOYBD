@@ -14,7 +14,7 @@
     <div class="mui-row">
         <div class="mui-col-md-12">
 		<div class="mui--text-center">
-			<h3>Viewing earthquakes on <b>{{  date }}</b> </h3>
+			<div class="mui--text-display2">Viewing earthquakes on <b>{{  date }}</b> </div>
 
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}

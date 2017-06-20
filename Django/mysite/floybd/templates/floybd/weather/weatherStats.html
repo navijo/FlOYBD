@@ -55,20 +55,20 @@
         <div class="mui-row">
             <div class="mui-col-md-12">
                 {% if kml == None %}
-                  <h1>Weather Stats</h1>
-                <form name="form" action="{% url 'floybd:getStats' %}" method="post" class="form">
+                 <div class="mui--text-center mui--text-display3">Weather Stats</div>
+                <form name="form" action="{% url 'floybd:getStats' %}" method="post" class="mui-form">
                     {% csrf_token %}
                     <p>
                     <input type="checkbox" id="allTime" onchange="showHideComboDate()" name="allTime" value="1"><label for="allTime">Get
                         Stats All Time</label>
                         <div id="dateDiv">
-                         <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
-                            <label class="control-label" for="datepickerFrom">Date From</label>
+                           <div class="mui-textfield mui-textfield--float-label">
                             <input required type="text" name="dateFrom" id="datepickerFrom" class="form-control" />
-                        </div>
-                         <div class="form-group pmd-textfield pmd-textfield-floating-label pmd-textfield-floating-label-completed">
-                                <label class="control-label" for="datepickerTo">Date to</label>
-                                <input required type="text" name="dateTo" id="datepickerTo" class="form-control" />
+                               <label for="datepickerFrom">Date From</label>
+                           </div>
+                           <div class="mui-textfield mui-textfield--float-label">
+                               <input required type="text" name="dateTo" id="datepickerTo" class="form-control" />
+                                 <label for="datepickerTo">Date To</label>
                             </div>
                         </div>
                     </p>
@@ -90,7 +90,7 @@
                 {% else %}
 
                 <div class="mui--text-center">
-                    <h3>Viewing Stats </h3>
+                    <div class="mui--text-display2">Viewing Stats </div>
 
                     <form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
                         {% csrf_token %}

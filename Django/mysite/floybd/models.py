@@ -33,7 +33,7 @@ class ApiKey(models.Model):
 
     def save(self, *args, **kwargs):
         call = requests.get('http://130.206.117.178:5000/saveAPIKeyGet?key='+str(self.key))
-        valid_date = self.creation_date + datetime.timedelta(days=10)
+        valid_date = self.creation_date + datetime.timedelta(days=90)
         self.valid_date = valid_date
         super(ApiKey, self).save()
 
