@@ -48,7 +48,7 @@ def saveApiKeyGet():
 
 @app.route('/getKey', methods=['GET'])
 def getApiKey():
-	return generalFunctions.getKey()
+	return jsonify(generalFunctions.getKey())
 
 
 @app.route('/getAllStationsMeasurementsKML')

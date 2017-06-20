@@ -29,12 +29,14 @@ def getKey():
 	session = cluster.connect("dev")
 	rows = session.execute('SELECT * FROM api_key')
 	apiKey = ''
+	jsonList = []
 	jsonData = {}
 	for row in rows:
 		jsonData['creation_date'] = str(row[0].strftime("%Y-%m-%d %H:%M:%S"))
 		jsonData['api_key'] = row[1]
 		jsonData['valid_until'] = str(row[2].strftime("%Y-%m-%d %H:%M:%S"))
-	return json.dumps(jsonData)
+		jsonList.append(jsonData)
+	return jsonList
 
 def dataframeToJson(dataFrame):
 	pandas_df = dataFrame.toPandas()
