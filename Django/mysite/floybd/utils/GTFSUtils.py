@@ -33,7 +33,10 @@ def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point3Lon):
 
     distance = R * c
 
-    print("Distance:", distance)
+   # print("Distance:", distance)
+    if distance == 0:
+        print("#####", point1Lat, ",", point1Lon, ",", point2Lat, ",", point3Lon)
+
     return distance
 
 

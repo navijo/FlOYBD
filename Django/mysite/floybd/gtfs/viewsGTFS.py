@@ -112,7 +112,7 @@ def decompressFile(file, title, extension):
 
 def sendGTFSToLG(request):
     kmlPath = request.POST["kmlPath"]
-    carKml = request.POST["carKML"]
+    carKml = request.POST["carKml"]
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
     form = UploadFileForm()
@@ -373,26 +373,28 @@ def extractLinesCoordinates(filePath, millis, maxCars):
     folder1 = kml1.newfolder(name="Cars")
 
     firstPlacemark = True
-    # counter = 0
+    counter = 0
     carCounter = 0
 
     if maxCars <= carCounter:
         maxCars = carCounter
 
+    addedTrips = []
+
+    #for key, value in cars.items():
     for key, value in cars.items():
         numberOfItems = len(value)
-        # counter += 1
-        if random.randint(1, 10) % 2 == 0:
-            print("Skipped Car")
-            continue
+
+
         if carCounter >= maxCars:
             break
         carCounter += 1
 
         for index, current in enumerate(value):
-            firstPoint = True
+
             if index + 1 >= numberOfItems:
-                break
+                #break
+                continue
             nextelem = value[index + 1]
 
             pLatitude = str(current.coords).split(",")[1]
@@ -407,74 +409,110 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
             distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
 
-            latitudeModificator = (objectiveLatitude - startLatitude) / float(distance)
-            longitudeModificator = (objectiveLongitude - startLongitude) / float(distance)
+            movementFactor = 50
+            zoomFactor = 50000
+            range = 30000
+            camera = 0.1
 
-            incrementLatitude = True if latitudeModificator > 0 else False
-            incrementLongitude = True if longitudeModificator > 0 else False
+            if distance == 0:
+                print("Distance 0")
+                continue
+            elif 500 < distance < 1000:
+                print("Distance between 500 and 1000")
+                movementFactor = 70
+                zoomFactor = 1500000
+                range = 1500000
+                camera = 0.01
+            elif 1000 < distance < 2000:
+                print("Distance between 1000 and 2000")
+                zoomFactor = 1500000
+                range = 1500000
+                movementFactor = 80
+                camera = 0.01
+            elif distance > 2000:
+                print("Distance over 2000")
+                zoomFactor = 1500000
+                range = 1500000
+                movementFactor = 90
+                camera = 0.01
 
-            print("Start latitude:", str(startLatitude))
-            print("Start longitude:", str(startLongitude))
-            print("Objective latitude:", str(objectiveLatitude))
-            print("Objective longitude:", str(objectiveLongitude))
-            print("longitudeModificator:", str(longitudeModificator))
-            print("latitudeModificator:", str(latitudeModificator))
+            if [startLatitude, startLongitude, objectiveLatitude, objectiveLongitude] not in addedTrips:
+                addedTrips.append([startLatitude, startLongitude, objectiveLatitude, objectiveLongitude])
 
-            latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
-                startLatitude <= objectiveLatitude)
-            longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
-                startLongitude <= objectiveLongitude)
+                latitudeModificator = (objectiveLatitude - startLatitude) / float(movementFactor)
+                longitudeModificator = (objectiveLongitude - startLongitude) / float(movementFactor)
 
-            counter = 0
+                incrementLatitude = True if latitudeModificator > 0 else False
+                incrementLongitude = True if longitudeModificator > 0 else False
 
-            while not latitudeAchieved and not longitudeAchieved:
-                currentPoint = folder1.newpoint(name='Car')
-                currentPoint.coords = [(startLongitude, startLatitude)]
-                if firstPlacemark:
-                    firstPlacemark = False
-                    currentPoint.visibility = 1
-                else:
-                    currentPoint.visibility = 0
-
-                currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
-
-                animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=0.0001)
-                animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
-                    .format(currentPoint.placemark.id)
-
-                # if counter % 5 == 0:
-                flyto = playlist1.newgxflyto(gxduration=0.1, gxflytomode=simplekml.GxFlyToMode.smooth)
-                flyto.camera.longitude = startLongitude
-                flyto.camera.latitude = startLatitude
-                flyto.camera.altitude = 50000
-                flyto.camera.range = 30000
-                playlist1.newgxwait(gxduration=0.1)
-
-                animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=0.0001)
-                animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
-                    .format(currentPoint.placemark.id)
-
-                playlist1.newgxwait(gxduration=0.0001)
-
-                if not latitudeAchieved:
-                    startLatitude += latitudeModificator
-                    print("Modified Start latitude:", str(startLatitude))
-
-                if not longitudeAchieved:
-                    startLongitude += longitudeModificator
-                    print("Modified Start longitude:", str(startLongitude))
+                print("Start latitude:", str(startLatitude))
+                print("Start longitude:", str(startLongitude))
+                print("Objective latitude:", str(objectiveLatitude))
+                print("Objective longitude:", str(objectiveLongitude))
+                print("longitudeModificator:", str(longitudeModificator))
+                print("latitudeModificator:", str(latitudeModificator))
 
                 latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
                     startLatitude <= objectiveLatitude)
-
                 longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
                     startLongitude <= objectiveLongitude)
 
-                counter += 1
+                counter = 0
 
-            playlist1.newgxwait(gxduration=2)
+                while not latitudeAchieved and not longitudeAchieved:
+                    currentPoint = folder1.newpoint(name='Car')
+                    currentPoint.coords = [(startLongitude, startLatitude)]
+                    if firstPlacemark:
+                        firstPlacemark = False
+                        currentPoint.visibility = 1
+                    else:
+                        currentPoint.visibility = 0
+
+                    distance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude+latitudeModificator,
+                                                        startLongitude+longitudeModificator)
+
+                    timeElapsed = distance/800
+
+                    currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+
+                    animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                        .format(currentPoint.placemark.id)
+
+                    # if counter % 5 == 0:
+                    flyto = playlist1.newgxflyto(gxduration=camera, gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = startLongitude
+                    flyto.camera.latitude = startLatitude
+                    flyto.camera.altitude = zoomFactor
+                    flyto.camera.range = range
+                    playlist1.newgxwait(gxduration=camera)
+
+                    animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                        .format(currentPoint.placemark.id)
+
+                    playlist1.newgxwait(gxduration=timeElapsed)
+
+                    if not latitudeAchieved:
+                        startLatitude += latitudeModificator
+                        #print("Modified Start latitude:", str(startLatitude))
+
+                    if not longitudeAchieved:
+                        startLongitude += longitudeModificator
+                       # print("Modified Start longitude:", str(startLongitude))
+
+                    latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
+                        startLatitude <= objectiveLatitude)
+
+                    longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
+                        startLongitude <= objectiveLongitude)
+
+                    counter += 1
+
+                playlist1.newgxwait(gxduration=2)
 
     print("Total Cars: ", carCounter)
     print("Writing car file " + newKmlName)
     kml1.save("static/kmls/" + newKmlName)
     return newKmlName
+

@@ -99,7 +99,7 @@ class KMLWriter(object):
     """Initialise."""
     self.show_trips = True
     self.show_stop_hierarchy = True
-    self.split_routes = False
+    self.split_routes = True
     self.shape_points = True
     self.altitude_per_sec = 0.0
     self.date_filter = None

@@ -38,8 +38,9 @@ buttons {
   left: -200px;
   overflow: auto;
   z-index: 2;
-  background-color: #fff;
+  /*background-color: #fff;*/
   transition: transform 0.2s;
+  background-color : aliceblue;
 }
 
 #content-wrapper {
