@@ -5,7 +5,11 @@
 
 <script>
   $( function() {
-    markActive("item3");
+    	{% if stats %}
+			markActive("item4");
+    	{% else %}
+    		markActive("item3");
+    	{% endif %}
    });
 </script>
 
@@ -26,7 +30,10 @@
 			{% csrf_token %}
 			<input type="hidden" name="station_id" value="{{ concreteStation.station_id }}">
 			<input type="hidden" name="fileName" value="{{ fileName }}">
-			<input type="submit" value="{{ sendValues }}" class="btn btn-default"/>
+			{% if stats %}
+				<input type="hidden" name="stats" value="1">
+			{% endif %}
+			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
 		</form>
 		</div>
 
@@ -35,12 +42,12 @@
 		  var map;
 		  function initMap() {
 			map = new google.maps.Map(document.getElementById('map'), {
-			  //center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
-			  zoom: 8,
+			  center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
+			  zoom: 16,
 			  mapTypeId: google.maps.MapTypeId.HYBRID
 			});
 
-			var myParser = new geoXML3.parser({map: map});
+			var myParser = new geoXML3.parser({map: map,zoom : false});
 			myParser.parse('{{ kml }}');
 
 		  }

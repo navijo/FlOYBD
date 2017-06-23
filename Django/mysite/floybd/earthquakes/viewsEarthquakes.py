@@ -143,7 +143,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
                 pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
                 #pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
                 pol.style.polystyle.color = color
-                pol.style.polystyle.fill = 1
+                pol.style.polystyle.fill = 0
                 pol.style.polystyle.outline = 1
                 #pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
                 pol.style.linestyle.color = color
@@ -158,21 +158,40 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
                     flyto.camera.longitude = longitude
                     flyto.camera.latitude = latitude
                     flyto.camera.altitude = 100000
+                    #flyto.camera.tilt = 20
                     playlist.newgxwait(gxduration=balloonDuration)
 
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration)
+                    for i in range(1, 11):
+                        polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
+                                                               radius=(200 * i) * absMagnitude, number_of_vertices=100)
+
+                        polAux = kml.newpolygon(name=place, outerboundaryis=polycircleAux.to_kml())
+                        polAux.style.polystyle.color = color
+                        polAux.style.polystyle.fill = 1
+                        polAux.style.polystyle.outline = 1
+                        polAux.style.linestyle.color = color
+                        polAux.style.linestyle.width = 1
+                        polAux.visibility = 0
+
+                        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                            .format(polAux.placemark.id)
+
+                        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                            .format(polAux.placemark.id)
+
+                        playlist.newgxwait(gxduration=balloonDuration/10)
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
-                    # <gx:balloonVisibility>1</gx:balloonVisibility>
-                    # pol.timestamp.when = datetimeStr
-                    # pol.timespan.begin = datetimeStr
-                    # pol.timespan.end = fechaFinStr
-
-                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration)
-                   # animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
+                    #animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                     animatedupdatehide.update.change = '<Placemark targetId="{0}"><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
+
 
             else:
                 earthquake = kml.newpoint(name=place,

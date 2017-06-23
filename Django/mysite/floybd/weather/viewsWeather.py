@@ -213,14 +213,20 @@ def sendPredictionsToLG(request):
     kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
 
     station_id = request.POST.get("station_id")
+    stats = request.POST.get("stats",0)
 
     concreteStation = Station.objects.get(station_id=station_id)
 
     sendKml(fileName, concreteStation)
 
+    time.sleep(1)
+    command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /tmp/query.txt'"
+    os.system(command)
+
     return render(request, 'floybd/weather/weatherPredictionView.html',
                   {'fileName': fileName, 'kml': kmlpath,
-                   'concreteStation': concreteStation})
+                   'concreteStation': concreteStation, 'stats': stats == str("1")})
 
 
 def weatherStats(request):
@@ -448,28 +454,40 @@ def getPredictionStats(request):
     if response.json():
         result = json.loads(response.json())
         concreteStation = Station.objects.get(station_id=station_id)
-        print(result)
         kml = simplekml.Kml()
         if len(result) > 0:
             contentString = '<div id="content">' + \
                             '<div id="siteNotice">' + \
                             '</div>' + \
-                            '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
+                            '<h3 id="firstheading" class="firstheading">' + concreteStation.province + '</h3>' + \
                             '<div id="bodycontent">' + \
                             '<p>' + \
-                            '<br/><b>max temp: </b>' + str(result[0].get("max_temp")) + \
-                            '<br/><b>med temp: </b>' + str(result[0].get("med_temp")) + \
-                            '<br/><b>min temp: </b>' + str(result[0].get("min_temp")) + \
-                            '<br/><b>max pressure: </b>' + str(result[0].get("max_pressure")) + \
-                            '<br/><b>min pressure: </b>' + str(result[0].get("min_pressure")) + \
-                            '<br/><b>precip: </b>' + str(result[0].get("precip")) + \
-                            '<br/><b>insolation: </b>' + str(result[0].get("insolation")) + \
+                            '<br/><b>Max temp: </b>' + str(result[0].get("max_temp")) + \
+                            '<br/><b>Med temp: </b>' + str(result[0].get("med_temp")) + \
+                            '<br/><b>Min temp: </b>' + str(result[0].get("min_temp")) + \
+                            '<br/><b>Max pressure: </b>' + str(result[0].get("max_pressure")) + \
+                            '<br/><b>Min pressure: </b>' + str(result[0].get("min_pressure")) + \
+                            '<br/><b>Precip: </b>' + str(result[0].get("precip")) + \
+                            '<br/><b>Insolation: </b>' + str(result[0].get("insolation")) + \
                             '</p>' + \
                             '</div>' + \
                             '</div>'
 
-            kml.newpoint(name=concreteStation.name, description=contentString,
+            point = kml.newpoint(name=concreteStation.name, description=contentString,
                          coords=[(concreteStation.longitude, concreteStation.latitude)])
+
+            point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+            point.gxballoonvisibility = 0
+
+            tour = kml.newgxtour(name="Show Balloon")
+            playlist = tour.newgxplaylist()
+
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
+
+
+
 
         millis = int(round(time.time() * 1000))
         fileName = "prediction_" + str(millis) + ".kml"
@@ -483,6 +501,6 @@ def getPredictionStats(request):
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
                       {'fileName': fileName, 'kml': kmlpath,
-                       'concreteStation': concreteStation})
+                       'concreteStation': concreteStation, 'stats': True})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')
