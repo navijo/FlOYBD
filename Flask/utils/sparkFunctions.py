@@ -72,6 +72,7 @@ def getConcreteEarhquakesData(earthquakes,date,max_lat,min_lat,max_lon,min_lon):
 		& (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
 
 	print("--- %s seconds ---" % (time.time() - start_time))
+	#earthquakesResult.orderBy('fecha', ascending=True)
 	return earthquakesResult
 
 
