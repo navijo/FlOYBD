@@ -1,9 +1,6 @@
-
 from django.shortcuts import render
 import simplekml
 from polycircles import polycircles
-
-
 
 import requests
 import os
@@ -28,23 +25,23 @@ def getEarthquakes(request):
     max_lon = request.POST['max_lon']
     min_lon = request.POST['min_lon']
 
-    center_lat = (float(max_lat) + float(min_lat))/2
-    center_lon = (float(max_lon) + float(min_lon))/2
+    center_lat = (float(max_lat) + float(min_lat)) / 2
+    center_lon = (float(max_lon) + float(min_lon)) / 2
 
-    response = requests.get('http://'+sparkIp+':5000/getEarthquakes?date='+date+'&max_lat='+max_lat+
-                            '&min_lat='+min_lat+'&max_lon='+max_lon+'&min_lon='+min_lon)
+    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
+                            '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
-    print("Obtained " +str(numberObtained) +" earthquakes")
+    print("Obtained " + str(numberObtained) + " earthquakes")
 
     millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, showAll,numberObtained)
-    #jsFile = createJSFile(jsonData)
+    fileUrl = createKml(jsonData, date, millis, showAll, numberObtained)
+    # jsFile = createJSFile(jsonData)
 
-    #return render(request, 'floybd/earthquakes/viewEarthquakes.html',{'data':strJson,'kml':fileUrl,'center_lat':center_lat,'center_lon':center_lon})
+    # return render(request, 'floybd/earthquakes/viewEarthquakes.html',{'data':strJson,'kml':fileUrl,'center_lat':center_lat,'center_lon':center_lon})
 
-    #return render(request, 'floybd/earthquakes/viewEarthquakes.html', {'data': "http://localhost:8000/static/js/"+jsFile,'center_lat':center_lat,'center_lon':center_lon,'date':date})
+    # return render(request, 'floybd/earthquakes/viewEarthquakes.html', {'data': "http://localhost:8000/static/js/"+jsFile,'center_lat':center_lat,'center_lon':center_lon,'date':date})
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis,
@@ -52,9 +49,7 @@ def getEarthquakes(request):
 
 
 def createJSFile(jsonData):
-    data = {}
-    data["type"] = "FeatureCollection"
-    data["features"] = []
+    data = {"type": "FeatureCollection", "features": []}
 
     for row in jsonData:
         geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
@@ -74,44 +69,44 @@ def createJSFile(jsonData):
     return jsFile
 
 
-def populateInfoWindow(row,json):
+def populateInfoWindow(row, json):
     place = row["place"]
     latitude = row["latitude"]
     longitude = row["longitude"]
     magnitude = row["magnitude"]
     fecha = row["fecha"]
 
-    datetimeStr = datetime.datetime.fromtimestamp(int(fecha)/1000).strftime('%Y-%m-%d %H:%M:%S')
+    datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
     url = json.get("properties").get("detail")
-    contentString = '<div id="content">' +\
-        '<div id="siteNotice">' +\
-        '</div>' +\
-        '<h3>Ocurred on ' + str(datetimeStr) + '</h3>' + \
-        '<div id="bodyContent">' +\
-        '<p>' + \
-        '<br/><b>Latitude: </b>'+str(latitude) + \
-        '<br/><b>Longitude: </b>' + str(longitude) + \
-        '<br/><b>Magnitude: </b>' + str(magnitude) + \
-        '<br/><a href=' + str(url) + ' target="_blank">More Info</a>'\
-        '</p>' +\
-        '</div>' +\
-        '</div>'
+    contentString = '<div id="content">' + \
+                    '<div id="siteNotice">' + \
+                    '</div>' + \
+                    '<h3>Ocurred on ' + str(datetimeStr) + '</h3>' + \
+                    '<div id="bodyContent">' + \
+                    '<p>' + \
+                    '<br/><b>Latitude: </b>' + str(latitude) + \
+                    '<br/><b>Longitude: </b>' + str(longitude) + \
+                    '<br/><b>Magnitude: </b>' + str(magnitude) + \
+                    '<br/><a href=' + str(url) + ' target="_blank">More Info</a>' \
+                                                 '</p>' + \
+                    '</div>' + \
+                    '</div>'
     return contentString
 
 
 def createKml(jsonData, date, millis, showAll, numberObtained):
-    #cleanKMLS()
+    # cleanKMLS()
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
     playlist = tour.newgxplaylist()
 
-    #if numberObtained > 1000:
-     #   balloonDuration = numberObtained/10000
-    #else:
-    #    balloonDuration = numberObtained / 1000
     balloonDuration = 1
+    if numberObtained > 1000:
+        balloonDuration = numberObtained/1000
+
+    #balloonDuration = 1
     print("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
@@ -121,13 +116,12 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
         magnitude = row["magnitude"]
         fecha = row["fecha"]
 
-        datetimeStr = datetime.datetime.fromtimestamp(int(fecha)/1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        fechaFin = datetime.datetime.fromtimestamp(int(fecha)/1000) + timedelta(hours=9)
+        datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
         fechaFinStr = fechaFin.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
         geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
         infowindow = populateInfoWindow(row, geoJson)
-
 
         try:
             if magnitude is not None:
@@ -141,35 +135,49 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
                     color = simplekml.Color.red
 
                 if not showAll:
-                    playlist.newgxwait(gxduration=3*balloonDuration)
+                    playlist.newgxwait(gxduration=3 * balloonDuration)
 
                 polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                     radius=2000 * absMagnitude, number_of_vertices=100)
 
                 pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
-                pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
-                pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
+                #pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
+                pol.style.polystyle.color = color
+                pol.style.polystyle.fill = 1
+                pol.style.polystyle.outline = 1
+                #pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
+                pol.style.linestyle.color = color
+                pol.style.linestyle.width = 10
+
+                #pol.tessellate = 1
 
                 if not showAll:
-                    pol.visibility = 0
+                    pol.visibility = 1
+
+                    flyto = playlist.newgxflyto(gxduration=balloonDuration, gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = longitude
+                    flyto.camera.latitude = latitude
+                    flyto.camera.altitude = 100000
+                    playlist.newgxwait(gxduration=balloonDuration)
 
                     animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>'\
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
-                    #<gx:balloonVisibility>1</gx:balloonVisibility>
-                    #pol.timestamp.when = datetimeStr
-                    #pol.timespan.begin = datetimeStr
-                    #pol.timespan.end = fechaFinStr
+                    # <gx:balloonVisibility>1</gx:balloonVisibility>
+                    # pol.timestamp.when = datetimeStr
+                    # pol.timespan.begin = datetimeStr
+                    # pol.timespan.end = fechaFinStr
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration)
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                   # animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
             else:
                 earthquake = kml.newpoint(name=place,
-                             description=infowindow,
-                             coords=[(longitude, latitude)])
+                                          description=infowindow,
+                                          coords=[(longitude, latitude)])
                 earthquake.timestamp.when = datetimeStr
 
         except ValueError:
@@ -177,10 +185,9 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
             print(absMagnitude)
 
     if not showAll:
-        playlist.newgxwait(gxduration=3)
+        playlist.newgxwait(gxduration=3 * balloonDuration)
 
-
-    fileName = "earthquakes" + str(date)+"_" +str(millis)+ ".kml"
+    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
@@ -188,7 +195,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
 
     ip = getDjangoIp()
 
-    fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
     return fileUrl
 
 
@@ -204,15 +211,16 @@ def sendConcreteValuesToLG(request):
 
     ip = getDjangoIp()
 
-    fileName = "earthquakes" + str(date) +"_" +str(millis)+ ".kml"
-    fileUrl = "http://"+ip+":8000/static/kmls/" + fileName
+    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
+    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
 
-    sendKml(fileName, center_lat,center_lon)
+    sendKml(fileName, center_lat, center_lon)
 
     if not showAll:
-        #Start the tour
+        # Start the tour
         time.sleep(5)
-        command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@192.168.88.198 'cat - > /tmp/query.txt'"
+        command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@" + getLGIp() +\
+                  " 'cat - > /tmp/query.txt'"
         os.system(command)
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
@@ -221,14 +229,14 @@ def sendConcreteValuesToLG(request):
 
 
 def sendKml(fileName, center_lat, center_lon):
-    #Javi : 192.168.88.234
-    #Gerard: 192.168.88.198
+    # Javi : 192.168.88.234
+    # Gerard: 192.168.88.198
 
     lgIp = getLGIp()
     ip = getDjangoIp()
 
-    command = "echo 'http://"+ip+":8000/static/kmls/"+fileName +\
-              "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + \
+              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     flyTo = "flytoview=<LookAt>" \
@@ -242,12 +250,11 @@ def sendKml(fileName, center_lat, center_lon):
             + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
             + "</LookAt>"
 
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@"+lgIp+" 'cat - > /tmp/query.txt'"
+    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
     os.system(command)
 
 
 def cleanKMLS():
-
     if not os.path.exists("static/kmls"):
         print("Creating kmls folder")
         os.makedirs("static/kmls")

@@ -250,6 +250,7 @@ def getStats(request):
 
     result = json.loads(response.json())
     intervalData = None
+    oneStation = (allStations != str(1))
     if allTime != str(1) and allStations != str(1):
         intervalData = True
 
@@ -315,13 +316,15 @@ def getStats(request):
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
+    concreteStation = Station.objects.get(station_id=station_id)
 
     kml.save(dirPath2)
 
     return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
                                                                 'stations': stations, 'fileName': fileName,
                                                                 'intervalData': intervalData, "dateTo": dateTo,
-                                                                "dateFrom": dateFrom, "station": station_id})
+                                                                "dateFrom": dateFrom, "station": station_id,
+                                                                'concreteStation': concreteStation,'oneStation':oneStation})
 
 
 def getGraphDataForStats(request):
@@ -351,7 +354,8 @@ def sendKmlGlobal(fileName):
     ip = getDjangoIp()
     lgIp = getLGIp()
     command = "echo 'http://" + str(
-        ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
+        ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + \
+              " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
@@ -359,7 +363,8 @@ def sendKml(fileName, concreteStation):
     ip = getDjangoIp()
     lgIp = getLGIp()
 
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
+    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp +\
+              " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     if concreteStation is not None:

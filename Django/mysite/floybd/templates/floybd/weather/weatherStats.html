@@ -64,11 +64,11 @@
                         Stats All Time</label>
                         <div id="dateDiv">
                            <div class="mui-textfield mui-textfield--float-label">
-                            <input required type="text" name="dateFrom" id="datepickerFrom" class="form-control" />
+                            <input required type="text" name="dateFrom" id="datepickerFrom"  />
                                <label for="datepickerFrom">Date From</label>
                            </div>
                            <div class="mui-textfield mui-textfield--float-label">
-                               <input required type="text" name="dateTo" id="datepickerTo" class="form-control" />
+                               <input required type="text" name="dateTo" id="datepickerTo"  />
                                  <label for="datepickerTo">Date To</label>
                             </div>
                         </div>
@@ -91,7 +91,11 @@
                 {% else %}
 
                 <div class="mui--text-center">
-                    <div class="mui--text-display2">Viewing Stats </div>
+                    {% if not oneStation %}
+                        <div class="mui--text-display2">Viewing Stats from {{dateFrom}} to {{dateTo}} </div>
+                    {% else %}
+                        <div class="mui--text-display1">Viewing Stats from {{dateFrom}} to {{dateTo}} for station {{concreteStation.name}} </div>
+                    {% endif %}
 
                     <form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
                         {% csrf_token %}
@@ -103,7 +107,11 @@
                     </form>
                 </div>
                 <div class="mui--text-center">
-                   <center> <div id="mapAll" style="height: 50%;width: 75%;"></div></center>
+                    {% if intervalData == None %}
+                     <center> <div id="mapAll" style="height: 75%;width: 100%;"></div></center>
+                    {% else %}
+                       <center> <div id="mapAll" style="height: 50%;width: 100%;"></div></center>
+                    {% endif %}
                     <script>
                       var map;
                       function initMap() {

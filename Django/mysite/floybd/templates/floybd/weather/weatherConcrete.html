@@ -51,7 +51,7 @@
                     <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
                            value="1"><label for="allStations">Get All Stations</label>
 
-                    <div class="mui-select" id="comboDiv">
+                    <div id="comboDiv">
                         <select id="combobox" name="station">
                             {% for entry in stations %}
                                 <option value="{{ entry.station_id }}">
