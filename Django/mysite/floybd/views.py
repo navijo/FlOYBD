@@ -1,7 +1,8 @@
 from django.shortcuts import render
 import os
 import shutil
-from .models import Setting
+from django.http import HttpResponseRedirect
+from .utils.utils import *
 
 
 def index(request):
@@ -24,7 +25,12 @@ def clearKML(request):
     print("Deletings kmls folder")
     shutil.rmtree('static/kmls')
     os.makedirs("static/kmls")
-    return render(request, 'floybd/index.html')
+
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def settingsIndex(request):

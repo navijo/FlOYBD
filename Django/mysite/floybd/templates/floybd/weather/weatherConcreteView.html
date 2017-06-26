@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% trans "Get Values" as getValues %}
-{% trans "Generate Cylinders and Send Vlues to LG" as sendValues %}
+{% trans "Generate Cylinders and Send Values to LG" as sendValues %}
 
 {% load static %}
 <script src="{% static 'js/geoxml3.js' %}"></script>
@@ -10,102 +10,112 @@
   $( function() {
     markActive("item2");
    });
+
 </script>
 {% load coma_point %}
 
 <div id="content-wrapper">
-	<div class="mui--appbar-height"></div>
-<div class="mui-container-fluid">
-    <div class="mui-row">
-        <div class="mui-col-md-12">
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
+            <div class="mui-col-md-12">
+                {% if noData %}
+                <div class="mui--text-center">
+                    <div class="mui--text-display2">No Data for {{ date }}</b></div>
+                     <a href="{% url 'floybd:dayWeather' %}">
+                         <input type="button" value="Go Back" class="mui-btn mui-btn--primary"/>
+                     </a>
+                </div>
+                {% else %}
+                    {% if concreteStation != None %}
 
-	{% if concreteStation != None %}
+                    <div class="mui--text-center">
+                        <div class="mui--text-display2">Viewing weather for <b>{{ concreteStation.name }}</b> on <b>{{ date }}</b></div>
 
-		<div class="mui--text-center">
-			<div class="mui--text-display2">Viewing weather for <b>{{  concreteStation.name }}</b> on <b>{{  date }}</b> </div>
+                        <form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
+                            {% csrf_token %}
+                            <input type="hidden" name="weatherData" value="{{  weatherData }}">
+                            <input type="hidden" name="date" value="{{  date }}">
+                            <input type="hidden" name="station" value="{{ concreteStation.station_id }}">
+                            <input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+                            <a href="{% url 'floybd:dayWeather' %}">
+                                <input type="button" value="Go Back" class="mui-btn mui-btn--primary"/>
+                            </a>
+                        </form>
+                    </div>
+                    <div class="mui--text-center">
+                        <center>
+                            <div id="map" style="height: 75%;width: 100%;"></div>
+                        </center>
+                        <script>
+                          var map;
+                          function initMap() {
+                            map = new google.maps.Map(document.getElementById('map'), {
+                              center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
+                              zoom: 8,
+                              mapTypeId: google.maps.MapTypeId.HYBRID
+                            });
 
-		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
-			{% csrf_token %}
-			<input type="hidden" name="weatherData" value="{{  weatherData }}">
-			<input type="hidden" name="date" value="{{  date }}">
-			<input type="hidden" name="station" value="{{ concreteStation.station_id }}">
-			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
-			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
-		</form>
-		</div>
-			  <div class="mui--text-center">
-                   <center>
-		<div id="map" style="height: 75%;width: 100%;"></div> </center>
-		<script>
-		  var map;
-		  function initMap() {
-			map = new google.maps.Map(document.getElementById('map'), {
-			  center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
-			  zoom: 8,
-			  mapTypeId: google.maps.MapTypeId.HYBRID
-			});
+                             var infowindow = new google.maps.InfoWindow({
+                                content: '{{ weatherData|safe }}'
+                            });
 
-			 var infowindow = new google.maps.InfoWindow({
-    			content: '{{ weatherData|safe }}'
-  			});
+                            var myLatlng = new google.maps.LatLng({{  concreteStation.latitude|coma_point }},{{  concreteStation.longitude|coma_point }});
+                            var marker = new google.maps.Marker({
+                                position: myLatlng,
+                                map: map,
+                                draggable: false,
+                                title: '{{  concreteStation.name }}'
+                             });
 
+                              marker.addListener('click', function() {
+                                infowindow.open(map, marker);
+                                });
 
+                          }
+                        </script>
+                        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
+                                async defer></script>
 
-			var myLatlng = new google.maps.LatLng({{  concreteStation.latitude|coma_point }},{{  concreteStation.longitude|coma_point }});
-			var marker = new google.maps.Marker({
-				position: myLatlng,
-				map: map,
-				draggable: false,
-				title: '{{  concreteStation.name }}'
-		 	 });
+                    </div>
 
-		 	  marker.addListener('click', function() {
-    			infowindow.open(map, marker);
-  				});
+                    {% endif %}
 
-		  }
-		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
-		  async defer></script>
+                    {% if kml != None %}
 
-			  </div>
+                    <div class="mui--text-center">
+                        <div class="mui--text-display2">Viewing weather for all stations on <b>{{ date }}</b></div>
 
-	{% endif %}
+                        <form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
+                            {% csrf_token %}
+                            <input type="hidden" name="date" value="{{  date }}">
+                            <input type="hidden" name="allStations" value="1">
+                            <input type="hidden" name="fileUrl" value="{{ kml }}">
+                            <input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+                            <a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back"
+                                                                           class="mui-btn mui-btn--primary"/></a>
+                        </form>
+                    </div>
+                    <div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
+                    <script>
+                      var map;
+                      function initMap() {
+                        map = new google.maps.Map(document.getElementById('mapAll'), {
+                          //center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
+                          zoom: 8,
+                          mapTypeId: google.maps.MapTypeId.HYBRID
+                        });
 
-	{% if kml != None %}
-
-		<div class="mui--text-center">
-			<div class="mui--text-display2">Viewing weather for all stations on <b>{{  date }}</b> </div>
-
-		<form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
-			{% csrf_token %}
-			<input type="hidden" name="date" value="{{  date }}">
-			<input type="hidden" name="allStations" value="1">
-			<input type="hidden" name="fileUrl" value="{{ kml }}">
-			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
-			<a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
-		</form>
-		</div>
-		<div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>
-		<script>
-		  var map;
-		  function initMap() {
-			map = new google.maps.Map(document.getElementById('mapAll'), {
-			  //center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
-			  zoom: 8,
-			  mapTypeId: google.maps.MapTypeId.HYBRID
-			});
-
-			var myParser = new geoXML3.parser({map: map});
-			myParser.parse('{{ kml }}');
-		  }
-
-		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
-		  async defer></script>
-	{% endif %}
-		</div>
-		</div>
-	</div>
+                        var myParser = new geoXML3.parser({map: map});
+                        myParser.parse('{{ kml }}');
+                      }
+                    </script>
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
+                            async defer></script>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% include "floybd/footer.html" %}

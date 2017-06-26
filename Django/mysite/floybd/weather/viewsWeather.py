@@ -30,6 +30,10 @@ def getConcreteValues(request):
     jsonData = json.loads(response.json())
 
     stationsWeather = {}
+    if len(jsonData) == 0:
+        return render(request, 'floybd/weather/weatherConcreteView.html',
+                      {'noData': True, 'date': date})
+
     for row in jsonData:
         concreteStation = Station.objects.get(station_id=row.get("station_id"))
         stationData = {}
@@ -213,7 +217,7 @@ def sendPredictionsToLG(request):
     kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
 
     station_id = request.POST.get("station_id")
-    stats = request.POST.get("stats",0)
+    stats = request.POST.get("stats", 0)
 
     concreteStation = Station.objects.get(station_id=station_id)
 
@@ -244,6 +248,16 @@ def getStats(request):
     dateFrom = request.POST.get('dateFrom', 0)
     dateTo = request.POST.get('dateTo', 0)
     station_id = request.POST.get('station', 0)
+    addGraphs = request.POST.get('addGraphs', 0)
+
+    addGraphs = (addGraphs == str("1"))
+
+    print("AllStations:", allStations)
+    print("allTime:", allTime)
+    print("dateFrom:", dateFrom)
+    print("dateTo:", dateTo)
+    print("station_id:", station_id)
+    print("addGraphs:", addGraphs)
 
     jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom, "allTime": allTime,
                 "allStations": allStations}
@@ -267,29 +281,29 @@ def getStats(request):
         stationData = {}
 
         if allTime == str(1):
-            contentString = '<div id="content">' + \
-                            '<div id="siteNotice">' + \
-                            '</div>' + \
-                            '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
-                            '<div id="bodyContent">' + \
-                            '<p>' + \
-                            '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
-                            '<img width="50%" height="50%" src="http://130.206.117.178:5000/' \
-                            'getStatsImage?station_id=' + row.get("station_id") + '&imageType=max_temp"/> </p>' + \
-                            '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
-                            '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
-                            '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
-                            '<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
-                            '<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
-                            '<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
-                            '<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
-                            '<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
-                            '<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
-                            '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
-                            '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
-                            '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
-                            '</div>' + \
-                            '</div>'
+            if addGraphs:
+                contentString = getContentStringWithGraphs(row, concreteStation)
+            else:
+                contentString = '<div id="content">' + \
+                                '<div id="siteNotice">' + \
+                                '</div>' + \
+                                '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
+                                '<div id="bodyContent">' + \
+                                '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
+                                '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
+                                '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
+                                '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
+                                '<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
+                                '<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
+                                '<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
+                                '<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
+                                '<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
+                                '<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
+                                '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
+                                '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
+                                '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
+                                '</div>' + \
+                                '</div>'
         else:
             contentString = '<div id="content">' + \
                             '<div id="siteNotice">' + \
@@ -314,8 +328,20 @@ def getStats(request):
         stationData["name"] = concreteStation.name
         stationsWeather[row.get("station_id")] = stationData
 
-        kml.newpoint(name=stationData["name"], description=stationData["contentString"],
+        point = kml.newpoint(name=stationData["name"], description=stationData["contentString"],
                      coords=[(stationData["longitude"], stationData["latitude"])])
+
+        point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+        point.style.balloonstyle.text = stationData["contentString"]
+        point.gxballoonvisibility = 0
+
+        tour = kml.newgxtour(name="Show Balloon")
+        playlist = tour.newgxplaylist()
+
+        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                           '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+            .format(point.placemark.id)
 
     millis = int(round(time.time() * 1000))
     fileName = "stats_" + str(millis) + ".kml"
@@ -330,7 +356,54 @@ def getStats(request):
                                                                 'stations': stations, 'fileName': fileName,
                                                                 'intervalData': intervalData, "dateTo": dateTo,
                                                                 "dateFrom": dateFrom, "station": station_id,
-                                                                'concreteStation': concreteStation,'oneStation':oneStation})
+                                                                'concreteStation': concreteStation,
+                                                                'oneStation': oneStation,
+                                                                'allTime': allTime == str("1")})
+
+
+def getContentStringWithGraphs(rowData, station):
+    print("Getting Graphs...")
+
+    contentString = '<p>'+\
+                    '<h3>Max Temp</h3>' + \
+                    '<div><br/><b>Avg Max Temp: </b>' + str(rowData.get("avgMaxTemp")) + \
+                    '<br/><b>Max Max Temp: </b>' + str(rowData.get("maxMaxTemp")) + \
+                    '<br/><b>Min Max Temp: </b>' + str(rowData.get("minMaxTemp")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_temp"/> </p>' + \
+                    '<p>' + \
+                    '<h3>Med Temp</h3>' + \
+                    '<br/><b>Avg Med Temp: </b>' + str(rowData.get("avgMedTemp")) + \
+                    '<br/><b>Max Med Temp: </b>' + str(rowData.get("maxMedTemp")) + \
+                    '<br/><b>Min Med Temp: </b>' + str(rowData.get("minMedTemp")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=med_temp"/> </p>' + \
+                    '<p>' + \
+                    '<h3>Min Temp</h3>' + \
+                    '<br/><b>Avg Min Temp: </b>' + str(rowData.get("avgMinTemp")) + \
+                    '<br/><b>Max Min Temp: </b>' + str(rowData.get("maxMinTemp")) + \
+                    '<br/><b>Min Min Temp: </b>' + str(rowData.get("minMinTemp")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_temp"/> </p>' + \
+                    '<p>' + \
+                    '<h3>Max Pressure</h3>' + \
+                    '<br/><b>Avg Max Pressure: </b>' + str(rowData.get("avgMaxPressure")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_pressure"/> </p>' + \
+                    '<p>' + \
+                    '<h3>Min Pressure</h3>' + \
+                    '<br/><b>Avg Min Pressure: </b>' + str(rowData.get("min_pressure")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_pressure"/> </p>' + \
+                    '<p>' + \
+                    '<h3>Precipitation</h3>' + \
+                    '<br/><b>Avg Precip: </b>' + str(rowData.get("avgPrecip")) + \
+                    '<br/><b>Max Precip: </b>' + str(rowData.get("maxPrecip")) + \
+                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=precip"/> </p>' + \
+                    '</div>'
+
+    return contentString
 
 
 def getGraphDataForStats(request):
@@ -393,11 +466,48 @@ def sendStatsToLG(request):
     sendKmlGlobal(fileName)
     stations = Station.objects.all()
 
+    allStations = request.POST.get('allStations', 0)
+    allTime = request.POST.get('allTime', 0)
+    dateFrom = request.POST.get('dateFrom', 0)
+    dateTo = request.POST.get('dateTo', 0)
+    station_id = request.POST.get('station', 0)
+    station = request.POST.get('station', 0)
+    concreteStation = Station.objects.get(station_id=station)
+
+    oneStation = not allStations
+    intervalData = False
+    if not allTime and not allStations:
+        intervalData = True
+
+    if oneStation:
+        flyTo = "flytoview=<LookAt>" \
+                + "<longitude>" + str(concreteStation.longitude) + "</longitude>" \
+                + "<latitude>" + str(concreteStation.latitude) + "</latitude>" \
+                + "<altitude>100</altitude>" \
+                + "<heading>14</heading>" \
+                + "<tilt>69</tilt>" \
+                + "<range>200000</range>" \
+                + "<altitudeMode>relativeToGround</altitudeMode>" \
+                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
+                  "<gx:duration>2</gx:duration></LookAt>"
+
+        command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /tmp/query.txt'"
+        os.system(command)
+
+    time.sleep(7)
+    command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /tmp/query.txt'"
+    os.system(command)
+
     ip = getDjangoIp()
 
-    return render(request, 'floybd/weather/weatherStats.html',
-                  {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
-                   'stations': stations, 'fileName': fileName})
+    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
+                                                                'stations': stations, 'fileName': fileName,
+                                                                'intervalData': intervalData, "dateTo": dateTo,
+                                                                "dateFrom": dateFrom, "station": station_id,
+                                                                'concreteStation': concreteStation,
+                                                                'oneStation': oneStation,
+                                                                'allTime': allTime})
 
 
 def citydashboard(request):
@@ -483,11 +593,9 @@ def getPredictionStats(request):
             playlist = tour.newgxplaylist()
 
             animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
-            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                               '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
-
-
-
 
         millis = int(round(time.time() * 1000))
         fileName = "prediction_" + str(millis) + ".kml"
