@@ -174,22 +174,26 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
                         polAux.visibility = 0
 
                         animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
-                        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                        animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                           '<visibility>1</visibility></Placemark>' \
                             .format(polAux.placemark.id)
 
                         animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
-                        animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+                        animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
+                                                           '<visibility>0</visibility></Placemark>' \
                             .format(polAux.placemark.id)
 
                         playlist.newgxwait(gxduration=balloonDuration/10)
 
                     animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility><gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                                       '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
                     #animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
+                                                       '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
 

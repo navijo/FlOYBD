@@ -381,10 +381,8 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
     addedTrips = []
 
-    #for key, value in cars.items():
     for key, value in cars.items():
         numberOfItems = len(value)
-
 
         if carCounter >= maxCars:
             break
@@ -393,7 +391,6 @@ def extractLinesCoordinates(filePath, millis, maxCars):
         for index, current in enumerate(value):
 
             if index + 1 >= numberOfItems:
-                #break
                 continue
             nextelem = value[index + 1]
 
@@ -409,9 +406,9 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
             distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
 
-            movementFactor = 50
+            movementFactor = 100
             zoomFactor = 50000
-            range = 30000
+            cameraRange = 30000
             camera = 0.1
 
             if distance == 0:
@@ -421,18 +418,18 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                 print("Distance between 500 and 1000")
                 movementFactor = 70
                 zoomFactor = 1500000
-                range = 1500000
+                cameraRange = 1500000
                 camera = 0.01
             elif 1000 < distance < 2000:
                 print("Distance between 1000 and 2000")
                 zoomFactor = 1500000
-                range = 1500000
+                cameraRange = 1500000
                 movementFactor = 80
                 camera = 0.01
             elif distance > 2000:
                 print("Distance over 2000")
                 zoomFactor = 1500000
-                range = 1500000
+                cameraRange = 1500000
                 movementFactor = 90
                 camera = 0.01
 
@@ -473,6 +470,9 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
                     timeElapsed = distance/800
 
+                    if distance < 300:
+                        timeElapsed = 0.001
+
                     currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
 
                     animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
@@ -484,7 +484,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                     flyto.camera.longitude = startLongitude
                     flyto.camera.latitude = startLatitude
                     flyto.camera.altitude = zoomFactor
-                    flyto.camera.range = range
+                    flyto.camera.range = cameraRange
                     playlist1.newgxwait(gxduration=camera)
 
                     animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
