@@ -4,6 +4,7 @@ from polycircles import polycircles
 
 import requests
 import os
+import re
 import json
 import datetime
 from datetime import timedelta
@@ -35,6 +36,10 @@ def getEarthquakes(request):
     numberObtained = len(jsonData)
     print("Obtained " + str(numberObtained) + " earthquakes")
 
+    if numberObtained == 0:
+        return render(request, 'floybd/earthquakes/viewEarthquakes.html',
+                      {'noData': True})
+
     millis = int(round(time.time() * 1000))
     fileUrl = createKml(jsonData, date, millis, showAll, numberObtained)
     # jsFile = createJSFile(jsonData)
@@ -48,17 +53,53 @@ def getEarthquakes(request):
                    'showAll': showAllParam})
 
 
-def createJSFile(jsonData):
+def getHeatMap(request):
+    print("Getting Heat Map")
+    date = request.POST['date']
+
+    sparkIp = getSparkIp()
+
+    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+
+    jsonData = json.loads(response.json())
+    numberObtained = len(jsonData)
+    print("Obtained " + str(numberObtained) + " earthquakes")
+
+    if numberObtained == 0:
+        return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
+                      {'noData': True})
+
+    millis = int(round(time.time() * 1000))
+    #jsFile = createJSFile(jsonData, millis)
+    data = getEartquakesArray(jsonData)
+
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date})
+
+
+def getEartquakesArray(jsonData):
+    data = []
+    for row in jsonData:
+        data.append([row.get("latitude"), row.get("longitude"), row.get("magnitude")])
+
+    return data
+
+
+def createJSFile(jsonData, millis):
     data = {"type": "FeatureCollection", "features": []}
 
     for row in jsonData:
-        geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
-        data["features"].append(geoJson)
+        #print(row.get("geojson"))
+        #geoJson = json.loads(str(row.get("geojson")).replace("'", "\"").replace("None", '""'))
+        geoJson = json.dumps(row.get("geojson"))
+        replacedCommas = json.loads(geoJson).replace("'", '"').replace("None", '""')
+        #print(replacedCommas)
+        #print(str(json.loads(replacedCommas)))
+        data["features"].append(replacedCommas)
 
     strJson = json.dumps(data)
 
     saveString = "eqfeed_callback(" + strJson + ");"
-    jsFile = "earthquakes.js"
+    jsFile = "earthquakes_"+str(millis)+".js"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/js")
     dirPath2 = os.path.join(dir1, jsFile)

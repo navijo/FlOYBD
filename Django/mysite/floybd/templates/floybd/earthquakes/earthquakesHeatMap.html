@@ -1,0 +1,88 @@
+{% include "floybd/header.html" %}
+{% load static %}
+
+
+<script>
+  $( function() {
+    markActive("earthquakesHeatMap");
+    $("#earthquakesForm").submit(function (e) {
+        $('html,body').scrollTop(0);
+        e.preventDefault();
+        var form_data = $(this).serialize();
+        var form_url = $(this).attr("action");
+        var form_method = $(this).attr("method").toUpperCase();
+
+        $('#spinnerDiv').show()
+        $('.modal').toggleClass('show');
+         FLEXPAPER.utils.addSpinner({
+            element     : 'spinner-target',
+            width       : 500,
+            height      : 500,
+            logo        : "{% static 'img/gear.gif' %}"
+        });
+
+        $.ajax({
+            url: form_url,
+            type: form_method,
+            data: form_data,
+            cache: false,
+            success: function (returnhtml) {
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+                FLEXPAPER.utils.removeSpinner('spinner-target');
+                $("body").html(returnhtml)
+            }
+        });
+        })
+
+
+
+     $('#date').datetimepicker({
+			'format' : "YYYY-MM-DD",
+			useCurrent: false,
+			'maxDate' : new Date()
+		});
+
+    })
+
+
+
+</script>
+<div id="content-wrapper">
+    <h1>Earthquakes</h1>
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+          <div class="mui-row">
+               <div class="col-xs-12">
+                     <div id="spinnerDiv" style="display:none">
+                     <div class="modal"> </div>
+                        <div class="overlay loading-indicator">
+                         <div id="spinner-target"></div>
+                       </div>
+                    </div>
+               </div>
+          </div>
+          <div class="mui-row">
+            <div class="mui--text-center">
+
+                <form  class="mui-form"  id="earthquakesForm" action="{% url 'floybd:getHeatMapEarthquakes' %}" method="post" >
+                    {% csrf_token %}
+                        <div class="mui-row">
+                            <div class="mui-panel">
+                            <div class="col-xs-6">
+                                <div class="mui-textfield mui-textfield--float-label">
+                                    <input required type="text" name="date" id="date" class="form-control" />
+                                     <label for="date">Date</label>
+                                 </div>
+                            </div>
+                            </div>
+                        </div>
+                    <input type="submit" value="Get HeatMap" class="mui-btn mui-btn--primary"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% include "floybd/footer.html" %}

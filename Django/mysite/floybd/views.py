@@ -16,6 +16,8 @@ def weatherIndex(request):
 def eartquakesIndex(request):
     return render(request, 'floybd/indexEarthquakes.html')
 
+def eartquakesHeatMapIndex(request):
+    return render(request, 'floybd/earthquakes/earthquakesHeatMap.html')
 
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
@@ -36,3 +38,5 @@ def clearKML(request):
 def settingsIndex(request):
     settings = Setting.objects.all()
     return render(request, 'floybd/settings/settings.html', {'settings': settings})
+
+

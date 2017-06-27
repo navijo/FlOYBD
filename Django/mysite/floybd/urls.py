@@ -36,6 +36,11 @@ urlpatterns = [
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
 
+
+    url(r'^heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),
+    url(r'^getHeatMapEarthquakes', viewsEarthquakes.getHeatMap, name='getHeatMapEarthquakes'),
+
+
     url('getStats', viewsWeather.getStats, name='getStats'),
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
     url('getGraphDataForStats', viewsWeather.getGraphDataForStats, name='getGraphDataForStats'),

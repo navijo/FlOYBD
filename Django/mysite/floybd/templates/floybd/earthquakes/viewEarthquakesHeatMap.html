@@ -1,0 +1,80 @@
+{% include "floybd/header.html" %}
+
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Generate Cylinders KML and send to LG" as sendValues %}
+
+<script>
+  $( function() {
+    markActive("earthquakesHeatMap");
+    });
+</script>
+
+
+<div id="content-wrapper">
+	<div class="mui--appbar-height"></div>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+			 {% if noData %}
+                <div class="mui--text-center">
+                    <div class="mui--text-display2">No Earthquakes for the requested data</b></div>
+                     <a href="{% url 'floybd:heatMapEarthquakes' %}">
+                         <input type="button" value="Go Back" class="mui-btn mui-btn--primary"/>
+                     </a>
+                </div>
+                {% else %}
+		<div class="mui--text-center">
+			<div class="mui--text-display2">Viewing Heatmap from <b>{{  date }}</b> </div>
+
+		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
+			{% csrf_token %}
+			<input type="hidden" name="date" value="{{  date }}">
+			<input type="hidden" name="millis" value="{{  millis }}">
+			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+			<a href="{% url 'floybd:heatMapEarthquakes' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
+		</form>
+		</div>
+		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
+	{% if data != None %}
+		<script>
+		  var map;
+		  function initMap() {
+		  var heatmapData = [];
+		  debugger;
+			{% for row in data %}
+				var latLng = new google.maps.LatLng({{row}}[0], {{row}}[1]);
+				var pWeight = {{row}}[2];
+
+				if(pWeight){
+					var weightedLocation = {location:latLng,weight:pWeight};
+					heatmapData.push(weightedLocation);
+	          	}else{
+					heatmapData.push(latLng);
+	          	}
+			 {% endfor %}
+			map = new google.maps.Map(document.getElementById('map'), {
+			  	zoom: 2,
+          		center: {lat: 37.775, lng: -122.434},
+         		mapTypeId: 'satellite'
+			});
+
+			var heatmap = new google.maps.visualization.HeatmapLayer({
+			  data: heatmapData,
+			  map : map,
+			  dissipating : false
+			});
+		   //heatmap.setMap(map);
+      }
+		</script>
+	 {% endif %}
+
+
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=visualization&callback=initMap"
+		  async defer></script>
+			 {% endif %}
+		</div>
+	</div>
+</div>
+</div>
+{% include "floybd/footer.html" %}
