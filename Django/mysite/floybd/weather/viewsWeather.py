@@ -363,45 +363,45 @@ def getStats(request):
 
 def getContentStringWithGraphs(rowData, station):
     print("Getting Graphs...")
-
-    contentString = '<p>'+\
+    print(rowData)
+    contentString = '<table width="500px"><tr><td class="balloonTd">'+\
                     '<h3>Max Temp</h3>' + \
-                    '<div><br/><b>Avg Max Temp: </b>' + str(rowData.get("avgMaxTemp")) + \
+                    '<br/><b>Avg Max Temp: </b>' + str(rowData.get("avgMaxTemp")) + \
                     '<br/><b>Max Max Temp: </b>' + str(rowData.get("maxMaxTemp")) + \
                     '<br/><b>Min Max Temp: </b>' + str(rowData.get("minMaxTemp")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_temp"/> </p>' + \
-                    '<p>' + \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_temp"/> ' + \
+                    '</td><td class="balloonTd">' + \
                     '<h3>Med Temp</h3>' + \
                     '<br/><b>Avg Med Temp: </b>' + str(rowData.get("avgMedTemp")) + \
                     '<br/><b>Max Med Temp: </b>' + str(rowData.get("maxMedTemp")) + \
                     '<br/><b>Min Med Temp: </b>' + str(rowData.get("minMedTemp")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=med_temp"/> </p>' + \
-                    '<p>' + \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=med_temp"/> ' + \
+                    '</td><td class="balloonTd">' + \
                     '<h3>Min Temp</h3>' + \
                     '<br/><b>Avg Min Temp: </b>' + str(rowData.get("avgMinTemp")) + \
                     '<br/><b>Max Min Temp: </b>' + str(rowData.get("maxMinTemp")) + \
                     '<br/><b>Min Min Temp: </b>' + str(rowData.get("minMinTemp")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_temp"/> </p>' + \
-                    '<p>' + \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_temp"/>' + \
+                    '</td></tr><tr><td class="balloonTd">' + \
                     '<h3>Max Pressure</h3>' + \
                     '<br/><b>Avg Max Pressure: </b>' + str(rowData.get("avgMaxPressure")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_pressure"/> </p>' + \
-                    '<p>' + \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_pressure"/>' + \
+                    '</td><td class="balloonTd">' + \
                     '<h3>Min Pressure</h3>' + \
-                    '<br/><b>Avg Min Pressure: </b>' + str(rowData.get("min_pressure")) + \
+                    '<br/><b>Avg Min Pressure: </b>' + str(rowData.get("avgMinPressure")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_pressure"/> </p>' + \
-                    '<p>' + \
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_pressure"/> ' + \
+                    '</td><td class="balloonTd">' + \
                     '<h3>Precipitation</h3>' + \
                     '<br/><b>Avg Precip: </b>' + str(rowData.get("avgPrecip")) + \
                     '<br/><b>Max Precip: </b>' + str(rowData.get("maxPrecip")) + \
                     '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
-                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=precip"/> </p>' + \
-                    '</div>'
+                    'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=precip"/>' + \
+                    '</td></tr></table>'
 
     return contentString
 
@@ -432,8 +432,7 @@ def getGraphDataForStats(request):
 def sendKmlGlobal(fileName):
     ip = getDjangoIp()
     lgIp = getLGIp()
-    command = "echo 'http://" + str(
-        ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + \
+    command = "echo 'http://" + str(ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + str(lgIp) + \
               " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
