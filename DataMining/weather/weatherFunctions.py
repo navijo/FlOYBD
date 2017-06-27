@@ -103,6 +103,7 @@ def getAndInsertStationLimits(pStationId):
 	stationLimits = daily[daily.station_id==pStationId].groupBy('station_id').agg(
 		max('max_temp'),avg('max_temp'),min('max_temp'),
 		max('max_pressure'),avg('max_pressure'),min('max_pressure'),
+		max('min_pressure'),avg('min_pressure'),min('min_pressure'),
 		max('med_temp'),avg('med_temp'),min('med_temp'),
 		max('min_temp'),avg('min_temp'),min('min_temp'),
 		max('precip'),avg('precip'),min('precip'),
@@ -112,7 +113,31 @@ def getAndInsertStationLimits(pStationId):
 	stationLimitsRenamed = stationLimits.select("max(max_temp)","avg(max_temp)","min(max_temp)","max(max_pressure)","avg(max_pressure)"\
 		,"min(max_pressure)","max(med_temp)","avg(med_temp)","min(med_temp)","max(min_temp)","avg(min_temp)","min(min_temp)",\
 		"max(precip)","avg(precip)","min(precip)","max(wind_med_vel)","avg(wind_med_vel)","min(wind_med_vel)","max(wind_streak)",\
-		"avg(wind_streak)","min(wind_streak)").withColumnRenamed("max(max_temp)", "value1").withColumnRenamed("avg(max_temp)", "value2").withColumnRenamed("min(max_temp)", "value3").withColumnRenamed("max(max_pressure)", "value4").withColumnRenamed("avg(max_pressure)", "value5").withColumnRenamed("min(max_pressure)", "value6").withColumnRenamed("max(med_temp)", "value7").withColumnRenamed("avg(med_temp)", "value8").withColumnRenamed("min(med_temp)", "value9").withColumnRenamed("max(min_temp)", "value10").withColumnRenamed("avg(min_temp)", "value11").withColumnRenamed("min(min_temp)", "value12").withColumnRenamed("max(precip)", "value13").withColumnRenamed("avg(precip)", "value14").withColumnRenamed("min(precip)", "value15").withColumnRenamed("max(wind_med_vel)", "value16").withColumnRenamed("avg(wind_med_vel)", "value17").withColumnRenamed("min(wind_med_vel)", "value18").withColumnRenamed("max(wind_streak)", "value19").withColumnRenamed("avg(wind_streak)", "value20").withColumnRenamed("min(wind_streak)", "value21").collect()
+		"avg(wind_streak)","min(wind_streak)","max(min_pressure)","avg(min_pressure)","min(min_pressure)").withColumnRenamed(
+		"max(max_temp)", "value1").withColumnRenamed(
+		"avg(max_temp)", "value2").withColumnRenamed(
+		"min(max_temp)", "value3").withColumnRenamed(
+		"max(max_pressure)", "value4").withColumnRenamed(
+		"avg(max_pressure)", "value5").withColumnRenamed(
+		"min(max_pressure)", "value6").withColumnRenamed(
+		"max(med_temp)", "value7").withColumnRenamed(
+		"avg(med_temp)", "value8").withColumnRenamed(
+		"min(med_temp)", "value9").withColumnRenamed(
+		"max(min_temp)", "value10").withColumnRenamed(
+		"avg(min_temp)", "value11").withColumnRenamed(
+		"min(min_temp)", "value12").withColumnRenamed(
+		"max(precip)", "value13").withColumnRenamed(
+		"avg(precip)", "value14").withColumnRenamed(
+		"min(precip)", "value15").withColumnRenamed(
+		"max(wind_med_vel)", "value16").withColumnRenamed(
+		"avg(wind_med_vel)", "value17").withColumnRenamed(
+		"min(wind_med_vel)", "value18").withColumnRenamed(
+		"max(wind_streak)", "value19").withColumnRenamed(
+		"avg(wind_streak)", "value20").withColumnRenamed(
+		"min(wind_streak)", "value21").withColumnRenamed(
+		"max(min_pressure)", "value22").withColumnRenamed(
+		"avg(min_pressure)", "value23").withColumnRenamed(
+		"min(min_pressure)", "value24").collect()
 
 
 	maxMaxTemp = stationLimitsRenamed[0].value1
@@ -136,18 +161,23 @@ def getAndInsertStationLimits(pStationId):
 	maxWindStreak = stationLimitsRenamed[0].value19
 	avgWindStreak  = stationLimitsRenamed[0].value20
 	minWindStreak = stationLimitsRenamed[0].value21
+	maxMinPressure = stationLimitsRenamed[0].value22
+	avgMinPressure = stationLimitsRenamed[0].value23
+	minMinPressure = stationLimitsRenamed[0].value24
+
 
 	session.execute("INSERT INTO Station_limits (station_id,\"maxMaxTemp\",\"avgMaxTemp\",\"minMaxTemp\",\"maxMaxPressure\",\
         \"avgMaxPressure\",\"minMaxPressure\",\"maxMedTemp\",\"avgMedTemp\",\"minMedTemp\",\"maxMinTemp\",\"avgMinTemp\",\"minMinTemp\",\"maxPrecip\",\
-        \"avgPrecip\",\"minPrecip\",\"maxWindMedVel\",\"avgWindMedVel\",\"minWindMedVel\",\"maxWindStreak\",\"avgWindStreak\",\"minWindStreak\") \
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        \"avgPrecip\",\"minPrecip\",\"maxWindMedVel\",\"avgWindMedVel\",\"minWindMedVel\",\"maxWindStreak\",\"avgWindStreak\",\"minWindStreak\",\"maxMinPressure\",\"avgMinPressure\",\"minMinPressure\") \
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                     ,[str(pStationId),maxMaxTemp, avgMaxTemp, minMaxTemp,
                     maxMaxPressure, avgMaxPressure, minMaxPressure,
                     maxMedTemp, avgMedTemp, minMedTemp,
                     maxMinTemp, avgMinTemp, minMinTemp,
                     maxPrecip, avgPrecip, minPrecip,
                     maxWindMedVel, avgWindMedVel, minWindMedVel,
-                    maxWindStreak, avgWindStreak, minWindStreak])
+                    maxWindStreak, avgWindStreak, minWindStreak,
+                    maxMinPressure, avgMinPressure, minMinPressure])
 
 
 def getAndInsertStationsLimits(isDebug):
