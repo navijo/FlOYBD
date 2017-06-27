@@ -49,31 +49,16 @@ def getConcreteEarhquakesData(earthquakes,date,max_lat,min_lat,max_lon,min_lon):
 	datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
 	datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
-	#cluster = Cluster(['192.168.246.236'])
-	#session = cluster.connect("dev")
-	#session.row_factory = named_tuple_factory
-
-	#queryStr = 'SELECT place,latitude,longitude,magnitude,geojson,fecha FROM earthquake WHERE fecha<=\''+datetimeStr+'\' AND longitude < '+max_lon+' AND longitude >'+min_lon +' AND latitude < '+max_lat+' AND latitude >'+min_lat+' ALLOW FILTERING'
-
-	#rows = session.execute(queryStr)
-	#data = []
-	#for row in rows:
-	#	earthquake = {}
-	#	earthquake["place"] = row.place
-	#	earthquake["latitude"] = float(row.latitude) if row.latitude is not None else 0
-	#	earthquake["longitude"] = float(row.longitude) if row.longitude is not None else 0
-	#	earthquake["magnitude"] = float(row.magnitude) if row.magnitude is not None else 0
-	#	earthquake["geojson"] = row.geojson
-	#	earthquake["fecha"] = row.fecha
-	#	data.append(earthquake)
-
-	earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object)
-		& (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon) 
-		& (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
+	if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None: 
+		earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object)
+			& (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon) 
+			& (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
+	else:
+		earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
 	#earthquakesResult.orderBy('fecha', ascending=True)
-	return earthquakesResult
+	return earthquakesResult.na.fill(0)
 
 
 def getStationInfo(stations,station_id):

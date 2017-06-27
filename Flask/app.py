@@ -14,11 +14,18 @@ import functools
 from utils import sparkFunctions, generalFunctions
 
 from flask import jsonify
+from flask_cache import Cache
 
 import traceback
 import logging
 
 app = Flask(__name__, static_url_path='')
+cache = Cache(app,config={'CACHE_TYPE': 'simple'})
+
+def make_cache_key(*args, **kwargs):
+    path = request.path
+    args = str(hash(frozenset(request.args.items())))
+    return (path + args).encode('utf-8')
 
 def timing(func):
     @functools.wraps(func)
@@ -104,6 +111,7 @@ def getMeasurement():
 
 @timing
 @app.route('/getEarthquakes')
+@cache.cached(timeout=24 * 60 * 60, key_prefix=make_cache_key)
 def getEarthquakes(): 
 	initEnvironment()
 	loadEarthquakes()
