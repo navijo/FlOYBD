@@ -9,8 +9,8 @@ import zipfile
 import simplekml
 from django.shortcuts import render
 
-from ..utils.GTFSUtils import *
-from .GTFSKMLWriter import *
+from ..utils.gtfsUtils import *
+from .gtfsKMLWriter import *
 from ..forms import UploadFileForm
 from ..gtfs_models import Agency
 from ..utils.utils import *

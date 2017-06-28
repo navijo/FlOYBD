@@ -151,7 +151,7 @@
                     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&callback=initMap"
                             async defer></script>
                 </div>
-                    {% if intervalData != None %}
+                    {% if intervalData %}
                         <script src="{% static 'js/weatherStatsGraphsScripts.js' %}"></script>
                         <script>
                             station = "{{ station }}";

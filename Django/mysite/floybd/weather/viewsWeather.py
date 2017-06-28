@@ -269,8 +269,8 @@ def getStats(request):
                              data=payload)
 
     result = json.loads(response.json())
-    intervalData = None
-    oneStation = (allStations != str(1))
+    intervalData = False
+    oneStation = (allStations != str("1"))
     if allTime != str(1) and allStations != str(1):
         intervalData = True
 
@@ -289,19 +289,19 @@ def getStats(request):
                                 '</div>' + \
                                 '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
                                 '<div id="bodyContent">' + \
-                                '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
-                                '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
-                                '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
-                                '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
-                                '<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
-                                '<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
-                                '<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
-                                '<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
-                                '<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
-                                '<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
-                                '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
-                                '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
-                                '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
+                                '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(row.get("avgMaxTemp"))) + \
+                                '<br/><b>Avg Med Temp: </b>' + str("{0:.2f}".format(row.get("avgMedTemp"))) + \
+                                '<br/><b>Avg Min Temp: </b>' + str("{0:.2f}".format(row.get("avgMinTemp"))) + \
+                                '<br/><b>Avg Max Pressure: </b>' + str("{0:.2f}".format(row.get("avgMaxPressure"))) + \
+                                '<br/><b>Avg Min Pressure: </b>' + str("{0:.2f}".format(row.get("min_pressure"))) + \
+                                '<br/><b>Avg Precip: </b>' + str("{0:.2f}".format(row.get("avgPrecip"))) + \
+                                '<br/><b>Max Max Temp: </b>' + str("{0:.2f}".format(row.get("maxMaxTemp"))) + \
+                                '<br/><b>Min Max Temp: </b>' + str("{0:.2f}".format(row.get("minMaxTemp"))) + \
+                                '<br/><b>Max Med Temp: </b>' + str("{0:.2f}".format(row.get("maxMedTemp"))) + \
+                                '<br/><b>Min Med Temp: </b>' + str("{0:.2f}".format(row.get("minMedTemp"))) + \
+                                '<br/><b>Max Min Temp: </b>' + str("{0:.2f}".format(row.get("maxMinTemp"))) + \
+                                '<br/><b>Min Min Temp: </b>' + str("{0:.2f}".format(row.get("minMinTemp"))) + \
+                                '<br/><b>Max Precip: </b>' + str("{0:.2f}".format(row.get("maxPrecip"))) + \
                                 '</div>' + \
                                 '</div>'
         else:
@@ -311,13 +311,13 @@ def getStats(request):
                             '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
                             '<div id="bodycontent">' + \
                             '<p>' + \
-                            '<br/><b>Avg max temp: </b>' + str(row.get("avg(max_temp)")) + \
-                            '<br/><b>Avg med temp: </b>' + str(row.get("avg(med_temp)")) + \
-                            '<br/><b>Avg min temp: </b>' + str(row.get("avg(min_temp)")) + \
-                            '<br/><b>Avg max pressure: </b>' + str(row.get("avg(max_pressure)")) + \
-                            '<br/><b>Avg min pressure: </b>' + str(row.get("avg(min_pressure)")) + \
-                            '<br/><b>Avg precip: </b>' + str(row.get("avg(precip)")) + \
-                            '<br/><b>Avg insolation: </b>' + str(row.get("avg(insolation)")) + \
+                            '<br/><b>Avg max temp: </b>' + str("{0:.2f}".format(row.get("avg(max_temp)"))) + \
+                            '<br/><b>Avg med temp: </b>' + str("{0:.2f}".format(row.get("avg(med_temp)"))) + \
+                            '<br/><b>Avg min temp: </b>' + str("{0:.2f}".format(row.get("avg(min_temp)"))) + \
+                            '<br/><b>Avg max pressure: </b>' + str("{0:.2f}".format(row.get("avg(max_pressure)"))) + \
+                            '<br/><b>Avg min pressure: </b>' + str("{0:.2f}".format(row.get("avg(min_pressure)"))) + \
+                            '<br/><b>Avg Precip: </b>' + str("{0:.2f}".format(row.get("avg(precip)"))) + \
+                            '<br/><b>Avg insolation: </b>' + str("{0:.2f}".format(row.get("avg(insolation)"))) + \
                             '</p>' + \
                             '</div>' + \
                             '</div>'
@@ -358,50 +358,50 @@ def getStats(request):
                                                                 "dateFrom": dateFrom, "station": station_id,
                                                                 'concreteStation': concreteStation,
                                                                 'oneStation': oneStation,
+                                                                'allStations': allStations,
                                                                 'allTime': allTime == str("1")})
 
 
 def getContentStringWithGraphs(rowData, station):
     print("Getting Graphs...")
-    print(rowData)
-    contentString = '<table width="500px"><tr><td class="balloonTd">'+\
-                    '<h3>Max Temp</h3>' + \
-                    '<br/><b>Avg Max Temp: </b>' + str(rowData.get("avgMaxTemp")) + \
-                    '<br/><b>Max Max Temp: </b>' + str(rowData.get("maxMaxTemp")) + \
-                    '<br/><b>Min Max Temp: </b>' + str(rowData.get("minMaxTemp")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+    contentString = '<table width="600px"><tr><td class="balloonTd">'+\
+                    '<center><h3><u>Max Temp</u></h3>' + \
+                    '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMaxTemp"))) + \
+                    '<br/><b>Max Max Temp: </b>' + str("{0:.2f}".format(rowData.get("maxMaxTemp"))) + \
+                    '<br/><b>Min Max Temp: </b>' + str("{0:.2f}".format(rowData.get("minMaxTemp"))) + \
+                    '<br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_temp"/> ' + \
-                    '</td><td class="balloonTd">' + \
-                    '<h3>Med Temp</h3>' + \
-                    '<br/><b>Avg Med Temp: </b>' + str(rowData.get("avgMedTemp")) + \
-                    '<br/><b>Max Med Temp: </b>' + str(rowData.get("maxMedTemp")) + \
-                    '<br/><b>Min Med Temp: </b>' + str(rowData.get("minMedTemp")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    '</center></td><td class="balloonTd">' + \
+                    '<center><h3><u>Med Temp</u></h3>' + \
+                    '<br/><b>Avg Med Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMedTemp"))) + \
+                    '<br/><b>Max Med Temp: </b>' + str("{0:.2f}".format(rowData.get("maxMedTemp"))) + \
+                    '<br/><b>Min Med Temp: </b>' + str("{0:.2f}".format(rowData.get("minMedTemp"))) + \
+                    '<br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=med_temp"/> ' + \
-                    '</td><td class="balloonTd">' + \
-                    '<h3>Min Temp</h3>' + \
-                    '<br/><b>Avg Min Temp: </b>' + str(rowData.get("avgMinTemp")) + \
-                    '<br/><b>Max Min Temp: </b>' + str(rowData.get("maxMinTemp")) + \
-                    '<br/><b>Min Min Temp: </b>' + str(rowData.get("minMinTemp")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    '</center></td><td class="balloonTd">' + \
+                    '<center><h3><u>Min Temp</u></h3>' + \
+                    '<br/><b>Avg Min Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMinTemp"))) + \
+                    '<br/><b>Max Min Temp: </b>' + str("{0:.2f}".format(rowData.get("maxMinTemp"))) + \
+                    '<br/><b>Min Min Temp: </b>' + str("{0:.2f}".format(rowData.get("minMinTemp"))) + \
+                    '<br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_temp"/>' + \
-                    '</td></tr><tr><td class="balloonTd">' + \
-                    '<h3>Max Pressure</h3>' + \
-                    '<br/><b>Avg Max Pressure: </b>' + str(rowData.get("avgMaxPressure")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    '</center></td></tr><tr><td class="balloonTd">' + \
+                    '<center><h3><u>Max Pressure</u></h3>' + \
+                    '<br/><b>Avg Max Pressure: </b>' + str("{0:.2f}".format(rowData.get("avgMaxPressure"))) + \
+                    '<br/><br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=max_pressure"/>' + \
-                    '</td><td class="balloonTd">' + \
-                    '<h3>Min Pressure</h3>' + \
-                    '<br/><b>Avg Min Pressure: </b>' + str(rowData.get("avgMinPressure")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    '</center></td><td class="balloonTd">' + \
+                    '<center><h3><u>Min Pressure</u></h3>' + \
+                    '<br/><b>Avg Min Pressure: </b>' + str("{0:.2f}".format(rowData.get("avgMinPressure"))) + \
+                    '<br/><br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=min_pressure"/> ' + \
-                    '</td><td class="balloonTd">' + \
-                    '<h3>Precipitation</h3>' + \
-                    '<br/><b>Avg Precip: </b>' + str(rowData.get("avgPrecip")) + \
-                    '<br/><b>Max Precip: </b>' + str(rowData.get("maxPrecip")) + \
-                    '<br/><img width="100%" height="auto" src="http://130.206.117.178:5000/' \
+                    '</center></td><td class="balloonTd">' + \
+                    '<center><h3><u>Precipitation</u></h3>' + \
+                    '<br/><b>Avg Precip: </b>' + str("{0:.2f}".format(rowData.get("avgPrecip"))) + \
+                    '<br/><b>Max Precip: </b>' + str("{0:.2f}".format(rowData.get("maxPrecip"))) + \
+                    '<br/><img width="100%" height="200px" src="http://130.206.117.178:5000/' \
                     'getStatsImage?station_id=' + rowData.get("station_id") + '&imageType=precip"/>' + \
-                    '</td></tr></table>'
+                    '</center></td></tr></table>'
 
     return contentString
 
@@ -410,6 +410,12 @@ def getGraphDataForStats(request):
     station_id = request.GET.get("station")
     dateFrom = request.GET.get("dateFrom")
     dateTo = request.GET.get("dateTo")
+    allTime = request.GET.get('allTime', 0)
+
+    print("Station: ", station_id)
+    print("Date From: ", dateFrom)
+    print("Date To: ", dateTo)
+    print("allTime: ", allTime)
 
     jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom}
     payload = json.dumps(jsonData)
@@ -427,6 +433,7 @@ def getGraphDataForStats(request):
         data = {}
 
     return JsonResponse(data)
+
 
 
 def sendKmlGlobal(fileName):
@@ -473,7 +480,7 @@ def sendStatsToLG(request):
     station = request.POST.get('station', 0)
     concreteStation = Station.objects.get(station_id=station)
 
-    oneStation = not allStations
+    oneStation = (allStations != str("1"))
     intervalData = False
     if not allTime and not allStations:
         intervalData = True
@@ -493,10 +500,24 @@ def sendStatsToLG(request):
         command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /tmp/query.txt'"
         os.system(command)
 
-    time.sleep(7)
-    command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " 'cat - > /tmp/query.txt'"
-    os.system(command)
+        time.sleep(7)
+        command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+                  " 'cat - > /tmp/query.txt'"
+        os.system(command)
+    else:
+        flyToMadrid = "flytoview=<LookAt>" \
+                + "<longitude>" + str("-3.8199627") + "</longitude>" \
+                + "<latitude>" + str("40.4378693") + "</latitude>" \
+                + "<altitude>100</altitude>" \
+                + "<heading>14</heading>" \
+                + "<tilt>69</tilt>" \
+                + "<range>200000</range>" \
+                + "<altitudeMode>relativeToGround</altitudeMode>" \
+                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
+                  "<gx:duration>2</gx:duration></LookAt>"
+
+        command = "echo '" + flyToMadrid + "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /tmp/query.txt'"
+        os.system(command)
 
     ip = getDjangoIp()
 
@@ -506,7 +527,8 @@ def sendStatsToLG(request):
                                                                 "dateFrom": dateFrom, "station": station_id,
                                                                 'concreteStation': concreteStation,
                                                                 'oneStation': oneStation,
-                                                                'allTime': allTime})
+                                                                'allTime': allTime,
+                                                                'allStations': allStations})
 
 
 def citydashboard(request):
