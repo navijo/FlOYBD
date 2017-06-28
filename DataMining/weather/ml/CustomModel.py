@@ -1,6 +1,7 @@
 from pyspark.ml.regression import LinearRegressionModel
 from pyspark.ml.tuning import TrainValidationSplitModel
 
+
 class CustomModel:
 
     model = LinearRegressionModel()
