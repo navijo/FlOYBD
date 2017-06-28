@@ -1,19 +1,15 @@
-import os
-import random
-import shutil
-import tarfile
-import time
-
-import zipfile
-
-import simplekml
 from django.shortcuts import render
-
 from ..utils.gtfsUtils import *
 from .gtfsKMLWriter import *
 from ..forms import UploadFileForm
 from ..gtfs_models import Agency
-from ..utils.utils import *
+from ..utils.lgUtils import *
+
+import shutil
+import tarfile
+import time
+import zipfile
+import simplekml
 
 
 def uploadGTFS(request):
@@ -33,7 +29,6 @@ def uploadGTFS(request):
 
 
 def handle_uploaded_file(f, title, millis):
-    ip = getDjangoIp()
     if not os.path.exists("static/upload/gtfs"):
         print("Creating upload/gtfs folder")
         os.makedirs("static/upload/gtfs")
@@ -121,25 +116,13 @@ def sendGTFSToLG(request):
 
     command = "echo '" + kmlPath + \
               "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
-              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
+              "' | sshpass -p "+getLGPass()+" ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
-    flyTo = "flytoview=<LookAt>" \
-            + "<longitude>" + str(flyToLon) + "</longitude>" \
-            + "<latitude>" + str(flyToLat) + "</latitude>" \
-            + "<altitude>10</altitude>" \
-            + "<heading>14</heading>" \
-            + "<tilt>45</tilt>" \
-            + "<range>20000</range>" \
-            + "<altitudeMode>relativeToGround</altitudeMode>" \
-            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
-
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-    os.system(command)
+    sendFlyToToLG(flyToLat, flyToLon, 10, 14, 45, 20000, 4)
 
     time.sleep(5)
-    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-    os.system(command)
+    playTour("GTFSTour")
 
     return render(request, 'floybd/gtfs/viewGTFS.html', {'form': form, 'kml': kmlPath,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat})

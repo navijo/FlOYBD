@@ -8,7 +8,7 @@ import time
 import datetime
 from datetime import timedelta
 import simplekml
-from ..utils.utils import *
+from ..utils.lgUtils import *
 from django.http import JsonResponse
 
 
@@ -112,8 +112,7 @@ def sendConcreteValuesToLG(request):
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
-        print(fileName)
-        sendKmlGlobal(fileName)
+        sendKmlToLG(fileName)
 
         return render(request, 'floybd/weather/weatherConcreteView.html',
                       {'kml': fileurl, 'date': date})
@@ -137,7 +136,9 @@ def sendConcreteValuesToLG(request):
     stations = Station.objects.all()
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKml(fileName, concreteStation)
+    sendKmlToLG(fileName)
+    if concreteStation is not None:
+        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
 
     return render(request, 'floybd/weather/weatherConcreteView.html',
                   {'stations': stations, 'concreteStation': concreteStation,
@@ -221,12 +222,12 @@ def sendPredictionsToLG(request):
 
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKml(fileName, concreteStation)
+    sendKmlToLG(fileName)
+    if concreteStation is not None:
+        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
 
     time.sleep(1)
-    command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " 'cat - > /tmp/query.txt'"
-    os.system(command)
+    playTour("Show Balloon")
 
     return render(request, 'floybd/weather/weatherPredictionView.html',
                   {'fileName': fileName, 'kml': kmlpath,
@@ -282,26 +283,26 @@ def getStats(request):
 
         if allTime == str(1):
             if addGraphs:
-                contentString = getContentStringWithGraphs(row, concreteStation)
+                contentString = getContentStringWithGraphs(row)
             else:
                 contentString = '<div id="content">' + \
                                 '<div id="siteNotice">' + \
                                 '</div>' + \
                                 '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
                                 '<div id="bodyContent">' + \
-                                '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(row.get("avgMaxTemp"))) + \
-                                '<br/><b>Avg Med Temp: </b>' + str("{0:.2f}".format(row.get("avgMedTemp"))) + \
-                                '<br/><b>Avg Min Temp: </b>' + str("{0:.2f}".format(row.get("avgMinTemp"))) + \
-                                '<br/><b>Avg Max Pressure: </b>' + str("{0:.2f}".format(row.get("avgMaxPressure"))) + \
-                                '<br/><b>Avg Min Pressure: </b>' + str("{0:.2f}".format(row.get("min_pressure"))) + \
-                                '<br/><b>Avg Precip: </b>' + str("{0:.2f}".format(row.get("avgPrecip"))) + \
-                                '<br/><b>Max Max Temp: </b>' + str("{0:.2f}".format(row.get("maxMaxTemp"))) + \
-                                '<br/><b>Min Max Temp: </b>' + str("{0:.2f}".format(row.get("minMaxTemp"))) + \
-                                '<br/><b>Max Med Temp: </b>' + str("{0:.2f}".format(row.get("maxMedTemp"))) + \
-                                '<br/><b>Min Med Temp: </b>' + str("{0:.2f}".format(row.get("minMedTemp"))) + \
-                                '<br/><b>Max Min Temp: </b>' + str("{0:.2f}".format(row.get("maxMinTemp"))) + \
-                                '<br/><b>Min Min Temp: </b>' + str("{0:.2f}".format(row.get("minMinTemp"))) + \
-                                '<br/><b>Max Precip: </b>' + str("{0:.2f}".format(row.get("maxPrecip"))) + \
+                                '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
+                                '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
+                                '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
+                                '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
+                                '<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
+                                '<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
+                                '<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
+                                '<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
+                                '<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
+                                '<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
+                                '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
+                                '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
+                                '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
                                 '</div>' + \
                                 '</div>'
         else:
@@ -311,13 +312,13 @@ def getStats(request):
                             '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
                             '<div id="bodycontent">' + \
                             '<p>' + \
-                            '<br/><b>Avg max temp: </b>' + str("{0:.2f}".format(row.get("avg(max_temp)"))) + \
-                            '<br/><b>Avg med temp: </b>' + str("{0:.2f}".format(row.get("avg(med_temp)"))) + \
-                            '<br/><b>Avg min temp: </b>' + str("{0:.2f}".format(row.get("avg(min_temp)"))) + \
-                            '<br/><b>Avg max pressure: </b>' + str("{0:.2f}".format(row.get("avg(max_pressure)"))) + \
-                            '<br/><b>Avg min pressure: </b>' + str("{0:.2f}".format(row.get("avg(min_pressure)"))) + \
-                            '<br/><b>Avg Precip: </b>' + str("{0:.2f}".format(row.get("avg(precip)"))) + \
-                            '<br/><b>Avg insolation: </b>' + str("{0:.2f}".format(row.get("avg(insolation)"))) + \
+                            '<br/><b>Avg max temp: </b>' + str(row.get("avg(max_temp)")) + \
+                            '<br/><b>Avg med temp: </b>' + str(row.get("avg(med_temp)")) + \
+                            '<br/><b>Avg min temp: </b>' + str(row.get("avg(min_temp)")) + \
+                            '<br/><b>Avg max pressure: </b>' + str(row.get("avg(max_pressure)")) + \
+                            '<br/><b>Avg min pressure: </b>' + str(row.get("avg(min_pressure)")) + \
+                            '<br/><b>Avg Precip: </b>' + str(row.get("avg(precip)")) + \
+                            '<br/><b>Avg insolation: </b>' + str(row.get("avg(insolation)")) + \
                             '</p>' + \
                             '</div>' + \
                             '</div>'
@@ -362,7 +363,7 @@ def getStats(request):
                                                                 'allTime': allTime == str("1")})
 
 
-def getContentStringWithGraphs(rowData, station):
+def getContentStringWithGraphs(rowData):
     print("Getting Graphs...")
     contentString = '<table width="600px"><tr><td class="balloonTd">'+\
                     '<center><h3><u>Max Temp</u></h3>' + \
@@ -435,41 +436,9 @@ def getGraphDataForStats(request):
     return JsonResponse(data)
 
 
-
-def sendKmlGlobal(fileName):
-    ip = getDjangoIp()
-    lgIp = getLGIp()
-    command = "echo 'http://" + str(ip) + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + str(lgIp) + \
-              " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
-
-
-def sendKml(fileName, concreteStation):
-    ip = getDjangoIp()
-    lgIp = getLGIp()
-
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + "' | sshpass -p lqgalaxy ssh lg@" + lgIp +\
-              " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
-
-    if concreteStation is not None:
-        flyTo = "flytoview=<LookAt>" \
-                + "<longitude>" + str(concreteStation.longitude) + "</longitude>" \
-                + "<latitude>" + str(concreteStation.latitude) + "</latitude>" \
-                + "<altitude>100</altitude>" \
-                + "<heading>14</heading>" \
-                + "<tilt>69</tilt>" \
-                + "<range>200000</range>" \
-                + "<altitudeMode>relativeToGround</altitudeMode>" \
-                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
-
-        command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-        os.system(command)
-
-
 def sendStatsToLG(request):
     fileName = request.POST.get("fileName")
-    sendKmlGlobal(fileName)
+    sendKmlToLG(fileName)
     stations = Station.objects.all()
 
     allStations = request.POST.get('allStations', 0)
@@ -486,38 +455,13 @@ def sendStatsToLG(request):
         intervalData = True
 
     if oneStation:
-        flyTo = "flytoview=<LookAt>" \
-                + "<longitude>" + str(concreteStation.longitude) + "</longitude>" \
-                + "<latitude>" + str(concreteStation.latitude) + "</latitude>" \
-                + "<altitude>100</altitude>" \
-                + "<heading>14</heading>" \
-                + "<tilt>69</tilt>" \
-                + "<range>200000</range>" \
-                + "<altitudeMode>relativeToGround</altitudeMode>" \
-                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
-                  "<gx:duration>2</gx:duration></LookAt>"
-
-        command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /tmp/query.txt'"
-        os.system(command)
+        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
 
         time.sleep(7)
-        command = "echo 'playtour=Show Balloon' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-                  " 'cat - > /tmp/query.txt'"
-        os.system(command)
-    else:
-        flyToMadrid = "flytoview=<LookAt>" \
-                + "<longitude>" + str("-3.8199627") + "</longitude>" \
-                + "<latitude>" + str("40.4378693") + "</latitude>" \
-                + "<altitude>100</altitude>" \
-                + "<heading>14</heading>" \
-                + "<tilt>69</tilt>" \
-                + "<range>200000</range>" \
-                + "<altitudeMode>relativeToGround</altitudeMode>" \
-                + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
-                  "<gx:duration>2</gx:duration></LookAt>"
+        playTour("Show Balloon")
 
-        command = "echo '" + flyToMadrid + "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /tmp/query.txt'"
-        os.system(command)
+    else:
+        sendFlyToToLG(40.4378693, -3.8199627, 100, 14, 69, 200000, 2)
 
     ip = getDjangoIp()
 

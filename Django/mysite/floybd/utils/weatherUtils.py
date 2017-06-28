@@ -7,11 +7,8 @@ def prepareJson(weatherData, stationData):
     latitude = stationData["latitude"]
     longitude = stationData["longitude"]
 
-    coordinates = {}
-    coordinates["lat"] = latitude
-    coordinates["lng"] = longitude
+    coordinates = {"lat": latitude, "lng": longitude}
     name = stationData["name"]
-    coordinatesStr = json.dumps(coordinates)
 
     calculatedData = json.loads(weatherData)
     maxTemp = calculatedData["max_temp"]

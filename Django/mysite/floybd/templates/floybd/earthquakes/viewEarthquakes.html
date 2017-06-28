@@ -27,7 +27,7 @@
                 </div>
                 {% else %}
 		<div class="mui--text-center">
-			<div class="mui--text-display2">Viewing earthquakes on <b>{{  date }}</b> </div>
+			<div class="mui--text-display2">Viewing earthquakes since <b>{{  date }}</b> </div>
 
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}

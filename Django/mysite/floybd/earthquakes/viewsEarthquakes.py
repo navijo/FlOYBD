@@ -1,16 +1,12 @@
 from django.shortcuts import render
-import simplekml
 from polycircles import polycircles
-
+from datetime import timedelta
+from ..utils.lgUtils import *
+import simplekml
 import requests
-import os
-import re
 import json
 import datetime
-from datetime import timedelta
-import shutil
 import time
-from ..utils.utils import *
 
 
 def getEarthquakes(request):
@@ -42,11 +38,7 @@ def getEarthquakes(request):
 
     millis = int(round(time.time() * 1000))
     fileUrl = createKml(jsonData, date, millis, showAll, numberObtained)
-    # jsFile = createJSFile(jsonData)
 
-    # return render(request, 'floybd/earthquakes/viewEarthquakes.html',{'data':strJson,'kml':fileUrl,'center_lat':center_lat,'center_lon':center_lon})
-
-    # return render(request, 'floybd/earthquakes/viewEarthquakes.html', {'data': "http://localhost:8000/static/js/"+jsFile,'center_lat':center_lat,'center_lon':center_lon,'date':date})
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis,
@@ -69,8 +61,6 @@ def getHeatMap(request):
         return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
                       {'noData': True})
 
-    millis = int(round(time.time() * 1000))
-    #jsFile = createJSFile(jsonData, millis)
     data = getEartquakesArray(jsonData)
 
     return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date})
@@ -88,12 +78,8 @@ def createJSFile(jsonData, millis):
     data = {"type": "FeatureCollection", "features": []}
 
     for row in jsonData:
-        #print(row.get("geojson"))
-        #geoJson = json.loads(str(row.get("geojson")).replace("'", "\"").replace("None", '""'))
         geoJson = json.dumps(row.get("geojson"))
         replacedCommas = json.loads(geoJson).replace("'", '"').replace("None", '""')
-        #print(replacedCommas)
-        #print(str(json.loads(replacedCommas)))
         data["features"].append(replacedCommas)
 
     strJson = json.dumps(data)
@@ -110,8 +96,7 @@ def createJSFile(jsonData, millis):
     return jsFile
 
 
-def populateInfoWindow(row, json):
-    place = row["place"]
+def populateInfoWindow(row, jsonData):
     latitude = row["latitude"]
     longitude = row["longitude"]
     magnitude = row["magnitude"]
@@ -119,7 +104,7 @@ def populateInfoWindow(row, json):
 
     datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
-    url = json.get("properties").get("detail")
+    url = jsonData.get("properties").get("detail")
     contentString = '<div id="content">' + \
                     '<div id="siteNotice">' + \
                     '</div>' + \
@@ -137,7 +122,6 @@ def populateInfoWindow(row, json):
 
 
 def createKml(jsonData, date, millis, showAll, numberObtained):
-    # cleanKMLS()
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
@@ -147,7 +131,6 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
 
-    #balloonDuration = 1
     print("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
@@ -278,51 +261,17 @@ def sendConcreteValuesToLG(request):
     fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
     fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
 
-    sendKml(fileName, center_lat, center_lon)
+    sendKmlToLG(fileName)
+
+    sendFlyToToLG(center_lat, center_lon, 100, 14, 69, 200000, 2)
 
     if not showAll:
         # Start the tour
         time.sleep(5)
-        command = "echo 'playtour=EarthquakesTour' | sshpass -p lqgalaxy ssh lg@" + getLGIp() +\
-                  " 'cat - > /tmp/query.txt'"
-        os.system(command)
+        playTour("EarthquakesTour")
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis})
 
 
-def sendKml(fileName, center_lat, center_lon):
-    # Javi : 192.168.88.234
-    # Gerard: 192.168.88.198
-
-    lgIp = getLGIp()
-    ip = getDjangoIp()
-
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + fileName + \
-              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
-
-    flyTo = "flytoview=<LookAt>" \
-            + "<longitude>" + str(center_lon) + "</longitude>" \
-            + "<latitude>" + str(center_lat) + "</latitude>" \
-            + "<altitude>100</altitude>" \
-            + "<heading>14</heading>" \
-            + "<tilt>69</tilt>" \
-            + "<range>200000</range>" \
-            + "<altitudeMode>relativeToGround</altitudeMode>" \
-            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>" \
-            + "</LookAt>"
-
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-    os.system(command)
-
-
-def cleanKMLS():
-    if not os.path.exists("static/kmls"):
-        print("Creating kmls folder")
-        os.makedirs("static/kmls")
-    else:
-        print("Deletings kmls folder")
-        shutil.rmtree('static/kmls')
-        os.makedirs("static/kmls")
