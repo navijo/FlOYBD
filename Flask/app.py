@@ -59,6 +59,7 @@ def getApiKey():
 
 
 @app.route('/getAllStationsMeasurementsKML')
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getAllStationsMeasurementsKML():
 	initEnvironment()
 	loadStations()
@@ -74,6 +75,7 @@ def getAllStationsMeasurementsKML():
 	return send_from_directory(directory='.', filename="kmls/"+fileName+".kml",as_attachment=True,mimetype='application/octet-stream')
 
 @app.route('/getMeasurementKml')
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getMeasurementKml(): 
 	initEnvironment()
 	loadStations()
@@ -94,6 +96,7 @@ def getMeasurementKml():
 
 
 @app.route('/getMeasurement')
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getMeasurement(): 
 	initEnvironment()
 	loadCleanDaily()
@@ -164,6 +167,7 @@ def getPrediction():
 		stopEnvironment(sc)
 
 @app.route('/getPredictionStats',methods=['POST'])
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getPredictionStats(): 
 	try:
 		data = request.data
@@ -191,6 +195,7 @@ def getPredictionStats():
 
 
 @app.route('/getAllStations')
+@cache.cached(timeout=24 * 60 * 60, key_prefix=make_cache_key)
 def getAllStations(): 
 	initEnvironment()
 	loadStations()
@@ -203,6 +208,7 @@ def getAllStations():
 
 
 @app.route('/getStats',methods=['POST'])
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getStats():
 	initEnvironment()
 
@@ -246,6 +252,7 @@ def getStats():
 
 
 @app.route('/getWeatherDataInterval',methods=['POST'])
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getWeatherDataInterval():
 	initEnvironment()
 
@@ -289,6 +296,7 @@ def loadEarthquakes():
 
 
 @app.route('/getStatsImage')
+@cache.cached(timeout=7*24 * 60 * 60, key_prefix=make_cache_key)
 def getStatsImage():
 	basePath = "/home/ubuntu/GSOC17/FlOYBD/Flask/graphs/"
 	station_id  = request.args.get('station_id')
