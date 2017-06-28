@@ -1,15 +1,12 @@
 import os
-import shutil
 
 from django.conf.urls import url
-
-
 from . import views
 from .earthquakes import viewsEarthquakes
 from .weather import viewsWeather
 from .gtfs import viewsGTFS
 from django.http import HttpResponseRedirect
-
+from .models import Setting
 
 app_name = 'floybd'
 
@@ -58,18 +55,33 @@ urlpatterns = [
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
 
-
 ]
 
 
-def startup_clean():
+def createDefaultSettingsObjects():
+    lgIp, created = Setting.objects.get_or_create(key="lgIp")
+    if created:
+        print("Created lgIp setting object\n")
+    else:
+        print("lgIp setting object existent\n")
 
+    sparkIp, created = Setting.objects.get_or_create(key="sparkIp", value="130.206.117.178")
+    if created:
+        print("Created sparkIp setting object\n")
+    else:
+        print("sparkIp setting object existent\n")
+
+    LGPassword, created = Setting.objects.get_or_create(key="LGPassword", value="lqgalaxy")
+    if created:
+        print("Created LGPassword setting object\n")
+    else:
+        print("LGPassword setting object existent\n")
+
+
+def startup_clean():
     if not os.path.exists("static/kmls"):
         print("Creating kmls folder")
         os.makedirs("static/kmls")
-    #else:
-    # print("Deletings kmls folder")
-     #   shutil.rmtree('static/kmls')
-     #   os.makedirs("static/kmls")
 
 startup_clean()
+createDefaultSettingsObjects()
