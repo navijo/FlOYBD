@@ -1,8 +1,8 @@
 import simplekml
-import json
 from polycircles import polycircles
 import time
 from subprocess import call
+
 
 class CylindersKmlExtended(object):
 
@@ -20,7 +20,7 @@ class CylindersKmlExtended(object):
     def parseData(self):
         for element in self.data:
             for innerElement in element:
-                if(not innerElement['description'][0]==None and not innerElement['description'][1]==None and not innerElement['description'][2]==None):
+                if not innerElement['description'][0]==None and not innerElement['description'][1]==None and not innerElement['description'][2]==None:
                     self.newCylinder(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
                     self.newPointer(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
 
@@ -33,7 +33,7 @@ class CylindersKmlExtended(object):
         self.generatePointer(pointer_min, description[2], coordinates, 'min')
 
         if extra:
-            print ('There is extra !')
+            print('There is extra !')
 
     def generatePointer(self, point, temp, coordinates, flag):
         point.altitudemode = 'relativeToGround'
