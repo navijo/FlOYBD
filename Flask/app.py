@@ -302,7 +302,6 @@ def loadEarthquakes():
 
 
 @app.route('/getStatsImage')
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
 def getStatsImage():
     basePath = "/home/ubuntu/GSOC17/FlOYBD/Flask/graphs/"
     station_id = request.args.get('station_id')

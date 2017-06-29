@@ -1,11 +1,12 @@
 import matplotlib
 import os
 import time
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-matplotlib.use('Agg')
+
 
 from cassandra.cluster import Cluster
 from pyspark import SparkContext, SparkConf
@@ -52,10 +53,21 @@ def generateGraphs():
         stationpath = basePath + row.station_id
         createDir(stationpath)
         station_data = clean_daily[clean_daily.station_id == row.station_id]
-        dataframe = station_data.toPandas()
+        dataframe = station_data.sort("measure_date", ascending=True).toPandas()
         for column in columnsList:
             dataframe[column] = dataframe[column].apply(pd.to_numeric)
-            plot = dataframe.plot(y=column, x='measure_date', figsize=(20, 15), marker='o')
+
+            numregs = dataframe[column].count()
+
+            plot = dataframe.plot(kind='bar', y=column, x='measure_date', figsize=(20, 15))
+
+            n = int(0.034*numregs)
+
+            ticks = plot.xaxis.get_ticklocs()
+            ticklabels = [l.get_text() for l in plot.xaxis.get_ticklabels()]
+            plot.xaxis.set_ticks(ticks[::n])
+            plot.xaxis.set_ticklabels(ticklabels[::n])
+
             fig = plot.get_figure()
             fig.savefig(stationpath + "/" + row.station_id + "_" + column + ".png")
             plt.close(fig)
