@@ -1,12 +1,9 @@
-from django.shortcuts import render
-from polycircles import polycircles
-from datetime import timedelta
-from ..utils.lgUtils import *
-import simplekml
-import requests
-import json
 import datetime
-import time
+from datetime import timedelta
+import requests
+from django.shortcuts import render
+from ..utils.lgUtils import *
+from ..utils.cylinders.cylindersHeatMap import *
 
 
 def getEarthquakes(request):
@@ -72,6 +69,50 @@ def getEartquakesArray(jsonData):
         data.append([row.get("latitude"), row.get("longitude"), row.get("magnitude")])
 
     return data
+
+
+def generateHeapMapKml(request):
+    print("Generating HeatMap")
+    date = request.POST['date']
+    millis = int(round(time.time() * 1000))
+
+    fileName = "earthquakesHeatMap_"+str(millis)+".kml"
+    sparkIp = getSparkIp()
+
+    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+
+    jsonData = json.loads(response.json())
+    numberObtained = len(jsonData)
+    print("Obtained " + str(numberObtained) + " earthquakes")
+
+    if numberObtained == 0:
+        return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
+                      {'noData': True})
+
+    data = getEartquakesArray(jsonData)
+    #hm = heatmap.Heatmap()
+
+
+
+    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
+    currentDir = os.getcwd()
+    dir1 = os.path.join(currentDir, "static/kmls")
+    dirPath2 = os.path.join(dir1, fileName)
+
+    cylinder = CylindersKmlHeatmap(fileName, data)
+    cylinder.makeKML(dirPath2)
+    #cylinder.saveKml(dirPath2)
+    #minLng = -180
+    #maxLng = 180
+    #minLat = -90
+    #maxLat = 90
+    #hm.heatmap(data)
+    #dirPath3 = os.path.join(dir1, "img.png")
+    #hm.heatmap(data, dirPath3, 30, 155, (1024, 512), 'fire', (minLng, maxLng, minLat, maxLat))
+    #hm.saveKML(dirPath2)
+    sendKmlToLG(fileName)
+
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date})
 
 
 def createJSFile(jsonData, millis):

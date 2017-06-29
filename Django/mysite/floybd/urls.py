@@ -34,8 +34,10 @@ urlpatterns = [
         name='sendConcreteEarthquakesValuesToLG'),
 
 
-    url(r'^heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),
-    url(r'^getHeatMapEarthquakes', viewsEarthquakes.getHeatMap, name='getHeatMapEarthquakes'),
+    url('heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),
+url('getHeatMapEarthquakesKML', viewsEarthquakes.generateHeapMapKml, name='getHeatMapEarthquakesKML'),
+    url('getHeatMapEarthquakes', viewsEarthquakes.getHeatMap, name='getHeatMapEarthquakes'),
+
 
 
     url('getStats', viewsWeather.getStats, name='getStats'),
@@ -57,6 +59,8 @@ urlpatterns = [
 
 ]
 
+import sys, os, os.path
+sys.path.insert(1, '/home/usuari/FlOYBD/Django/mysite/floybd/utils/heatmaps/build/lib.linux-x86_64-3.5')
 
 def createDefaultSettingsObjects():
     lgIp, created = Setting.objects.get_or_create(key="lgIp")
