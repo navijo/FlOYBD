@@ -456,7 +456,9 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                     if distance < 300:
                         timeElapsed = 0.001
 
-                    currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+                    #currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
+                    currentPoint.style.iconstyle.icon.href = 'https://frikerio.files.wordpress.com/2017/05/kinton.png'
+                    currentPoint.style.iconstyle.scale = 1
 
                     animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
