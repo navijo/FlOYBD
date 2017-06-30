@@ -54,8 +54,8 @@ function createTempStatsChart(data){
             "ratio": 0.3
             }
         },
-        "zoom": {
-           "enabled": true
+        "subchart": {
+                "show": true
          },
         "bindto": "#tempStatsChart"
     });
@@ -91,9 +91,9 @@ function createPressureStatsChart(data){
             "ratio": 0.3
             }
         },
-         "zoom": {
-                "enabled": true
-         },
+        "subchart": {
+                "show": true
+        },
         "bindto": "#pressureStatsChart"
     });
 }
@@ -131,9 +131,9 @@ function createPrecipStatsChart(data){
             "ratio": 0.3
             }
         },
-         "zoom": {
-                "enabled": true
-         },
+        "subchart": {
+                "show": true
+        },
         "bindto": "#precipInsoStatsChart"
     });
 }
@@ -168,9 +168,9 @@ function createWindDirStatsChart(data){
             "ratio": 0.3
             }
         },
-         "zoom": {
-                "enabled": true
-         },
+        "subchart": {
+                "show": true
+        },
         "bindto": "#windStatsChart"
     });
 }

@@ -5,42 +5,41 @@
 {% trans "Send HeatMap KML to LG" as sendValues %}
 {% load static %}
 <script>
-  $(function() {
+  $( function() {
     markActive("earthquakesHeatMap");
 
     $("#heatMapform").submit(function (e) {
         $('html,body').scrollTop(0);
-
         e.preventDefault();
-
         var form_data = $(this).serialize();
         var form_url = $(this).attr("action");
         var form_method = $(this).attr("method").toUpperCase();
 
         $('#spinnerDiv').show()
+        $('.modal').toggleClass('show');
+         FLEXPAPER.utils.addSpinner({
+            element     : 'spinner-target',
+            width       : 500,
+            height      : 500,
+            logo        : "{% static 'img/gear.gif' %}"
+        });
 
-			$('.modal').toggleClass('show');
-			 FLEXPAPER.utils.addSpinner({
-				element     : 'spinner-target',
-				width       : 500,
-				height      : 500,
-				logo        : "{% static 'img/gear.gif' %}"
-			});
-
-			$.ajax({
-				url: form_url,
-				type: form_method,
-				data: form_data,
-				cache: false,
-				success: function (returnhtml) {
-					debugger;
-				   $('.modal').toggleClass('hide');
-				   $('#spinnerDiv').hide()
-					FLEXPAPER.utils.removeSpinner('spinner-target');
-					//$("body").html(returnhtml)
-				}
-			});
+        $.ajax({
+            url: form_url,
+            type: form_method,
+            data: form_data,
+            cache: false,
+            success: function (returnhtml) {
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+                FLEXPAPER.utils.removeSpinner('spinner-target');
+                $("body").html(returnhtml)
+            }
+        });
         })
+
+
+
     });
 </script>
 
@@ -70,12 +69,11 @@
                 {% else %}
 		<div class="mui--text-center">
 			<div class="mui--text-display2">Viewing Heatmap from <b>{{  date }}</b> </div>
-			<div class="mui--text-display1">Total Earthquakes represented: <b>{{  numberObtained }}</b> </div>
 
 		<form name="heatMapform" id="heatMapform" action="{% url 'floybd:getHeatMapEarthquakesKML' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="date" value="{{  date }}">
-			<input type="hidden" name="data" value="{{  data }}">
+			<input type="hidden" name="millis" value="{{  millis }}">
 			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
 			<a href="{% url 'floybd:heatMapEarthquakes' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 		</form>
@@ -109,6 +107,7 @@
 			  map : map,
 			  dissipating : false
 			});
+		   //heatmap.setMap(map);
       }
 		</script>
 	 {% endif %}

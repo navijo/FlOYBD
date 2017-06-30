@@ -2,9 +2,15 @@
 {% load static %}
 <script>
   $( function() {
-  markActive("item6")
+    markActive("item6");
+     var tempChart;
     $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
     })
+
+    function resetCharts(){
+        debugger;
+        $("#tempChart")
+    }
 
     function getDashBoardData(){
         var selectedStation = $("#combobox").val()
@@ -41,7 +47,7 @@
     }
 
     function createTempChart(data){
-        var chart = bb.generate({
+        tempChart = bb.generate({
             "data": {
              "x": "x",
                 "json": data,
@@ -76,9 +82,9 @@
                 "ratio": 0.3
                 }
             },
-             "zoom": {
-                "enabled": true
-              },
+            "subchart": {
+                "show": true
+            },
             "bindto": "#tempChart"
         });
     }
@@ -113,9 +119,9 @@
                 "ratio": 0.3
                 }
             },
-             "zoom": {
-                "enabled": true
-              },
+            "subchart": {
+                "show": true
+            },
             "bindto": "#pressureChart"
         });
     }
@@ -153,9 +159,9 @@
                 "ratio": 0.3
                 }
             },
-             "zoom": {
-                "enabled": true
-              },
+            "subchart": {
+                "show": true
+            },
             "bindto": "#precipInsoChart"
         });
     }
@@ -190,9 +196,9 @@
                 "ratio": 0.3
                 }
             },
-            "zoom": {
-                "enabled": true
-              },
+            "subchart": {
+                "show": true
+            },
             "bindto": "#windChart"
         });
     }
@@ -226,6 +232,7 @@
             </div>
             <br/>
             <input type="button" value="View Dashboard " onclick="getDashBoardData()" class="mui-btn mui-btn--raised"/>
+            <input type="button" value="Reset Charts" onclick="resetCharts()" class="mui-btn mui-btn--raised"/>
 
         </form>
         <div class="row">
