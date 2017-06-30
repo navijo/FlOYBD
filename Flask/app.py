@@ -28,6 +28,13 @@ def make_cache_key(*args, **kwargs):
     args = str(hash(frozenset(request.args.items())))
     return (path + args).encode('utf-8')
 
+def make_cache_key_post(*args, **kwargs):
+    path = request.path
+    dataStr = str(request.data, 'utf-8')
+    dataDict = json.loads(dataStr)
+    args = str(hash(frozenset(dataDict.items())))
+    return (path + args).encode('utf-8')
+
 
 def timing(func):
     @functools.wraps(func)
@@ -173,7 +180,7 @@ def getPrediction():
 
 
 @app.route('/getPredictionStats', methods=['POST'])
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
+@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key_post)
 def getPredictionStats():
     try:
         data = request.data
@@ -213,7 +220,7 @@ def getAllStations():
 
 
 @app.route('/getStats', methods=['POST'])
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
+@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key_post)
 def getStats():
     initEnvironment()
 
@@ -256,8 +263,9 @@ def getStats():
         stopEnvironment(sc)
 
 
+
 @app.route('/getWeatherDataInterval', methods=['POST'])
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
+@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key_post)
 def getWeatherDataInterval():
     initEnvironment()
 
@@ -267,6 +275,8 @@ def getWeatherDataInterval():
 
     dateFrom = dataDict['dateFrom']
     dateTo = dataDict['dateTo']
+    print("From: ",dateFrom)
+    print("To: ",dateTo)
     station_id = dataDict['station_id']
 
     try:
