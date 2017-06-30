@@ -49,7 +49,7 @@
                     x: 'measure_date',
                     value: ["max_temp","med_temp","min_temp"]
                 },
-            "type": "bar",
+            "type": "spline",
             "labels": true,
             "colors": {
               "max_temp": "#ff0000",
@@ -76,6 +76,9 @@
                 "ratio": 0.3
                 }
             },
+             "zoom": {
+                "enabled": true
+              },
             "bindto": "#tempChart"
         });
     }
@@ -110,6 +113,9 @@
                 "ratio": 0.3
                 }
             },
+             "zoom": {
+                "enabled": true
+              },
             "bindto": "#pressureChart"
         });
     }
@@ -147,6 +153,9 @@
                 "ratio": 0.3
                 }
             },
+             "zoom": {
+                "enabled": true
+              },
             "bindto": "#precipInsoChart"
         });
     }
@@ -181,6 +190,9 @@
                 "ratio": 0.3
                 }
             },
+            "zoom": {
+                "enabled": true
+              },
             "bindto": "#windChart"
         });
     }
@@ -209,7 +221,7 @@
                     {% endfor %}
                 </select>
             <div class="mui-textfield mui-textfield--float-label">
-               <input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length==3) return false;" maxlength="2" size="2" />
+               <input id="daysBefore" type="number" value="10" onKeyPress="if(this.value.length>3) return false;" maxlength="3" size="3" />
                   <label for="daysBefore"> Backward Days:</label>
             </div>
             <br/>

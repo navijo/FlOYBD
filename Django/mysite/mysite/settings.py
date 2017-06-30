@@ -140,3 +140,10 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = ('/admin')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'unix:/tmp/memcached.sock',
+    }
+}

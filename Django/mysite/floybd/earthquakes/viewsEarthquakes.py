@@ -62,7 +62,8 @@ def getHeatMap(request):
 
     data = getEartquakesArray(jsonData, False)
 
-    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date})
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date,
+                                                                              'numberObtained':numberObtained})
 
 
 def getEartquakesArray(jsonData, includeDescription):
@@ -80,12 +81,10 @@ def getEartquakesArray(jsonData, includeDescription):
 def generateHeapMapKml(request):
     print("Generating HeatMap")
     date = request.POST['date']
+    dataMapsJs = request.POST['data']
     millis = int(round(time.time() * 1000))
 
-    fileName = "earthquakesHeatMap_"+str(millis)+".kml"
-    sparkIp = getSparkIp()
-
-    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+    response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
@@ -97,7 +96,7 @@ def generateHeapMapKml(request):
 
     data = getEartquakesArray(jsonData, True)
 
-    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
+    fileName = "earthquakesHeatMap_" + str(date) + "_" + str(millis) + ".kmz"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
@@ -105,8 +104,11 @@ def generateHeapMapKml(request):
     cylinder = CylindersKmlHeatmap(fileName, data)
     cylinder.makeKML(dirPath2)
     sendKmlToLG(fileName)
+    time.sleep(2)
+    sendFlyToToLG(36.778259, -119.417931, 22000000, 0, 0, 22000000, 2)
 
-    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date})
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': dataMapsJs, 'date': date,
+                                                                              'numberObtained': numberObtained})
 
 
 def createJSFile(jsonData, millis):

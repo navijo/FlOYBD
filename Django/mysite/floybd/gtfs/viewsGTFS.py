@@ -349,7 +349,7 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                 cars[carCounter] = linePoints
         carCounter += 1
 
-    newKmlName = "car_" + str(millis) + ".kml"
+    newKmlName = "car_" + str(millis) + ".kmz"
     kml1 = simplekml.Kml()
     tour1 = kml1.newgxtour(name="GTFSTour")
     playlist1 = tour1.newgxplaylist()
@@ -425,12 +425,12 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                 incrementLatitude = True if latitudeModificator > 0 else False
                 incrementLongitude = True if longitudeModificator > 0 else False
 
-                print("Start latitude:", str(startLatitude))
-                print("Start longitude:", str(startLongitude))
-                print("Objective latitude:", str(objectiveLatitude))
-                print("Objective longitude:", str(objectiveLongitude))
-                print("longitudeModificator:", str(longitudeModificator))
-                print("latitudeModificator:", str(latitudeModificator))
+                print("Start Latitude: ", str(startLatitude))
+                print("Start Longitude: ", str(startLongitude))
+                print("Objective Latitude: ", str(objectiveLatitude))
+                print("Objective Longitude: ", str(objectiveLongitude))
+                print("Longitude Modificator: ", str(longitudeModificator))
+                print("Latitude Modificator: ", str(latitudeModificator))
 
                 latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
                     startLatitude <= objectiveLatitude)
@@ -498,6 +498,6 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
     print("Total Cars: ", carCounter)
     print("Writing car file " + newKmlName)
-    kml1.save("static/kmls/" + newKmlName)
+    kml1.savekmz("static/kmls/" + newKmlName, format=False)
     return newKmlName
 

@@ -10,11 +10,13 @@
 <script>
   $( function() {
     markActive("item2");
-    $('#datetimepicker-default').datetimepicker({
+
+    $('#date').datetimepicker({
 			'format' : "YYYY-MM-DD",
 			'maxDate' : new Date()
 		});
     })
+
 
     function showHideCombo(){
    		if($("#allStations").prop("checked")){
@@ -32,6 +34,7 @@
         return navigator.language;
     }
 
+
 </script>
 <div id="content-wrapper">
     <div class="mui--text-center mui--text-display3">Weather Concrete Day</div>
@@ -41,31 +44,37 @@
         <form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="mui-form">
             {% csrf_token %}
             <div class="mui-row">
-                <div class="col-xs-6">
+                <div class="col-xs-12">
+                  <div class="mui--text-center">
                      <div class="mui-textfield mui-textfield--float-label">
-                        <input required type="text" name="date" id="datetimepicker-default" class="form-control" />
-                         <label for="datetimepicker-default">Date</label>
+                        <input required type="text" name="date" id="date" class="form-control" />
+                         <label for="date">Date</label>
                     </div>
-                </div>
-                <div class="col-xs-6">
-                    <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
+                      <div class="col-xs-3">
+                        <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
                            value="1"><label for="allStations">Get All Stations</label>
-
-                    <div id="comboDiv">
-                        <select id="combobox" name="station">
-                            {% for entry in stations %}
-                                <option value="{{ entry.station_id }}">
-                                    {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
-                                </option>
-                            {% endfor %}
-                        </select>
                     </div>
+                     <div class="col-xs-12">
+                        <div id="comboDiv">
+                            <select id="combobox" name="station">
+                                {% for entry in stations %}
+                                    <option value="{{ entry.station_id }}">
+                                        {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                     </div>
+
+                </div>
                 </div>
             </div>
             <div class="mui-row">
+                  <div class="mui--text-center">
                 <div class="col-xs-12">
                    <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
                 </div>
+                  </div>
             </div>
         </form>
     </div>

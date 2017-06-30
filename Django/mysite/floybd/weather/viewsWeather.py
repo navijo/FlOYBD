@@ -490,6 +490,9 @@ def viewDashboard(request):
     previousDate = datetime.datetime.today() - timedelta(days=int(daysBefore))
     jsonData = {"station_id": station, "dateTo": today, "dateFrom": previousDate.strftime("%Y-%m-%d")}
 
+    print("From: " + previousDate.strftime("%Y-%m-%d"))
+    print("Today: " + today)
+
     payload = json.dumps(jsonData)
 
     response = requests.post('http://' + sparkIp + ':5000/getWeatherDataInterval',

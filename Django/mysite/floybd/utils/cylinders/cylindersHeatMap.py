@@ -54,5 +54,5 @@ class CylindersKmlHeatmap(object):
             polygon.style.linestyle.color = "1e1400FF"
 
     def saveKml(self, path):
-        self.kml_var.save(path)
+        self.kml_var.savekmz(path, format=False)
 
