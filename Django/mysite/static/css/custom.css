@@ -1,3 +1,15 @@
 .balloonTd{
     text-align: center;
 }
+
+.mui-appbar{
+    background-color: #162955;
+}
+
+.mui-btn--primary{
+    background-color:#4F628E;
+}
+
+.context-wrapper{
+    background-color:#FFE3AA;
+}

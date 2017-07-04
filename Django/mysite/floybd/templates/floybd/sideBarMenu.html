@@ -59,13 +59,13 @@
 
   function markActive(className){
     $("li."+className).parent().show()
-    $("li."+className+" > a").css("color", "grey")
+    $("li."+className+" > a").css("color", "#FFE3AA")
   }
 </script>
 
 <div id="sidedrawer" class="mui--no-user-select">
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
-      <span class="mui--text-title"><a href="/floybd">FLOYBD</a></span>
+      <span class="mui--text-title"><a href="/floybd"><img style="width: 100%;" src="{% static 'img/logo.png' %}"/></a></span>
 </div>
 <div class="mui-divider"></div>
 <ul>

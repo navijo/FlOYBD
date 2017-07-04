@@ -39,8 +39,8 @@ buttons {
   overflow: auto;
   z-index: 2;
   /*background-color: #fff;*/
+  background-color : #7887AB;
   transition: transform 0.2s;
-  background-color : aliceblue;
 }
 
 #content-wrapper {
@@ -124,8 +124,13 @@ buttons {
  * Footer CSS
  */
 #footer {
-  background-color: #0288D1;
+  /*background-color: #0288D1;*/
+  background-color: #162955;
   color: #fff;
+   position:fixed;
+   left:0px;
+   bottom:0px;
+   width:100%;
 }
 
 #footer a {
@@ -137,9 +142,10 @@ buttons {
  * Side drawer CSS
  */
 #sidedrawer-brand {
-  padding-left: 20px;
-  height: 64px;
-  padding-top: 10%;
+/*  padding-left: 20px;*/
+  /*height: 64px;*/
+  height : auto;
+  /*padding-top: 10%;*/
 }
 
 #sidedrawer ul {
@@ -165,7 +171,7 @@ buttons {
 }
 
 #sidedrawer strong + ul > li {
-  padding: 6px 0px !important;
+  padding: 6px 1px !important;
 }
 
 #sidedrawer .menu{
@@ -173,12 +179,13 @@ buttons {
 }
 
 #sidedrawer .menu a {
-    color: #2196F3;
+    /*color: #2196F3;*/
+    color : #061539;
     text-decoration: none;
 }
 
 #sidedrawer #sidedrawer-brand span {
-   padding:15%;
+ /*  padding:15%;*/
 }
 
 #header .mui-container-fluid {
