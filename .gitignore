@@ -35,3 +35,15 @@ Django/mysite/floybd/migrations/merda/
 Django/mysite/db \(copia\)\.sqlite3_backAll
 
 *.out
+
+Flask/\.idea/
+
+DataMining/\.idea/
+
+*.iml
+
+DataGatheringAndCleaning/\.idea/inspectionProfiles/
+
+DataGatheringAndCleaning/\.idea/
+
+Django/\.vscode/
