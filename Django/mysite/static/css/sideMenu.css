@@ -127,10 +127,10 @@ buttons {
   /*background-color: #0288D1;*/
   background-color: #162955;
   color: #fff;
-   position:fixed;
+   /*position:fixed;*/
    left:0px;
    bottom:0px;
-   width:100%;
+   width:auto;
 }
 
 #footer a {
@@ -145,6 +145,7 @@ buttons {
 /*  padding-left: 20px;*/
   /*height: 64px;*/
   height : auto;
+  background-color: white;
   /*padding-top: 10%;*/
 }
 
