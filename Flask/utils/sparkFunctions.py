@@ -11,6 +11,7 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import max, min, col, avg, count
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
+from pyspark.sql.functions import UserDefinedFunction
 
 from utils import generalFunctions
 

@@ -39,6 +39,14 @@ def getKey():
         jsonList.append(jsonData)
     return jsonList
 
+def getApiKey():
+    cluster = Cluster(['192.168.246.236'])
+    session = cluster.connect("dev")
+    rows = session.execute('SELECT * FROM api_key')
+    apiKey = ''
+    for row in rows:
+        apiKey = row[1]
+    return apiKey
 
 def dataframeToJson(dataFrame):
     pandas_df = dataFrame.toPandas()
@@ -116,8 +124,7 @@ def getCurrentWeather(station_id):
     print("Getting current weather for station: " + station_id)
     global api_key, querystring, headers, base_url
 
-    jsonKey = json.loads(getKey())
-    api_key = jsonKey['api_key']
+    api_key = getApiKey()
 
     querystring = {"api_key": api_key}
     headers = {'cache-control': "no-cache"}
