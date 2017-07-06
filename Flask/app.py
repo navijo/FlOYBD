@@ -69,7 +69,6 @@ def getApiKey():
 
 
 @app.route('/getAllStationsMeasurementsKML')
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
 def getAllStationsMeasurementsKML():
     initEnvironment()
     loadStations()
@@ -82,12 +81,11 @@ def getAllStationsMeasurementsKML():
     generalFunctions.generateAllStationsKml(weatherData, stations, fileName)
 
     stopEnvironment(sc)
-    return send_from_directory(directory='.', filename="kmls/" + fileName + ".kml", as_attachment=True,
+    return send_from_directory(directory='.', filename="kmls/" + fileName + ".kmz", as_attachment=True,
                                mimetype='application/octet-stream')
 
 
 @app.route('/getMeasurementKml')
-@cache.cached(timeout=7 * 24 * 60 * 60, key_prefix=make_cache_key)
 def getMeasurementKml():
     initEnvironment()
     loadStations()

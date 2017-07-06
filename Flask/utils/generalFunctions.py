@@ -86,7 +86,7 @@ def generateAllStationsKml(weatherData, stations, fileName):
     finalData.append(jsonString)
 
     cilinders = CylindersKmlExtended(fileName, finalData)
-    cilinders.makeKML()
+    cilinders.makeKMZ()
 
 
 def generateKml(weatherData, stationData, fileName):

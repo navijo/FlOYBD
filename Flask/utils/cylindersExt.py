@@ -17,6 +17,12 @@ class CylindersKmlExtended(object):
         self.saveKml(current_milli_time)
         #self.sendKml(current_milli_time)
 
+    def makeKMZ(self):
+        current_milli_time = int(round(time.time()))
+        self.parseData()
+        self.saveKmz(current_milli_time)
+        #self.sendKml(current_milli_time)
+
     def parseData(self):
         for element in self.data:
             for innerElement in element:
@@ -143,6 +149,10 @@ class CylindersKmlExtended(object):
  
     def saveKml(self,current_milli_time):
         self.kml_var.save("./kmls/" + self.name+".kml")
+
+    def saveKmz(self,current_milli_time):
+        self.kml_var.savekmz("./kmls/" + self.name+".kmz", format=False)
+
 
     def sendKml(self,current_milli_time):
         command = "sshpass -p 'lqgalaxy' echo 'http://130.206.117.178:8000/cylinders_weather.kml' | ssh lg@192.168.88.242 'cat - > /var/www/html/kmls.txt'"
