@@ -19,6 +19,7 @@ def getSparkIp():
     settingObject = Setting.objects.get(key="sparkIp")
     return settingObject.value
 
+
 def getLGPass():
     settingObject = Setting.objects.get(key="LGPassword")
     return settingObject.value

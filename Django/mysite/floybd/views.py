@@ -32,6 +32,10 @@ def clearKML(request):
               " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls_4.txt'"
+    os.system(command)
+
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 

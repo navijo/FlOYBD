@@ -7,6 +7,8 @@ from .weather import viewsWeather
 from .gtfs import viewsGTFS
 from django.http import HttpResponseRedirect
 from .models import Setting
+from .utils.utils import *
+import subprocess
 
 app_name = 'floybd'
 
@@ -35,7 +37,7 @@ urlpatterns = [
 
 
     url('heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),
-url('getHeatMapEarthquakesKML', viewsEarthquakes.generateHeapMapKml, name='getHeatMapEarthquakesKML'),
+    url('getHeatMapEarthquakesKML', viewsEarthquakes.generateHeapMapKml, name='getHeatMapEarthquakesKML'),
     url('getHeatMapEarthquakes', viewsEarthquakes.getHeatMap, name='getHeatMapEarthquakes'),
 
 
@@ -59,8 +61,19 @@ url('getHeatMapEarthquakesKML', viewsEarthquakes.generateHeapMapKml, name='getHe
 
 ]
 
-import sys, os, os.path
-sys.path.insert(1, '/home/usuari/FlOYBD/Django/mysite/floybd/utils/heatmaps/build/lib.linux-x86_64-3.5')
+
+def sendLogos():
+    getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'head -n 1 personavars.txt | cut -c17-19'"
+    leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
+    leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
+    print("Left Screen: ", leftScreenClean)
+
+    command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
+              "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
+
+    #print(command)
+    os.system(command)
+
 
 def createDefaultSettingsObjects():
     lgIp, created = Setting.objects.get_or_create(key="lgIp")
@@ -89,3 +102,4 @@ def startup_clean():
 
 startup_clean()
 createDefaultSettingsObjects()
+sendLogos()

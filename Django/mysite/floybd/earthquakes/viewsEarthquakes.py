@@ -102,7 +102,7 @@ def generateHeapMapKml(request):
     dirPath2 = os.path.join(dir1, fileName)
 
     cylinder = CylindersKmlHeatmap(fileName, data)
-    cylinder.makeKML(dirPath2)
+    cylinder.makeKMZ(dirPath2)
     sendKmlToLG(fileName)
     time.sleep(2)
     sendFlyToToLG(36.778259, -119.417931, 22000000, 0, 0, 22000000, 2)

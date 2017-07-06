@@ -1,5 +1,5 @@
 {% include "floybd/header.html" %}
-{# Display a form #}
+{% load static %}
 
 <div id="content-wrapper">
     <div class="mui--appbar-height"></div>
@@ -7,10 +7,8 @@
         <div class="mui-row">
         <div class="mui-col-md-12">
             <div class="mui--text-center">
-                <h1>Fly Over Your Big Data</h1>
-                <a href="{% url 'floybd:weather' %}" class="mui-btn mui-btn--primary">Weather</a>
-                <a href="{% url 'floybd:earthquakes' %}" class="mui-btn mui-btn--primary">Earthquakes</a>
-                <a href="{% url 'floybd:gtfs' %}" class="mui-btn mui-btn--primary">GTFS</a>
+                 <div class="mui--text-display1">Welcome!</div>
+                <img style="width: 25%;" src="{% static 'img/logo_trans.png' %}"/>
             </div>
         </div>
         </div>

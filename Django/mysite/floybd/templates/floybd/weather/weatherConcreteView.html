@@ -9,6 +9,37 @@
 <script>
   $( function() {
     markActive("item2");
+
+     $("#sendToLGForm").submit(function (e) {
+        $('html,body').scrollTop(0);
+        e.preventDefault();
+        var form_data = $(this).serialize();
+        var form_url = $(this).attr("action");
+        var form_method = $(this).attr("method").toUpperCase();
+
+        $('#spinnerDiv').show()
+        $('.modal').toggleClass('show');
+         FLEXPAPER.utils.addSpinner({
+            element     : 'spinner-target',
+            width       : 500,
+            height      : 500,
+            logo        : "{% static 'img/gear.gif' %}"
+        });
+
+        $.ajax({
+            url: form_url,
+            type: form_method,
+            data: form_data,
+            cache: false,
+            success: function (returnhtml) {
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+                FLEXPAPER.utils.removeSpinner('spinner-target');
+                $("body").html(returnhtml)
+            }
+        });
+        })
+
    });
 
 </script>
@@ -17,6 +48,16 @@
 <div id="content-wrapper">
     <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
+        	 <div class="mui-row">
+               <div class="col-xs-12">
+                     <div id="spinnerDiv" style="display:none">
+                     <div class="modal"> </div>
+                        <div class="overlay loading-indicator">
+                         <div id="spinner-target"></div>
+                       </div>
+                    </div>
+               </div>
+          </div>
         <div class="mui-row">
             <div class="mui-col-md-12">
                 {% if noData %}
@@ -32,7 +73,7 @@
                     <div class="mui--text-center">
                         <div class="mui--text-display2">Viewing weather for <b>{{ concreteStation.name }}</b> on <b>{{ date }}</b></div>
 
-                        <form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
+                        <form name="form" id="sendToLGForm" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
                             {% csrf_token %}
                             <input type="hidden" name="weatherData" value="{{  weatherData }}">
                             <input type="hidden" name="date" value="{{  date }}">
@@ -86,14 +127,15 @@
                     <div class="mui--text-center">
                         <div class="mui--text-display2">Viewing weather for all stations on <b>{{ date }}</b></div>
 
-                        <form name="form" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
+                        <form name="form" id="sendToLGForm" action="{% url 'floybd:sendConcreteValuesToLG' %}" method="post" class="form">
                             {% csrf_token %}
                             <input type="hidden" name="date" value="{{  date }}">
                             <input type="hidden" name="allStations" value="1">
                             <input type="hidden" name="fileUrl" value="{{ kml }}">
+                            <input type="hidden" name="date" value="{{  date }}">
                             <input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
-                            <a href="{% url 'floybd:dayWeather' %}"><input type="button" value="Go Back"
-                                                                           class="mui-btn mui-btn--primary"/></a>
+                            <a href="{% url 'floybd:dayWeather' %}">
+                                <input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
                         </form>
                     </div>
                     <div class="mui--text-center" id="mapAll" style="height: 75%;width: 100%;"></div>

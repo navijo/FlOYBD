@@ -100,7 +100,7 @@ def sendConcreteValuesToLG(request):
         fileurl = request.POST['fileUrl']
         millis = int(round(time.time() * 1000))
 
-        fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+        fileName = "measurement_" + str(date) + "_" + str(millis) + ".kmz"
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
@@ -112,7 +112,11 @@ def sendConcreteValuesToLG(request):
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
+            f.close()
+
         sendKmlToLG(fileName)
+
+        sendFlyToToLG("40.416775", "-3.703790", 100, 14, 69, 200000, 2)
 
         return render(request, 'floybd/weather/weatherConcreteView.html',
                       {'kml': fileurl, 'date': date})
