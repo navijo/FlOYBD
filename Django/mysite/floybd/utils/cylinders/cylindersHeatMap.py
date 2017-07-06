@@ -15,10 +15,15 @@ class CylindersKmlHeatmap(object):
         print("Saving kml into " + dirPath2)
         self.saveKml(dirPath2)
 
+    def makeKMZ(self, dirPath2):
+        self.parseData()
+        print("Saving kmz into " + dirPath2)
+        self.saveKmz(dirPath2)
+
     def parseData(self):
         counter = 1
         for element in self.data:
-            print("Parsing #"+str(counter)+":\t"+str(element))
+            #print("Parsing #"+str(counter)+":\t"+str(element))
             if float(abs(element[2])) <= 0:
                 continue
             self.newCylinder(element[3], element[4], (element[0], element[1]), element[2])
@@ -54,5 +59,8 @@ class CylindersKmlHeatmap(object):
             polygon.style.linestyle.color = "1e1400FF"
 
     def saveKml(self, path):
+        self.kml_var.save(path)
+
+    def saveKmz(self, path):
         self.kml_var.savekmz(path, format=False)
 

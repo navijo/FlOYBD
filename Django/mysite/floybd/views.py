@@ -3,7 +3,7 @@ import os
 import shutil
 from django.http import HttpResponseRedirect
 from .utils.utils import *
-
+import requests
 
 def index(request):
     return render(request, 'floybd/index.html')
@@ -35,6 +35,10 @@ def clearKML(request):
     command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
               " 'cat - > /var/www/html/kmls_4.txt'"
     os.system(command)
+
+    print("Deletings remote kmls folder")
+
+    requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 

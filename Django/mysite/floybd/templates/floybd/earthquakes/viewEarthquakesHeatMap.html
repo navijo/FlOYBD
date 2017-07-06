@@ -73,6 +73,7 @@
 		<form name="heatMapform" id="heatMapform" action="{% url 'floybd:getHeatMapEarthquakesKML' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="date" value="{{  date }}">
+			<input type="hidden" name="data" value="{{  data }}">
 			<input type="hidden" name="millis" value="{{  millis }}">
 			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
 			<a href="{% url 'floybd:heatMapEarthquakes' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>

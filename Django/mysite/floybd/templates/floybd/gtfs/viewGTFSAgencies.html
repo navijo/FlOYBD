@@ -53,6 +53,16 @@
 
 </script>
 
+
+<script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.4.js"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.15/js/dataTables.material.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.1.0/material.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.material.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.2/css/select.dataTables.min.css">
+
+
+
 <div id="content-wrapper">
 <div class="mui-container-fluid">
       <div class="mui--text-center">
@@ -71,7 +81,7 @@
 
         {% if agencies != None %}
 
-            <form class="mui-form" id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" >
+            <form id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" >
                 {% csrf_token %}
                 <div class="mui-textfield mui-textfield--float-label">
                     <input required type="number" name="maxCars" id="maxCars">
