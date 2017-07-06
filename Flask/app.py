@@ -8,6 +8,7 @@ import os.path
 import sys
 import time
 import json
+import shutil
 
 import datetime
 import functools
@@ -215,6 +216,13 @@ def getAllStations():
     stationsJson = generalFunctions.dataFrameToJsonStr(stations)
     stopEnvironment(sc)
     return stationsJson
+
+@app.route('/clearKML')
+def clearKMLS():
+    print("Deletings kmls folder")
+    shutil.rmtree('kmls')
+    os.makedirs("kmls")
+    return jsonify("OK")
 
 
 @app.route('/getStats', methods=['POST'])
