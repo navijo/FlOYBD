@@ -58,20 +58,19 @@ urlpatterns = [
     url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
-
 ]
 
 
 def sendLogos():
-    getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'head -n 1 personavars.txt | cut -c17-19'"
-    leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
-    leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
-    print("Left Screen: ", leftScreenClean)
+    #getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'head -n 1 personavars.txt | cut -c17-19'"
+    #leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
+    #leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
+    #print("Left Screen: ", leftScreenClean)
 
+    print("Sending Logos...")
     command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
               "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
-    #print(command)
     os.system(command)
 
 

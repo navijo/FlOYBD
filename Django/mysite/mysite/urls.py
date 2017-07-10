@@ -20,6 +20,7 @@ from material.frontend import urls as frontend_urls
 
 urlpatterns = [
     #url(r'^admin/', admin.site.urls),
+    url(r'^', include('floybd.urls')),
     url(r'^floybd/', include('floybd.urls')),
     url(r'', include(frontend_urls))
 ]
