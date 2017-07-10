@@ -175,15 +175,15 @@ def getPrediction(request):
     response = requests.post('http://' + sparkIp + ':5000/getPrediction',
                              headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                              data=payload)
-
+    print(response.json())
     if response.json():
         result = json.loads(response.json())
         concreteStation = Station.objects.get(station_id=station_id)
         predictionStr = ""
-
+        kml = simplekml.Kml()
         for row in result:
             jsonRow = json.loads(row)
-            kml = simplekml.Kml()
+           # kml = simplekml.Kml()
 
             for column in columnsToPredict:
                 if jsonRow.get("prediction_" + column) is not None:

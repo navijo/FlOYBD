@@ -11,8 +11,8 @@ from ..utils.cylinders.cylindersHeatMap import *
 def getEarthquakes(request):
     print("Getting Earthquakes")
     date = request.POST['date']
-    showAllParam = request.POST.get('showAll', 0)
-    showAll = showAllParam == str(1)
+    createTourParam = request.POST.get('createTour', 0)
+    createTour = createTourParam == str(1)
 
     sparkIp = getSparkIp()
 
@@ -36,12 +36,12 @@ def getEarthquakes(request):
                       {'noData': True})
 
     millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, showAll, numberObtained)
+    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis,
-                   'showAll': showAllParam})
+                   'showAll': createTourParam})
 
 
 def getHeatMap(request):
@@ -158,7 +158,7 @@ def populateInfoWindow(row, jsonData):
     return contentString
 
 
-def createKml(jsonData, date, millis, showAll, numberObtained):
+def createKml(jsonData, date, millis, createTour, numberObtained):
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
@@ -195,7 +195,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
                 elif absMagnitude > 5:
                     color = simplekml.Color.red
 
-                if not showAll:
+                if createTour:
                     playlist.newgxwait(gxduration=3 * balloonDuration)
 
                 polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
@@ -212,7 +212,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
 
                 #pol.tessellate = 1
 
-                if not showAll:
+                if createTour:
                     pol.visibility = 1
 
                     flyto = playlist.newgxflyto(gxduration=balloonDuration, gxflytomode=simplekml.GxFlyToMode.smooth)
@@ -268,7 +268,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
             kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
             print(absMagnitude)
 
-    if not showAll:
+    if createTour:
         playlist.newgxwait(gxduration=3 * balloonDuration)
 
     fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
@@ -284,12 +284,138 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
     return fileUrl
 
 
+def createKmz(jsonData, date, millis, createTour, numberObtained):
+    kml = simplekml.Kml()
+
+    tour = kml.newgxtour(name="EarthquakesTour")
+    playlist = tour.newgxplaylist()
+
+    balloonDuration = 1
+    if numberObtained > 1000:
+        balloonDuration = numberObtained/1000
+
+    print("Default duration: " + str(balloonDuration))
+    for row in jsonData:
+
+        place = row["place"]
+        latitude = row["latitude"]
+        longitude = row["longitude"]
+        magnitude = row["magnitude"]
+        fecha = row["fecha"]
+
+        datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
+        fechaFinStr = fechaFin.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+        geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
+        infowindow = populateInfoWindow(row, geoJson)
+
+        try:
+            if magnitude is not None:
+                absMagnitude = abs(float(magnitude))
+                color = simplekml.Color.grey
+                if absMagnitude <= 2:
+                    color = simplekml.Color.green
+                elif 2 < absMagnitude <= 5:
+                    color = simplekml.Color.orange
+                elif absMagnitude > 5:
+                    color = simplekml.Color.red
+
+                if createTour:
+                    playlist.newgxwait(gxduration=3 * balloonDuration)
+
+                polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
+                                                    radius=2000 * absMagnitude, number_of_vertices=100)
+
+                pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
+                #pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
+                pol.style.polystyle.color = color
+                pol.style.polystyle.fill = 0
+                pol.style.polystyle.outline = 1
+                #pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
+                pol.style.linestyle.color = color
+                pol.style.linestyle.width = 10
+
+                #pol.tessellate = 1
+
+                if createTour:
+                    pol.visibility = 1
+
+                    flyto = playlist.newgxflyto(gxduration=balloonDuration, gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = longitude
+                    flyto.camera.latitude = latitude
+                    flyto.camera.altitude = 100000
+                    #flyto.camera.tilt = 20
+                    playlist.newgxwait(gxduration=balloonDuration)
+
+                    for i in range(1, 11):
+                        polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
+                                                               radius=(200 * i) * absMagnitude, number_of_vertices=100)
+
+                        polAux = kml.newpolygon(name=place, outerboundaryis=polycircleAux.to_kml())
+                        polAux.style.polystyle.color = color
+                        polAux.style.polystyle.fill = 1
+                        polAux.style.polystyle.outline = 1
+                        polAux.style.linestyle.color = color
+                        polAux.style.linestyle.width = 1
+                        polAux.visibility = 0
+
+                        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                           '<visibility>1</visibility></Placemark>' \
+                            .format(polAux.placemark.id)
+
+                        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
+                                                           '<visibility>0</visibility></Placemark>' \
+                            .format(polAux.placemark.id)
+
+                        playlist.newgxwait(gxduration=balloonDuration/10)
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                                       '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                        .format(pol.placemark.id)
+
+                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
+                    #animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                    animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
+                                                       '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                        .format(pol.placemark.id)
+
+
+            else:
+                earthquake = kml.newpoint(name=place,
+                                          description=infowindow,
+                                          coords=[(longitude, latitude)])
+                earthquake.timestamp.when = datetimeStr
+
+        except ValueError:
+            kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
+            print(absMagnitude)
+
+    if createTour:
+        playlist.newgxwait(gxduration=3 * balloonDuration)
+
+    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kmz"
+    currentDir = os.getcwd()
+    dir1 = os.path.join(currentDir, "static/kmls")
+    dirPath2 = os.path.join(dir1, fileName)
+    print("Saving kmz: ", dirPath2)
+    kml.savekmz(dirPath2, format=False)
+
+    ip = getDjangoIp()
+
+    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
+    return fileUrl
+
+
 def sendConcreteValuesToLG(request):
     date = request.POST['date']
     millis = request.POST['millis']
 
-    showAllParam = request.POST.get('showAll', 0)
-    showAll = showAllParam == str(1)
+    createTourParam = request.POST.get('createTour', 0)
+    createTour = createTourParam == str(1)
 
     center_lat = request.POST['center_lat']
     center_lon = request.POST['center_lon']
@@ -303,7 +429,7 @@ def sendConcreteValuesToLG(request):
 
     sendFlyToToLG(center_lat, center_lon, 100, 14, 69, 200000, 2)
 
-    if not showAll:
+    if createTour:
         # Start the tour
         time.sleep(5)
         playTour("EarthquakesTour")

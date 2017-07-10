@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from .models import Setting
 from .utils.utils import *
 import subprocess
+from django.db import connection
 
 app_name = 'floybd'
 
@@ -67,37 +68,57 @@ def sendLogos():
     #leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
     #print("Left Screen: ", leftScreenClean)
 
-    print("Sending Logos...")
-    command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
-              "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
+    if db_table_exists("floybd_setting"):
+        if checkPing(getLGIp()):
+            print("Sending Logos...")
+            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
+                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
-    os.system(command)
+            os.system(command)
 
 
 def createDefaultSettingsObjects():
-    lgIp, created = Setting.objects.get_or_create(key="lgIp")
-    if created:
-        print("Created lgIp setting object\n")
-    else:
-        print("lgIp setting object existent\n")
+    if db_table_exists("floybd_setting"):
+        lgIp, created = Setting.objects.get_or_create(key="lgIp")
+        if created:
+            print("Created lgIp setting object\n")
+        else:
+            print("lgIp setting object existent\n")
 
-    sparkIp, created = Setting.objects.get_or_create(key="sparkIp", value="130.206.117.178")
-    if created:
-        print("Created sparkIp setting object\n")
-    else:
-        print("sparkIp setting object existent\n")
+        sparkIp, created = Setting.objects.get_or_create(key="sparkIp", value="130.206.117.178")
+        if created:
+            print("Created sparkIp setting object\n")
+        else:
+            print("sparkIp setting object existent\n")
 
-    LGPassword, created = Setting.objects.get_or_create(key="LGPassword", value="lqgalaxy")
-    if created:
-        print("Created LGPassword setting object\n")
-    else:
-        print("LGPassword setting object existent\n")
+        LGPassword, created = Setting.objects.get_or_create(key="LGPassword", value="lqgalaxy")
+        if created:
+            print("Created LGPassword setting object\n")
+        else:
+            print("LGPassword setting object existent\n")
 
 
 def startup_clean():
     if not os.path.exists("static/kmls"):
         print("Creating kmls folder")
         os.makedirs("static/kmls")
+
+
+def db_table_exists(table_name):
+    print("Checking table existence...", table_name)
+    return table_name in connection.introspection.table_names()
+
+
+def checkPing(host):
+    response = os.system("ping -c 1 " + host)
+
+    if response == 0:
+        print(host, 'is up!')
+        return True
+    else:
+        print(host, 'is down!')
+        return False
+
 
 startup_clean()
 createDefaultSettingsObjects()

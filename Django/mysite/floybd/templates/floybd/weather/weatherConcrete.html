@@ -40,8 +40,18 @@
     <div class="mui--text-center mui--text-display3">Weather Concrete Day</div>
     <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
+         <div class="mui-row">
+           <div class="col-xs-12">
+                 <div id="spinnerDiv" style="display:none">
+                 <div class="modal"> </div>
+                    <div class="overlay loading-indicator">
+                     <div id="spinner-target"></div>
+                   </div>
+                </div>
+           </div>
+         </div>
 
-        <form name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="mui-form">
+        <form id="getConcreteWeatherForm" name="form" action="{% url 'floybd:getConcreteDateValues' %}" method="post" class="mui-form">
             {% csrf_token %}
             <div class="mui-row">
                 <div class="col-xs-12">
@@ -55,15 +65,13 @@
                            value="1"><label for="allStations">Get All Stations</label>
                          </div>
                      <div class="mui-col-md-12">
-                        <div id="comboDiv">
-                            <select id="combobox" name="station">
-                                {% for entry in stations %}
-                                    <option value="{{ entry.station_id }}">
-                                        {{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+<div id="comboDiv">
+    <select id="combobox" name="station">
+        {% for entry in stations %}
+            <option value="{{ entry.station_id }}">{{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})</option>
+        {% endfor %}
+    </select>
+</div>
                      </div>
                   </div>
                 </div>

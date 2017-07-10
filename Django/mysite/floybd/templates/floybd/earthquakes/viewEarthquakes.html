@@ -32,7 +32,7 @@
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}
 			<input type="hidden" name="date" value="{{  date }}">
-			<input type="hidden" name="showAll" value="{{  showAll }}">
+			<input type="hidden" name="createTour" value="{{  createTour }}">
 			<input type="hidden" name="millis" value="{{  millis }}">
 			<input type="hidden" name="center_lat" value="{{ center_lat }}">
 			<input type="hidden" name="center_lon" value="{{ center_lon }}">

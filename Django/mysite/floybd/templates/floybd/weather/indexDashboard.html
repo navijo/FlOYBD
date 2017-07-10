@@ -3,12 +3,13 @@
 <script>
   $( function() {
     markActive("item6");
-    var tempChart;
-    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
+        var tempChart;
+        var shownData;
+        $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
+    });
 
     function resetCharts(){
-        debugger;
-        $("#tempChart")
+        getDashBoardData();
     }
 
     function getDashBoardData(){
@@ -33,12 +34,13 @@
             dataType: 'json',
             success: function (data) {
                 if (data.stationData) {
-                    FLEXPAPER.utils.removeSpinner('spinner-target')
+                    FLEXPAPER.utils.removeSpinner('spinner-target');
                     mui.overlay('off');
-                    createTempChart(data.stationData)
-                    createPressureChart(data.stationData)
-                    createWindDirChart(data.stationData)
-                    createPrecipChart(data.stationData)
+                    createTempChart(data.stationData);
+                    shownData = data.stationData;
+                    createPressureChart(data.stationData);
+                    createWindDirChart(data.stationData);
+                    createPrecipChart(data.stationData);
                 }
             }
         });
@@ -200,7 +202,6 @@
             "bindto": "#windChart"
         });
     }
- });
 </script>
 
 {% load static %}
