@@ -57,9 +57,25 @@
     mui.overlay('on', modalEl);
   }
 
+  function activateGreetingsModal(){
+    var modalEl = document.createElement('div');
+    modalEl.style.width = '400px';
+    modalEl.style.height = 'auto';
+    modalEl.style.margin = 'auto';
+    modalEl.style.backgroundColor = '#fff';
+
+    var img = document.createElement("img");
+    img.src = '{% static 'img/comuns.png' %}'
+
+    modalEl.appendChild(img);
+
+    // show modal
+    mui.overlay('on', modalEl);
+  }
+
   function markActive(className){
     $("li."+className).parent().show()
-    $("li."+className+" > a").css("color", "white")
+    $("li."+className+" > a").css("color", "#ededed")
   }
 </script>
 
@@ -73,37 +89,38 @@
     <strong><img src="https://png.icons8.com/partly-cloudy-day/color/24" title="Weather" width="20%">
      Weather</strong>
     <ul>
-        <li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>
-        <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}">Weather Concrete Day</a></li>
-        <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}">Weather Predictions</a></li>
-        <li class="menu item4"><a href="{% url 'floybd:predictWeatherStats' %}">Weather Predictions based on stats</a></li>
-        <li class="menu item5"><a href="{% url 'floybd:weatherStats' %}">Weather Stats</a></li>
-        <li class="menu item6"><a href="{% url 'floybd:citydashboard' %}">City Dashboard</a></li>
+        <!--<li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>-->
+        <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}"><b>Weather Concrete Day</b></a></li>
+        <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}"><b>Weather Predictions</b></a></li>
+        <li class="menu item4"><a href="{% url 'floybd:predictWeatherStats' %}"><b>Weather Predictions based on stats</b></a></li>
+        <li class="menu item5"><a href="{% url 'floybd:weatherStats' %}"><b>Weather Stats</b></a></li>
+        <li class="menu item6"><a href="{% url 'floybd:citydashboard' %}"><b>City Dashboard</b></a></li>
     </ul>
   </li>
   <li>
     <strong><img src="https://png.icons8.com/earthquakes/color/24" title="Earthquakes"
                  width="20%"> Earthquakes</strong>
     <ul>
-      <li class="menu earthquakes"><a href="{% url 'floybd:earthquakes' %}">Earthquakes</a></li>
-        <li class="menu earthquakesHeatMap"><a href="{% url 'floybd:heatMapEarthquakes' %}">Earthquakes Heat Map</a></li>
+        <li class="menu earthquakes"><a href="{% url 'floybd:earthquakes' %}"><b>Earthquakes</b></a></li>
+        <li class="menu earthquakesHeatMap"><a href="{% url 'floybd:heatMapEarthquakes' %}"><b>Earthquakes Heat Map</b></a></li>
     </ul>
   </li>
   <li>
     <strong><img src="https://png.icons8.com/in-transit/color/24" title="GTFS"
                  width="20%"> GTFS</strong>
     <ul>
-        <li class="menu item7"><a href="{% url 'floybd:viewgtfs' %}">View GTFS</a></li>
-        <li class="menu item8"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
+        <li class="menu item7"><a href="{% url 'floybd:viewgtfs' %}"><b>View GTFS</b></a></li>
+        <li class="menu item8"><a href="{% url 'floybd:uploadgtfs' %}"><b>Upload New GTFS</b></a></li>
     </ul>
   </li>
     <li>
         <strong><img src="{% static 'img/more.png' %}" width="20%"/>More</strong>
         <ul>
-            <li class="menu item9"><a href="#" onclick="activateHelpModal()">Help</a></li>
-            <li class="menu item10"><a href="#" onclick="activateAboutModal()">About</a></li>
-            <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}">Settings</a></li>
-            <li class="menu item12"><a href="{% url 'floybd:clearKML' %}">Clear KMLs Folder</a></li>
+            <li class="menu item9"><a href="#" onclick="activateHelpModal()"><b>Help</b></a></li>
+            <li class="menu item10"><a href="#" onclick="activateAboutModal()"><b>About</b></a></li>
+            <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}"><b>Settings</b></a></li>
+            <li class="menu item12"><a href="{% url 'floybd:clearKML' %}"><b>Clear KMLs Folder</b></a></li>
+            <li class="menu item13"><a href="#" onclick="activateGreetingsModal()"><b>Special Thanks</b></a></li>
         </ul>
     </li>
 </ul>

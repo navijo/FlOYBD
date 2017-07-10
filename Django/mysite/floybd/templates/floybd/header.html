@@ -5,8 +5,6 @@
     {% block title %}FLOYBD{% endblock %}
   </title>
 
-
-
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -15,10 +13,8 @@
 <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
-{# Load the tag library #}
-{% load bootstrap3 %}
 
-{# Load CSS and JavaScript #}
+{% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
@@ -31,10 +27,8 @@
 {% include 'material/includes/material_js.html' %}
 <link rel="shortcut icon" type="image/png" href="{% static 'img/logo.png' %}"/>
 
-
 <link rel="stylesheet" type="text/css" href="//cdn.muicss.com/mui-latest/css/mui.min.css" >
 <script src="{% static 'js/mui.min.js' %}"></script>
-
 
 <script src="{% static 'js/flexpaper.spinner.js' %}"></script>
 
@@ -43,6 +37,8 @@
 
 <!-- Propeller Bootstrap datetimepicker -->
 <script type="text/javascript" language="javascript" src="http://propeller.in/components/datetimepicker/js/bootstrap-datetimepicker.js"></script>
+<!-- Propeller bootstrap datetimepicker -->
+<link href="{% static 'css/bootstrap-datetimepicker.css' %}" type="text/css" rel="stylesheet" />
 
 
 <script src="{% static 'js/billboard.js' %}"></script>
@@ -51,9 +47,6 @@
 <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
 
-<!-- Propeller bootstrap datetimepicker -->
-<link href="{% static 'css/bootstrap-datetimepicker.css' %}" type="text/css" rel="stylesheet" />
-
 <link rel='stylesheet' href="{% static 'css/flexpaper-spinner.css' %}"/>
 <link rel='stylesheet' href="{% static 'css/modaloverlay.css' %}"/>
 
@@ -61,53 +54,87 @@
 <script type="text/javascript">
 
     jQuery(function($) {
-  var $bodyEl = $('body'),
+      var $bodyEl = $('body'),
       $sidedrawerEl = $('#sidedrawer');
 
 
-  function showSidedrawer() {
-    // show overlay
-    var options = {
-      onclose: function() {
-        $sidedrawerEl
-          .removeClass('active')
-          .appendTo(document.body);
+      function showSidedrawer() {
+        // show overlay
+        var options = {
+          onclose: function() {
+            $sidedrawerEl
+              .removeClass('active')
+              .appendTo(document.body);
+          }
+        };
+
+        var $overlayEl = $(mui.overlay('on', options));
+
+        // show element
+        $sidedrawerEl.appendTo($overlayEl);
+        setTimeout(function() {
+          $sidedrawerEl.addClass('active');
+        }, 20);
       }
-    };
 
-    var $overlayEl = $(mui.overlay('on', options));
-
-    // show element
-    $sidedrawerEl.appendTo($overlayEl);
-    setTimeout(function() {
-      $sidedrawerEl.addClass('active');
-    }, 20);
-  }
+      function hideSidedrawer() {
+        $bodyEl.toggleClass('hide-sidedrawer');
+      }
 
 
-  function hideSidedrawer() {
-    $bodyEl.toggleClass('hide-sidedrawer');
-  }
+      $('.js-show-sidedrawer').on('click', showSidedrawer);
+      $('.js-hide-sidedrawer').on('click', hideSidedrawer);
 
 
-  $('.js-show-sidedrawer').on('click', showSidedrawer);
-  $('.js-hide-sidedrawer').on('click', hideSidedrawer);
+      var $titleEls = $('strong', $sidedrawerEl);
 
+      $titleEls.next().hide();
 
-var $titleEls = $('strong', $sidedrawerEl);
-
-$titleEls
-  .next()
-  .hide();
-
-$titleEls.on('click', function() {
-  $(this).next().slideToggle(200);
-});
-});
-
-
-
+      $titleEls.on('click', function() {
+        $(this).next().slideToggle(200);
+      });
+    });
 </script>
+
+<script type="text/javascript">
+    function submitAjaxForm(formId, returnBody){
+
+        $("#"+formId).submit(function (e) {
+            $('html,body').scrollTop(0);
+            e.preventDefault();
+            var form_data = $(this).serialize();
+            var form_url = $(this).attr("action");
+            var form_method = $(this).attr("method").toUpperCase();
+
+            $('#spinnerDiv').show()
+            $('.modal').toggleClass('show');
+            FLEXPAPER.utils.addSpinner({
+                element     : 'spinner-target',
+                width       : 500,
+                height      : 500,
+                logo        : "{% static 'img/gear.gif' %}"
+            });
+
+            $.ajax({
+                url: form_url,
+                type: form_method,
+                data: form_data,
+                cache: false,
+                success: function (returnhtml) {
+                   $('.modal').toggleClass('hide');
+                   $('#spinnerDiv').hide()
+                   FLEXPAPER.utils.removeSpinner('spinner-target');
+
+                   if(returnBody){
+                        $("body").html(returnhtml)
+                   }
+                }
+            });
+        })
+    }
+</script>
+
+
 </head>
 
 {% include "floybd/sideBarMenu.html" %}

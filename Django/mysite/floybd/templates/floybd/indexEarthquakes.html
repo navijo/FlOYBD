@@ -5,47 +5,14 @@
 <script>
   $( function() {
     markActive("earthquakes");
-    $("#earthquakesForm").submit(function (e) {
-        $('html,body').scrollTop(0);
-        e.preventDefault();
-        var form_data = $(this).serialize();
-        var form_url = $(this).attr("action");
-        var form_method = $(this).attr("method").toUpperCase();
+    submitAjaxForm("earthquakesForm",true);
 
-        $('#spinnerDiv').show()
-        $('.modal').toggleClass('show');
-         FLEXPAPER.utils.addSpinner({
-            element     : 'spinner-target',
-            width       : 500,
-            height      : 500,
-            logo        : "{% static 'img/gear.gif' %}"
-        });
-
-        $.ajax({
-            url: form_url,
-            type: form_method,
-            data: form_data,
-            cache: false,
-            success: function (returnhtml) {
-               $('.modal').toggleClass('hide');
-               $('#spinnerDiv').hide()
-                FLEXPAPER.utils.removeSpinner('spinner-target');
-                $("body").html(returnhtml)
-            }
-        });
-
-        })
-
-
-
-
-     $('#date').datetimepicker({
-			'format' : "YYYY-MM-DD",
-			useCurrent: false,
-			'maxDate' : new Date()
-		});
-
-    })
+    $('#date').datetimepicker({
+        'format' : "YYYY-MM-DD",
+        useCurrent: false,
+        'maxDate' : new Date()
+    });
+  })
 
 
 
@@ -54,7 +21,6 @@
       <div class="mui--text-center">
         <div class="mui--text-display2">Earthquakes</div>
       </div>
-    <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
           <div class="mui-row">
                <div class="col-xs-12">
@@ -82,40 +48,45 @@
                             <div class="col-xs-6">
                                 <div class="mui-textfield mui-textfield--float-label">
                                     <input required type="text" name="date" id="date" class="form-control" />
-                                     <label for="date">Date</label>
+                                     <label for="date">Date From</label>
                                  </div>
                             </div>
                             </div>
                         </div>
-                    <fieldset>
-                        <legend>Coordinates</legend>
-                        <div class="col-xs-6">
-                            Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
-                            Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
-                        </div>
-                        <div class="col-xs-6">
+                      <div class="mui--text-center col-xs-6">
+                        <fieldset>
+                            <legend>Coordinates</legend>
+                            <div class="col-xs-6">
+                                Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
+                                Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
+                            </div>
+                            <div class="col-xs-6">
 
-                            Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
-                            Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
+                                Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
+                                Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
+                            </div>
+                        </fieldset>
+                      </div>
+                    <div class="mui--text-center col-xs-6">
+                         <div class="mui--appbar-height"></div>
+                        <div class="mui-row">
+                            <input type="submit" value="Get Earthquakes" class="mui-btn mui-btn--primary"/>
                         </div>
-                    </fieldset>
-                    <input type="submit" value="Get Earthquakes" class="mui-btn mui-btn--primary"/>
 
+                    </div>
                 </form>
+               <div class="mui-row">
+                    <button id="delete-button" class="mui-btn mui-btn--danger">Delete Selected Shape</button>
+               </div>
             </div>
         </div>
     </div>
     <div class="mui-row">
-        <!-- </div>-->
-        <!--  <div class="col-xs-8">-->
-        <button id="delete-button" class="mui-btn mui-btn--danger">Delete Selected Shape</button>
         <div id="map" style="height: 75%;width: 100%;"></div>
         <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
-        <!-- </div>-->
     </div>
 </div>
 </div>
-  <div class="mui--appbar-height"></div>
 {% include "floybd/footer.html" %}

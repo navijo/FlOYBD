@@ -46,15 +46,15 @@
             <div class="mui-row">
                 <div class="col-xs-12">
                   <div class="mui--text-center">
-                     <div class="mui-textfield mui-textfield--float-label">
-                        <input required type="text" name="date" id="date" class="form-control" />
-                         <label for="date">Date</label>
-                    </div>
-                      <div class="col-xs-3">
+                         <div class="mui-col-md-3 mui-col-md-offset-4">
+                             <div class="mui-textfield mui-textfield--float-label">
+                                <input required type="text" name="date" id="date" class="form-control" />
+                                 <label for="date">Date</label>
+                            </div>
                         <input type="checkbox" id="allStations" onchange="showHideCombo()" name="allStations"
                            value="1"><label for="allStations">Get All Stations</label>
-                    </div>
-                     <div class="col-xs-12">
+                         </div>
+                     <div class="mui-col-md-12">
                         <div id="comboDiv">
                             <select id="combobox" name="station">
                                 {% for entry in stations %}
@@ -65,16 +65,15 @@
                             </select>
                         </div>
                      </div>
-
-                </div>
+                  </div>
                 </div>
             </div>
             <div class="mui-row">
-                  <div class="mui--text-center">
-                <div class="col-xs-12">
-                   <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
+                    </div>
                 </div>
-                  </div>
             </div>
         </form>
     </div>

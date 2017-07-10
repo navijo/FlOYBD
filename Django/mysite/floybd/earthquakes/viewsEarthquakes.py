@@ -275,6 +275,7 @@ def createKml(jsonData, date, millis, showAll, numberObtained):
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
+    print("Saving kml: ", dirPath2)
     kml.save(dirPath2)
 
     ip = getDjangoIp()

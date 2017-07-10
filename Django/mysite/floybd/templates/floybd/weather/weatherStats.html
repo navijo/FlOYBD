@@ -11,17 +11,17 @@
 
 <script>
   $( function() {
-    markActive("item5");
-   $('#datepickerFrom').datetimepicker({
-			'format' : "YYYY-MM-DD",
-			'maxDate' : new Date()
-		});
+        markActive("item5");
+        $('#datepickerFrom').datetimepicker({
+            'format' : "YYYY-MM-DD",
+            'maxDate' : new Date()
+        });
 
-     $('#datepickerTo').datetimepicker({
-			'format' : "YYYY-MM-DD",
-			useCurrent: false,
-			'maxDate' : new Date()
-		});
+        $('#datepickerTo').datetimepicker({
+            'format' : "YYYY-MM-DD",
+            useCurrent: false,
+            'maxDate' : new Date()
+        });
 
         $("#datepickerFrom").on("dp.change", function (e) {
             $('#datepickerTo').data("DateTimePicker").minDate(e.date);
@@ -32,12 +32,12 @@
         });
     })
 
-     function showHideComboStations(){
-		if($("#allStations").prop("checked")){
-			$("#comboboxDiv").hide()
-		}else{
-			$("#comboboxDiv").show()
-		}
+    function showHideComboStations(){
+        if($("#allStations").prop("checked")){
+            $("#comboboxDiv").hide()
+        }else{
+            $("#comboboxDiv").show()
+        }
     }
 
      function disableDate(){

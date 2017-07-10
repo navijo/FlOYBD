@@ -9,37 +9,7 @@
 <script>
   $( function() {
     markActive("item2");
-
-     $("#sendToLGForm").submit(function (e) {
-        $('html,body').scrollTop(0);
-        e.preventDefault();
-        var form_data = $(this).serialize();
-        var form_url = $(this).attr("action");
-        var form_method = $(this).attr("method").toUpperCase();
-
-        $('#spinnerDiv').show()
-        $('.modal').toggleClass('show');
-         FLEXPAPER.utils.addSpinner({
-            element     : 'spinner-target',
-            width       : 500,
-            height      : 500,
-            logo        : "{% static 'img/gear.gif' %}"
-        });
-
-        $.ajax({
-            url: form_url,
-            type: form_method,
-            data: form_data,
-            cache: false,
-            success: function (returnhtml) {
-               $('.modal').toggleClass('hide');
-               $('#spinnerDiv').hide()
-                FLEXPAPER.utils.removeSpinner('spinner-target');
-                $("body").html(returnhtml)
-            }
-        });
-        })
-
+    submitAjaxForm("sendToLGForm",true);
    });
 
 </script>

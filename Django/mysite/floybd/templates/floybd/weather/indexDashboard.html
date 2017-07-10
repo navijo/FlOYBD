@@ -3,9 +3,8 @@
 <script>
   $( function() {
     markActive("item6");
-     var tempChart;
+    var tempChart;
     $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd',  maxDate: new Date()});
-    })
 
     function resetCharts(){
         debugger;
@@ -14,8 +13,7 @@
 
     function getDashBoardData(){
         var selectedStation = $("#combobox").val()
-         var daysBefore = $("#daysBefore").val()
-
+        var daysBefore = $("#daysBefore").val()
 
         FLEXPAPER.utils.addSpinner({
             element     : 'spinner-target',
@@ -24,43 +22,43 @@
             logo        : "{% static 'img/gear.gif' %}"
         });
 
-          mui.overlay('on');
+        mui.overlay('on');
 
-         $.ajax({
-             url: 'viewDashboard/',
+        $.ajax({
+            url: 'viewDashboard/',
             data: {
-              'station': selectedStation,
-               'daysBefore': daysBefore
+                'station': selectedStation,
+                'daysBefore': daysBefore
             },
             dataType: 'json',
             success: function (data) {
-              if (data.stationData) {
-                FLEXPAPER.utils.removeSpinner('spinner-target')
-                mui.overlay('off');
-                createTempChart(data.stationData)
-                createPressureChart(data.stationData)
-                createWindDirChart(data.stationData)
-                createPrecipChart(data.stationData)
-              }
+                if (data.stationData) {
+                    FLEXPAPER.utils.removeSpinner('spinner-target')
+                    mui.overlay('off');
+                    createTempChart(data.stationData)
+                    createPressureChart(data.stationData)
+                    createWindDirChart(data.stationData)
+                    createPrecipChart(data.stationData)
+                }
             }
-      });
+        });
     }
 
     function createTempChart(data){
         tempChart = bb.generate({
             "data": {
-             "x": "x",
+                "x": "x",
                 "json": data,
                 keys: {
                     x: 'measure_date',
                     value: ["max_temp","med_temp","min_temp"]
                 },
-            "type": "spline",
-            "labels": true,
-            "colors": {
-              "max_temp": "#ff0000",
-              "med_temp": "#00ff00",
-              "min_temp": "#0000ff"
+                "type": "spline",
+                "labels": true,
+                "colors": {
+                  "max_temp": "#ff0000",
+                  "med_temp": "#00ff00",
+                  "min_temp": "#0000ff"
                 }
             },
             "axis": {
@@ -71,15 +69,15 @@
                     "format": "%Y-%m-%d"
                   }
                 }
-              },
-               "grid": {
+            },
+            "grid": {
                 "y": {
                   "show": true
                 }
-              },
-             "bar": {
+            },
+            "bar": {
                 "width": {
-                "ratio": 0.3
+                    "ratio": 0.3
                 }
             },
             "subchart": {
@@ -202,6 +200,7 @@
             "bindto": "#windChart"
         });
     }
+ });
 </script>
 
 {% load static %}
