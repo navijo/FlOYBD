@@ -63,7 +63,7 @@ def getHeatMap(request):
     data = getEartquakesArray(jsonData, False)
 
     return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date,
-                                                                              'numberObtained':numberObtained})
+                                                                              'numberObtained': numberObtained})
 
 
 def getEartquakesArray(jsonData, includeDescription):
@@ -81,12 +81,13 @@ def getEartquakesArray(jsonData, includeDescription):
 def generateHeapMapKml(request):
     print("Generating HeatMap")
     date = request.POST['date']
-    dataMapsJs = request.POST['data']
+    #dataMapsJs = request.POST['data']
     millis = int(round(time.time() * 1000))
 
     response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
 
     jsonData = json.loads(response.json())
+    dataMapsJs = getEartquakesArray(jsonData, False)
     numberObtained = len(jsonData)
     print("Obtained " + str(numberObtained) + " earthquakes")
 

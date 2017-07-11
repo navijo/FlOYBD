@@ -1,5 +1,6 @@
 .modal {
-  background: rgba(255, 255, 255, .8);
+  /*background: rgba(255, 255, 255, .8);*/
+  background: rgba(171, 164, 164, 0.8);
   position: fixed;
   top: 0;
   left: 0;
@@ -8,6 +9,8 @@
   overflow: hidden;
   z-index: 9000; // z-index: map-get($z-index, overlay);
   padding: 1em;
+  width: 100%;
+  max-height: 100%;
 }
 
 
@@ -88,7 +91,8 @@
 }
 
 .loading-indicator {
-  background-color: #265F98;
+ /* background-color: #265F98;*/
+  background-color: transparent;
   color: #fff;
   padding: 1em;
   text-align: center;
