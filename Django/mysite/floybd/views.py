@@ -40,7 +40,8 @@ def clearKML(request):
 
     requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return render(request, 'floybd/cleaningComplete.html')
+    #return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def settingsIndex(request):

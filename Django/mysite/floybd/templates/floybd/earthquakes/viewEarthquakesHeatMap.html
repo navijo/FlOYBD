@@ -13,7 +13,7 @@
 
 
 <div id="content-wrapper">
-	<div class="mui--appbar-height"></div>
+		<div class="mui--appbar-height"></div>
 <div class="mui-container-fluid">
 	 <div class="mui-row">
                <div class="col-xs-12">
@@ -47,13 +47,12 @@
 			<a href="{% url 'floybd:heatMapEarthquakes' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
 		</form>
 		</div>
-		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
+		<div class="span6 center-block" id="map" style="height: 65%;width: 100%;"></div>
 	{% if data != None %}
 		<script>
 		  var map;
 		  function initMap() {
 		  var heatmapData = [];
-		  debugger;
 			{% for row in data %}
 				var latLng = new google.maps.LatLng({{row}}[0], {{row}}[1]);
 				var pWeight = {{row}}[2];
@@ -76,12 +75,9 @@
 			  map : map,
 			  dissipating : false
 			});
-		   //heatmap.setMap(map);
       }
 		</script>
 	 {% endif %}
-
-
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=visualization&callback=initMap"
 		  async defer></script>
 			 {% endif %}

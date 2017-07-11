@@ -55,7 +55,7 @@ buttons {
 }
 
 #footer {
-  height: 10%;
+  height: auto;
   margin-left: 0px;
   transition: margin-left 0.2s;
 }
@@ -126,7 +126,7 @@ buttons {
 #footer {
     background-color: #162955;
     color: #fff;
-    position : inherit;
+    position : fixed;
     left:0px;
     bottom:0px;
     right:0px;

@@ -10,15 +10,27 @@
 <div class="mui-container-fluid">
     <div class="mui-row">
         <div class="mui-col-md-12">
+               <div class="mui--appbar-height"></div>
+            <div class="mui--text-center">
+                 <div class="mui--text-display3">Upload New GTFS File</div>
+            </div>
+             <div class="mui--appbar-height"></div>
             <div class="mui--text-center">
                 <form action="{% url 'floybd:uploadGTFS' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <p>
-                        Title: <input type="text" name="title" required>
-                        {{ form.file.errors }}
-                        {{ form.file }}
-                    </p>
-                   <input type="submit" class="mui-btn mui-btn--primary" value="Upload" />
+                    <div class="mui-panel">
+                            <div class="col-xs-6">
+                               <div class="mui-textfield mui-textfield--float-label">
+                                <input id="title" type="text" name="title" required>
+                                   <label for="title">Title:</label>
+                             </div>
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.file.errors }}
+                                {{ form.file }}
+                            </div>
+                    </div>
+                    <input type="submit" class="mui-btn mui-btn--primary" value="Upload" />
                 </form>
             </div>
         </div>

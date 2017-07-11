@@ -1,0 +1,43 @@
+{% include "floybd/header.html" %}
+{% load static %}
+
+<div id="content-wrapper">
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
+        <div class="mui-col-md-12">
+           <div class="mui--text-center">
+            <div class="mui--text-display3">Cleaning Complete</div>
+            <div class="mui-col-md-12">
+                <div class="mui--text-center">
+                    <br/><br/>
+                    <div  class="mui--divider-bottom">
+                        <div class="mui--text-display1"><u>Weather</u></div>
+                        <a href="{% url 'floybd:dayWeather' %}" class="mui-btn mui-btn--raised">Weather Concrete Day</a>
+                        <a href="{% url 'floybd:predictWeather' %}" class="mui-btn mui-btn--raised">Weather Predictions</a>
+                        <a href="{% url 'floybd:predictWeatherStats' %}" class="mui-btn mui-btn--raised">Weather Predictions based on stats</a>
+                        <a href="{% url 'floybd:weatherStats' %}" class="mui-btn mui-btn--raised">Weather Stats</a>
+                        <a href="{% url 'floybd:citydashboard' %}" class="mui-btn mui-btn--raised">City Dashboard</a>
+                    <br/>
+                    </div>
+                    <br/>
+                    <div  class="mui--divider-bottom">
+                        <div class="mui--text-display1"><u>Earthquakes</u></div>
+                        <a href="{% url 'floybd:earthquakes' %}" class="mui-btn mui-btn--danger">Earthquakes</a>
+                        <a href="{% url 'floybd:heatMapEarthquakes' %}" class="mui-btn mui-btn--danger">Earthquakes Heat Map</a>
+                    </div>
+                    <div>
+                          <br/>
+
+                    <div class="mui--text-display1"><u>GTFS</u></div>
+                    <a href="{% url 'floybd:viewgtfs' %}" class="mui-btn mui-btn--accent">View GTFS</a>
+                    <a href="{% url 'floybd:uploadgtfs' %}" class="mui-btn mui-btn--accent">Upload New GTFS</a>
+                    </div>
+                </div>
+            </div>
+           </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% include "floybd/footer.html" %}

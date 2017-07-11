@@ -249,6 +249,7 @@ def getStats(request):
     ip = getDjangoIp()
 
     allStations = request.POST.get('allStations', 0)
+    allStationsBool =  allStations == str(1)
     allTime = request.POST.get('allTime', 0)
     dateFrom = request.POST.get('dateFrom', 0)
     dateTo = request.POST.get('dateTo', 0)
@@ -281,6 +282,11 @@ def getStats(request):
 
     stationsWeather = {}
     kml = simplekml.Kml()
+
+    if allStationsBool:
+        tourAllStations = kml.newgxtour(name="Tour All Stations")
+        playlistAllStations = tourAllStations.newgxplaylist()
+
     for row in result:
         concreteStation = Station.objects.get(station_id=row.get("station_id"))
         stationData = {}
@@ -338,15 +344,38 @@ def getStats(request):
 
         point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
         point.style.balloonstyle.text = stationData["contentString"]
-        point.gxballoonvisibility = 0
+        #point.gxballoonvisibility = 0
 
-        tour = kml.newgxtour(name="Show Balloon")
-        playlist = tour.newgxplaylist()
+        if allStationsBool:
+            flyto = playlistAllStations.newgxflyto(gxduration=5.0)
+            flyto.camera.longitude = float(stationData["longitude"])
+            flyto.camera.latitude = float(stationData["latitude"])
+            flyto.camera.altitude = 5000
+            flyto.camera.heading = 100
+            flyto.camera.tilt = 14
+            flyto.camera.roll = 0
 
-        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
-        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+            animatedupdateshow = playlistAllStations.newgxanimatedupdate(gxduration=5.0)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                               '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
+
+            playlistAllStations.newgxwait(gxduration=5.0)
+
+            animatedupdateshow = playlistAllStations.newgxanimatedupdate(gxduration=0.1)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+                                               '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
+
+        else:
+            point.gxballoonvisibility = 0
+            tour = kml.newgxtour(name="Show Balloon")
+            playlist = tour.newgxplaylist()
+
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                            '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
-            .format(point.placemark.id)
+                .format(point.placemark.id)
 
     millis = int(round(time.time() * 1000))
     fileName = "stats_" + str(millis) + ".kml"
@@ -466,6 +495,8 @@ def sendStatsToLG(request):
 
     else:
         sendFlyToToLG(40.4378693, -3.8199627, 100, 14, 69, 200000, 2)
+        time.sleep(2)
+        playTour("Tour All Stations")
 
     ip = getDjangoIp()
 

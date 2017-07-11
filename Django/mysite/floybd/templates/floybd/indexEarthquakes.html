@@ -18,10 +18,11 @@
 
 </script>
 <div id="content-wrapper">
+     <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
         <div class="mui--text-display2">Earthquakes</div>
       </div>
-    <div class="mui-container-fluid">
+<div class="mui-container-fluid">
           <div class="mui-row">
                <div class="col-xs-12">
                      <div id="spinnerDiv" style="display:none">
@@ -34,7 +35,6 @@
           </div>
           <div class="mui-row">
             <div class="mui--text-center">
-
                 <form  class="mui-form"  id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" >
                     {% csrf_token %}
                         <div class="mui-row">
@@ -53,6 +53,12 @@
                             </div>
                             </div>
                         </div>
+                        <div class="mui-row">
+        <div id="map" style="height: 35%;width: 100%;"></div>
+        <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
+        <script async defer
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
+    </div>
                       <div class="mui--text-center col-xs-6">
                         <fieldset>
                             <legend>Coordinates</legend>
@@ -81,12 +87,8 @@
             </div>
         </div>
     </div>
-    <div class="mui-row">
-        <div id="map" style="height: 75%;width: 100%;"></div>
-        <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
-        <script async defer
-                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
-    </div>
+
 </div>
 </div>
+<br/>
 {% include "floybd/footer.html" %}

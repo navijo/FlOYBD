@@ -44,18 +44,28 @@
          </div>
     <div class="mui-row">
         <div class="mui-col-md-12">
-
+        <div class="mui--appbar-height"></div>
             <div class="mui--text-center">
                  <div class="mui--text-display3">GTFS Agencies</div>
-
+             <div class="mui--appbar-height"></div>
         {% if agencies != None %}
 
             <form id="gtfsForm" name="form" action="{% url 'floybd:getAgenciesAndGenerateKML' %}" method="post" >
                 {% csrf_token %}
-                <div class="mui-textfield mui-textfield--float-label">
-                    <input required type="number" name="maxCars" id="maxCars">
-                     <label for="maxCars">Max Number of cars per agency (the greater, the slower)</label>
-                 </div>
+                <div class="mui-row">
+                            <div class="mui-panel">
+                            <div class="col-xs-6">
+                               <div class="mui-textfield mui-textfield--float-label">
+                                <input required type="number" name="maxCars" id="maxCars">
+                                 <label for="maxCars">Max Number of cars per agency (the greater, the slower)</label>
+                             </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
+                            </div>
+                            </div>
+                        </div>
+
                 <table id="gtfsTable" class="mdl-data-table" cellspacing="0" width="100%">
                     <thead>
                         <tr>
@@ -63,7 +73,6 @@
                             <th>Id</th>
                             <th>Name</th>
                             <th>Url</th>
-                            <th>Timezone</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,22 +90,16 @@
                             <td>
                                 <a href="{{ entry.agency_url}}" target="_blank">{{ entry.agency_url}}</a>
                             </td>
-                            <td>
-                                {{ entry.agency_timezone}}
-                            </td>
-                            <!--<input type="checkbox" name="agenciesSelected" value="{{ entry.agency_id }}">{{ entry.agency_id }} - {{ entry.agency_name }}<br/>-->
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-
-            <input type="submit" value="{{ getValues }}" class="mui-btn mui-btn--primary"/>
             </form>
-
         {% endif %}
         </div>
         </div>
         </div>
     </div>
 </div>
+<div class="mui--appbar-height"></div>
 {% include "floybd/footer.html" %}
