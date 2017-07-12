@@ -38,6 +38,20 @@ def stopTour():
               " 'cat - > /tmp/query.txt'"
     os.system(command)
 
+
+def doFlyTo(playList, latitude, longitude, altitude, pRange, duration):
+    flyto = playList.newgxflyto(gxduration=duration)
+    flyto.gxflytomode = simplekml.GxFlyToMode.bounce
+    flyto.altitudemode = simplekml.AltitudeMode.relativetoground
+
+    flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor
+    flyto.lookat.longitude = float(longitude)
+    flyto.lookat.latitude = float(latitude)
+    flyto.lookat.altitude = altitude
+    flyto.lookat.heading = 0
+    flyto.lookat.tilt = 77
+    flyto.lookat.range = pRange
+
 def doRotation(playList, latitude, longitude, altitude, pRange):
     for angle in range(0, 360, 10):
         flyto = playList.newgxflyto(gxduration=1.0)

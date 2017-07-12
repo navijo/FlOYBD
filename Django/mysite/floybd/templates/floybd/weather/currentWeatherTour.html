@@ -11,13 +11,23 @@
   $( function() {
     markActive("item1");
     submitAjaxForm("currentWeatherTourForm",true);
-   }
+   });
 </script>
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
     <div class="mui--text-center mui--text-display3">Displaying Current Weather</div>
      <div class="mui--appbar-height"></div>
-
+    <div class="mui-container-fluid">
+        	 <div class="mui-row">
+               <div class="col-xs-12">
+                     <div id="spinnerDiv" style="display:none">
+                     <div class="modal"> </div>
+                        <div class="overlay loading-indicator">
+                         <div id="spinner-target"></div>
+                       </div>
+                    </div>
+               </div>
+          </div>
         <form id="dummyTourForm" name="form" action="{% url 'floybd:dummyWeather' %}" method="post" class="mui-form">
             {% csrf_token %}
             <div class="mui-row">

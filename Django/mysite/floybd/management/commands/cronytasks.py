@@ -80,8 +80,9 @@ class Command(BaseCommand):
             point.style.balloonstyle.text = contentString
             point.gxballoonvisibility = 0
 
-            sendFlyToToLG(latitude, longitude, 1000, 0, 77, 5000, 2)
-            playlistCurrentWeather.newgxwait(gxduration=2.0)
+            #sendFlyToToLG(latitude, longitude, 1000, 0, 77, 5000, 5)
+            doFlyTo(playlistCurrentWeather, latitude, longitude, 1000, 5000, 3.0)
+            playlistCurrentWeather.newgxwait(gxduration=3.0)
 
             animatedupdateshow = playlistCurrentWeather.newgxanimatedupdate(gxduration=5.0)
             animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \

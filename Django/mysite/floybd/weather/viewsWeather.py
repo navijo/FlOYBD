@@ -701,10 +701,11 @@ def currentWeather(request):
 
         point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
         point.style.balloonstyle.text = contentString
+        point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
         point.gxballoonvisibility = 0
 
-        sendFlyToToLG(latitude, longitude, 1000, 0, 77, 5000, 2)
-        playlistCurrentWeather.newgxwait(gxduration=2.0)
+        doFlyTo(playlistCurrentWeather, latitude, longitude, 1000, 5000, 3.0)
+        playlistCurrentWeather.newgxwait(gxduration=3.0)
 
         animatedupdateshow = playlistCurrentWeather.newgxanimatedupdate(gxduration=5.0)
         animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
@@ -770,5 +771,6 @@ def stopCurrentWeather(request):
 def dummyWeather(request):
     sendKmlToLG("dummyWeather.kmz")
     playTour("Tour Current Weather")
+    time.sleep(5)
     return render(request, 'floybd/weather/currentWeatherTour.html')
 
