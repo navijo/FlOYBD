@@ -4,6 +4,10 @@ import shutil
 from django.http import HttpResponseRedirect
 from .utils.utils import *
 import requests
+from django.http import JsonResponse
+from django.core.urlresolvers import resolve
+from django.utils.six.moves.urllib.parse import urlparse
+
 
 def index(request):
     return render(request, 'floybd/index.html')
@@ -16,8 +20,10 @@ def weatherIndex(request):
 def eartquakesIndex(request):
     return render(request, 'floybd/indexEarthquakes.html')
 
+
 def eartquakesHeatMapIndex(request):
     return render(request, 'floybd/earthquakes/earthquakesHeatMap.html')
+
 
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
@@ -41,7 +47,6 @@ def clearKML(request):
     requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
     return render(request, 'floybd/cleaningComplete.html')
-    #return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def settingsIndex(request):
@@ -49,3 +54,13 @@ def settingsIndex(request):
     return render(request, 'floybd/settings/settings.html', {'settings': settings})
 
 
+def openHelp(request):
+    refererPage = request.META.get('HTTP_REFERER')
+    splittedUrl = refererPage.split("/")
+    refererUrl = splittedUrl[len(splittedUrl)-1]
+    print(refererUrl)
+    return JsonResponse({'currentPage': refererUrl})
+
+
+def weatherDemos(request):
+    return render(request, 'floybd/weather/currentWeatherTour.html')

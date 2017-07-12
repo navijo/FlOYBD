@@ -1,7 +1,7 @@
 {% load static %}
 
 <script>
-function activateAboutModalNew(){
+function activateAboutModal(){
     // initialize modal element
     var modalEl = document.createElement('div');
 
@@ -13,6 +13,7 @@ function activateAboutModalNew(){
         '<div class="mui-col-md-12">'+
            '<div class="mui--text-center">'+
                 '<div class="mui--text-display3"><b>Fl</b>y <b>O</b>ver <b>Y</b>our <b>B</b>ig <b>D</b>ata</div>'+
+                '<br/>'+
                 '<div class="mui--text-display2"><a href="mailto:ivanjosallovera@gmail.com">Ivan Josa Llovera</a></div>'+
                 '<br/>'+
                 '<div class="mui--text-display1">GSOC 2017</div>'+
@@ -32,7 +33,7 @@ function activateAboutModalNew(){
     $("#mui-overlay").css('background-color','rgba(0,0,0,.8)');
 }
 
-  function activateAboutModal() {
+function activateHelpModal() {
     // initialize modal element
     var modalEl = document.createElement('div');
     modalEl.style.width = '400px';
@@ -41,28 +42,20 @@ function activateAboutModalNew(){
     modalEl.style.backgroundColor = '#fff';
 
     var center = document.createElement("center");
-    var para = document.createElement("p");
-    var node = document.createTextNode("GSOC 2017 - Ivan Josa");
+    var div = document.createElement("div");
+    div.className = "modal-about";
 
-    para.appendChild(node);
-    center.appendChild(para)
+     div.innerHTML = '<div class="mui-container-fluid">'+
+        '<div class="mui-row">'+
+        '<div class="mui-col-md-12">'+
+           '<div class="mui--text-center">'+
+                '<div class="mui--text-display1">Help</div>'+
+            '</div>'+
+        '</div>'+
+        '</div>'+
+    '</div>'
 
-    var para1 = document.createElement("p");
-    var a = document.createElement('a');
-    var linkText = document.createTextNode("Github");
-    a.appendChild(linkText);
-    a.title = "GitHub";
-    a.href = "https://github.com/LiquidGalaxyLAB/FLOYBD";
-    a.target = "_blank"
-    para1.appendChild(a);
-
-    center.appendChild(para1)
-
-    var paraThanks = document.createElement("p");
-    var nodeThanks = document.createTextNode("Thanks to...");
-    paraThanks.appendChild(nodeThanks);
-
-    center.appendChild(paraThanks)
+    center.appendChild(div)
 
     modalEl.appendChild(center);
 
@@ -70,7 +63,7 @@ function activateAboutModalNew(){
     mui.overlay('on', modalEl);
   }
 
-  function activateHelpModal() {
+function openHelpModal(message) {
     // initialize modal element
     var modalEl = document.createElement('div');
     modalEl.style.width = '400px';
@@ -78,17 +71,29 @@ function activateAboutModalNew(){
     modalEl.style.margin = '100px auto';
     modalEl.style.backgroundColor = '#fff';
 
-    var para = document.createElement("p");
-    var node = document.createTextNode("Help Me!");
-    para.appendChild(node);
+    var center = document.createElement("center");
+    var div = document.createElement("div");
+    div.className = "modal-about";
 
-    modalEl.appendChild(para);
+     div.innerHTML = '<div class="mui-container-fluid">'+
+        '<div class="mui-row">'+
+        '<div class="mui-col-md-12">'+
+           '<div class="mui--text-center">'+
+                '<div class="mui--text-display1">'+message+'</div>'+
+            '</div>'+
+        '</div>'+
+        '</div>'+
+    '</div>'
+
+    center.appendChild(div)
+
+    modalEl.appendChild(center);
 
     // show modal
     mui.overlay('on', modalEl);
   }
 
-  function activateGreetingsModal(){
+function activateGreetingsModal(){
     var modalEl = document.createElement('div');
     modalEl.className = "modal-greetings"
 
@@ -99,12 +104,26 @@ function activateAboutModalNew(){
 
     // show modal
     mui.overlay('on', modalEl);
-  }
+}
 
-  function markActive(className){
+function markActive(className){
     $("li."+className).parent().show()
     $("li."+className+" > a").css("color", "#ededed")
-  }
+}
+
+function openHelp(){
+    $.ajax({
+        url: '{% url 'floybd:openHelp' %}',
+        type: 'GET',
+        success: function (returnValue) {
+           alert(returnValue.currentPage);
+           if(returnValue){
+                openHelpModal(returnValue.currentPage);
+           }
+        }
+    });
+}
+
 </script>
 
 <div id="sidedrawer" class="mui--no-user-select">
@@ -118,6 +137,7 @@ function activateAboutModalNew(){
      Weather</strong>
     <ul>
         <!--<li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>-->
+        <li class="menu item1"><a href="{% url 'floybd:weatherDemos' %}"><b>Weather Demos</b></a></li>
         <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}"><b>Weather Concrete Day</b></a></li>
         <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}"><b>Weather Predictions</b></a></li>
         <li class="menu item4"><a href="{% url 'floybd:predictWeatherStats' %}"><b>Weather Predictions based on stats</b></a></li>
@@ -127,7 +147,7 @@ function activateAboutModalNew(){
   </li>
   <li>
     <strong><img src="https://png.icons8.com/earthquakes/color/24" title="Earthquakes"
-                 width="20%"> Earthquakes</strong>
+                 width="20%">Earthquakes</strong>
     <ul>
         <li class="menu earthquakes"><a href="{% url 'floybd:earthquakes' %}"><b>Earthquakes</b></a></li>
         <li class="menu earthquakesHeatMap"><a href="{% url 'floybd:heatMapEarthquakes' %}"><b>Earthquakes Heat Map</b></a></li>
@@ -145,7 +165,7 @@ function activateAboutModalNew(){
         <strong><img src="{% static 'img/more.png' %}" width="20%"/>More</strong>
         <ul>
             <li class="menu item9"><a href="#" onclick="activateHelpModal()"><b>Help</b></a></li>
-            <li class="menu item10"><a href="#" onclick="activateAboutModalNew()"><b>About</b></a></li>
+            <li class="menu item10"><a href="#" onclick="activateAboutModal()"><b>About</b></a></li>
             <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}"><b>Settings</b></a></li>
             <li class="menu item12"><a href="{% url 'floybd:clearKML' %}"><b>Clear KMLs Folder</b></a></li>
             <li class="menu item13"><a href="#" onclick="activateGreetingsModal()"><b>Special Thanks</b></a></li>
@@ -155,10 +175,16 @@ function activateAboutModalNew(){
 </div>
 <header id="header">
   <div class="mui-appbar mui--appbar-line-height">
-    <div class="mui-container-fluid">
-      <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
-      <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
-      <span class="mui--text-title mui--visible-xs-inline-block">Fly Over Your Big Data</span>
+    <table width="100%">
+    <tr style="vertical-align:middle;">
+       <td class="mui--appbar-height"><a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
+            <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
+            <span style="color:white;" class="mui--text-title mui--visible-xs-inline-block">Fly Over Your Big Data</span>
+       </td>
+       <td class="mui--appbar-height" style="color:white;float:right;" align="right">
+           <a href="#" onclick="openHelp()"><i class="material-icons">help</i></a>
+       </td>
+    </tr>
+    </table>
     </div>
-  </div>
 </header>

@@ -23,3 +23,13 @@ def getSparkIp():
 def getLGPass():
     settingObject = Setting.objects.get(key="LGPassword")
     return settingObject.value
+
+
+def backspace(n):
+    print('\r' * n, end='')
+
+
+def printpercentage(value):
+    s = str(value) + '%'
+    print("%.2f" % float(value), "%", end='')
+    backspace(len(s))

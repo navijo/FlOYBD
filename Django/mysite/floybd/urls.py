@@ -11,6 +11,7 @@ from .utils.utils import *
 import subprocess
 from django.db import connection
 
+
 app_name = 'floybd'
 
 
@@ -18,12 +19,17 @@ urlpatterns = [
 
     url(r'^$', views.index, name='index'),
 
-    url(r'clearKML', views.clearKML, name='clearKML'),
-    url(r'^weatherStats', viewsWeather.weatherStats, name='weatherStats'),
-    url(r'^dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
-    url(r'^predictWeatherStats', viewsWeather.weatherPredictionsStats, name='predictWeatherStats'),
-    url(r'^predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
-    url(r'^weather', views.weatherIndex, name='weather'),
+    url('clearKML', views.clearKML, name='clearKML'),
+    url('weatherStats', viewsWeather.weatherStats, name='weatherStats'),
+    url('dayWeather', viewsWeather.weatherConcreteIndex, name='dayWeather'),
+    url('predictWeatherStats', viewsWeather.weatherPredictionsStats, name='predictWeatherStats'),
+    url('predictWeather', viewsWeather.weatherPredictions, name='predictWeather'),
+    url('weatherDemos', views.weatherDemos, name='weatherDemos'),
+    url('weather', views.weatherIndex, name='weather'),
+    url('currentWeather', viewsWeather.currentWeather, name='currentWeather'),
+    url('dummyWeather', viewsWeather.dummyWeather, name='dummyWeather'),
+    url('stopCurrentWeather', viewsWeather.stopCurrentWeather, name='stopCurrentWeather'),
+
 
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
     url('sendConcreteValuesToLG', viewsWeather.sendConcreteValuesToLG, name='sendConcreteValuesToLG'),
@@ -31,7 +37,7 @@ urlpatterns = [
     url('getPrediction', viewsWeather.getPrediction, name='getPrediction'),
     url('sendPredictionsToLG', viewsWeather.sendPredictionsToLG, name='sendPredictionsToLG'),
 
-    url(r'^earthquakes/$', views.eartquakesIndex, name='earthquakes'),
+    url('earthquakes', views.eartquakesIndex, name='earthquakes'),
     url('getEarthquakes', viewsEarthquakes.getEarthquakes, name='getEarthquakes'),
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
@@ -57,6 +63,8 @@ urlpatterns = [
 
     url('citydashboard', viewsWeather.citydashboard, name='citydashboard'),
     url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),
+
+    url('openHelp', views.openHelp, name='openHelp'),
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
 ]

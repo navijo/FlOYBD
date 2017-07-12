@@ -10,6 +10,12 @@ from datetime import timedelta
 import simplekml
 from ..utils.lgUtils import *
 from django.http import JsonResponse
+from collections import defaultdict
+
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 
 def getConcreteValues(request):
@@ -109,14 +115,18 @@ def sendConcreteValuesToLG(request):
             'http://' + sparkIp + ':5000/getAllStationsMeasurementsKML?date=' + date,
             stream=True)
         with open(dirPath2, 'wb') as f:
+            print("Downloading Cylinders KMZ from Flask...")
             for chunk in response.iter_content(chunk_size=1024):
+                print('.', end='')
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
             f.close()
 
         sendKmlToLG(fileName)
 
-        sendFlyToToLG("40.416775", "-3.703790", 100, 14, 69, 200000, 2)
+        sendFlyToToLG("40.416775", "-3.703790", 25000, 0, 69, 130000, 2)
+
+        playTour("Tour And Rotation")
 
         return render(request, 'floybd/weather/weatherConcreteView.html',
                       {'kml': fileurl, 'date': date})
@@ -133,7 +143,9 @@ def sendConcreteValuesToLG(request):
     response = requests.get('http://' + sparkIp + ':5000/getMeasurementKml?date='
                             + date + '&station_id=' + station_id, stream=True)
     with open(dirPath2, 'wb') as f:
+        print("Downloading Cylinders KMZ from Flask...")
         for chunk in response.iter_content(chunk_size=1024):
+            print('.', end='')
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
@@ -142,7 +154,9 @@ def sendConcreteValuesToLG(request):
 
     sendKmlToLG(fileName)
     if concreteStation is not None:
-        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
+        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 25000, 0, 69, 130000, 2)
+
+    playTour("Tour And Rotation")
 
     return render(request, 'floybd/weather/weatherConcreteView.html',
                   {'stations': stations, 'concreteStation': concreteStation,
@@ -249,7 +263,7 @@ def getStats(request):
     ip = getDjangoIp()
 
     allStations = request.POST.get('allStations', 0)
-    allStationsBool =  allStations == str(1)
+    allStationsBool = allStations == str(1)
     allTime = request.POST.get('allTime', 0)
     dateFrom = request.POST.get('dateFrom', 0)
     dateTo = request.POST.get('dateTo', 0)
@@ -360,6 +374,8 @@ def getStats(request):
                                                '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 
+            doRotation(playlistAllStations, float(stationData["latitude"]), float(stationData["longitude"]), 1000, 5000)
+
             playlistAllStations.newgxwait(gxduration=5.0)
 
             animatedupdateshow = playlistAllStations.newgxanimatedupdate(gxduration=0.1)
@@ -372,10 +388,19 @@ def getStats(request):
             tour = kml.newgxtour(name="Show Balloon")
             playlist = tour.newgxplaylist()
 
+
             animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
             animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                            '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
+
+            doRotation(playlist, float(stationData["latitude"]), float(stationData["longitude"]), 1000, 5000)
+
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+                                               '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
+
 
     millis = int(round(time.time() * 1000))
     fileName = "stats_" + str(millis) + ".kml"
@@ -488,13 +513,13 @@ def sendStatsToLG(request):
         intervalData = True
 
     if oneStation:
-        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
+        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 1000, 0, 77, 5000, 2)
 
         time.sleep(7)
         playTour("Show Balloon")
 
     else:
-        sendFlyToToLG(40.4378693, -3.8199627, 100, 14, 69, 200000, 2)
+        sendFlyToToLG(40.4378693, -3.8199627, 1000, 0, 77, 5000, 2)
         time.sleep(2)
         playTour("Tour All Stations")
 
@@ -615,3 +640,135 @@ def getPredictionStats(request):
                        'concreteStation': concreteStation, 'stats': True})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')
+
+
+def currentWeather(request):
+    print("Getting current weather... ")
+    response = requests.get('http://' + getSparkIp() + ':5000/getKey',
+                            headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+
+    api_key_resp = response.json()
+    api_key = api_key_resp[0]['api_key']
+
+    querystring = {"api_key": api_key}
+    headers = {'cache-control': "no-cache"}
+    base_url = "https://opendata.aemet.es/opendata"
+
+    currentWeather = getData(base_url + "/api/observacion/convencional/todas", headers, querystring)
+
+    stationsDict = defaultdict(list)
+    print("Parsing current weather... ")
+    kml = simplekml.Kml()
+    tourCurrentWeather = kml.newgxtour(name="Tour Current Weather")
+    playlistCurrentWeather = tourCurrentWeather.newgxplaylist()
+
+    for row in currentWeather:
+        jsonData = json.loads(json.dumps(row))
+        stationId = jsonData.get("idema")
+        stationsDict[stationId].append(jsonData)
+
+    totalStations = len(stationsDict.items())
+    stationNumber = 1
+
+    print("Generating current weather kml... ")
+    for key, value in stationsDict.items():
+        actualPercentage = (stationNumber/totalStations)*100
+        printpercentage(actualPercentage)
+        jsonData = json.loads(json.dumps(value[-1]))
+        latitude = float(jsonData.get("lat"))
+        longitude = float(jsonData.get("lon"))
+        altitude = float(jsonData.get("alt"))
+
+        contentString = '<div id="content">' + \
+                        '<div id="siteNotice">' + \
+                        '</div>' + \
+                        '<h1 id="firstheading" class="firstheading">' + jsonData.get("ubi")+'</h1>' + \
+                        '<h2 id="secondheading" class="secondheading">' + jsonData.get("idema") + '</h2>' + \
+                        '<h3 id="thirdheading" class="thirdheading">' + jsonData.get("fint") + '</h3>' + \
+                        '<div id="bodycontent">' + \
+                        '<p>' + \
+                        '<br/><b>Max Temp: </b>' + str(jsonData.get("tamax")) + \
+                        '<br/><b>Actual Temp: </b>' + str(jsonData.get("ta")) + \
+                        '<br/><b>Min temp: </b>' + str(jsonData.get("tamin")) + \
+                        '<br/><b>Relative Humidity: </b>' + str(jsonData.get("hr")) + \
+                        '<br/><b>Precip: </b>' + str(jsonData.get("prec")) + \
+                        '</p>' + \
+                        '</div>' + \
+                        '</div>'
+
+        point = kml.newpoint(name=jsonData.get("ubi"), description=contentString,
+                             coords=[(longitude, latitude)])
+
+        point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+        point.style.balloonstyle.text = contentString
+        point.gxballoonvisibility = 0
+
+        sendFlyToToLG(latitude, longitude, 1000, 0, 77, 5000, 2)
+        playlistCurrentWeather.newgxwait(gxduration=2.0)
+
+        animatedupdateshow = playlistCurrentWeather.newgxanimatedupdate(gxduration=5.0)
+        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                           '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+            .format(point.placemark.id)
+
+        doRotation(playlistCurrentWeather, latitude, longitude, 1000, 5000)
+
+        animatedupdateshow = playlistCurrentWeather.newgxanimatedupdate(gxduration=0.1)
+        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+                                           '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+            .format(point.placemark.id)
+
+        stationNumber += 1
+
+    millis = int(round(time.time() * 1000))
+    fileName = "currentWeather" + str(millis) + ".kmz"
+    currentDir = os.getcwd()
+    dir1 = os.path.join(currentDir, "static/kmls")
+    dirPath2 = os.path.join(dir1, fileName)
+
+    kml.savekmz(dirPath2, format=False)
+
+    sendKmlToLG(fileName)
+    time.sleep(5)
+    playTour("Tour Current Weather")
+
+    return render(request, 'floybd/weather/currentWeatherTour.html')
+
+
+def getData(url, headers, querystring):
+    """	Make the request to the api	"""
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring, verify=False)
+
+        if response:
+            jsonResponse = response.json()
+            if jsonResponse.get('estado') == 200:
+                link = jsonResponse.get('datos')
+                data = requests.request("GET", link, verify=False)
+                if (data.status_code == 200):
+                    return data.json()
+                else:
+                    return 0
+            elif jsonResponse.get('estado') == 429:
+                # Sleep until next minute
+                print("####Sleeping")
+                time.sleep(60)
+                print("####Waked up!!")
+                return getData(url)
+    except requests.exceptions.ConnectionError:
+        print("####ERROR!! => Sleeping")
+        time.sleep(120)
+        print("####Waked up!!")
+        return getData(url)
+
+
+def stopCurrentWeather(request):
+    stopTour()
+    return render(request, 'floybd/weather/currentWeatherTour.html')
+
+
+def dummyWeather(request):
+    sendKmlToLG("dummyWeather.kmz")
+    playTour("Tour Current Weather")
+    return render(request, 'floybd/weather/currentWeatherTour.html')
+
