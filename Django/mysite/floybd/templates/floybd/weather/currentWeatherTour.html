@@ -1,0 +1,54 @@
+{% include "floybd/header.html" %}
+
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+
+{% load coma_point %}
+
+<script>
+  $( function() {
+    markActive("item1");
+    submitAjaxForm("currentWeatherTourForm",true);
+   }
+</script>
+<div id="content-wrapper">
+     <div class="mui--appbar-height"></div>
+    <div class="mui--text-center mui--text-display3">Displaying Current Weather</div>
+     <div class="mui--appbar-height"></div>
+
+        <form id="dummyTourForm" name="form" action="{% url 'floybd:dummyWeather' %}" method="post" class="mui-form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="Play Dummy Weather Tour" class="mui-btn mui-btn--primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form id="currentWeatherTourForm" name="form" action="{% url 'floybd:currentWeather' %}" method="post" class="mui-form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="Play Current Weather Tour" class="mui-btn mui-btn--primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form id="stopTour" name="form" action="{% url 'floybd:stopCurrentWeather' %}" method="post" class="mui-form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="Stop Tour" class="mui-btn mui-btn--primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include "floybd/footer.html" %}
