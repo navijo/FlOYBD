@@ -157,7 +157,9 @@ def getPrediction():
 
         # try:
         stationData = sparkFunctions.getStationInfo(stations, station_id)
+        print(stationData)
         currentWeather = generalFunctions.getCurrentWeather(station_id)
+        print(currentWeather)
         if (currentWeather != 0 and currentWeather):
             weatherPrediction = sparkFunctions.predict(sql, sc, columns, station_id, currentWeather)
             if (weatherPrediction):

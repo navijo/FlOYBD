@@ -15,20 +15,81 @@ class CylindersKmlExtended(object):
         current_milli_time = int(round(time.time()))
         self.parseData()
         self.saveKml(current_milli_time)
-        #self.sendKml(current_milli_time)
+
+    def makeKMLWithTourAndRotation(self):
+        current_milli_time = int(round(time.time()))
+        self.parseData()
+        self.tourAndRotation()
+        self.saveKml(current_milli_time)
 
     def makeKMZ(self):
         current_milli_time = int(round(time.time()))
         self.parseData()
         self.saveKmz(current_milli_time)
-        #self.sendKml(current_milli_time)
-
+    
+    def makeKMZWithTourAndRotation(self):
+        current_milli_time = int(round(time.time()))
+        self.parseData()
+        self.tourAndRotation()
+        self.saveKmz(current_milli_time)
+    
     def parseData(self):
         for element in self.data:
             for innerElement in element:
                 if not innerElement['description'][0]==None and not innerElement['description'][1]==None and not innerElement['description'][2]==None:
                     self.newCylinder(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
                     self.newPointer(innerElement['name'], innerElement['description'], innerElement['coordinates'], innerElement['extra'])
+
+    def tourAndRotation(self):
+        tourAndRotation = self.kml_var.newgxtour(name="Tour And Rotation")
+        playlistTourAndRotation = tourAndRotation.newgxplaylist()
+        for element in self.data:
+            for innerElement in element:
+                if not innerElement['description'][0]==None and not innerElement['description'][1]==None and not innerElement['description'][2]==None:
+                    self.newFlyTo(playlistTourAndRotation, innerElement['coordinates'])
+                    self.newRotation(playlistTourAndRotation, innerElement['coordinates'])
+
+    def newFlyTo(self, playlist,coordinates):
+        flyto = playlist.newgxflyto(gxduration=4.0)
+        flyto.gxflytomode = "smooth"
+        #flyto.camera.longitude = float(coordinates['lng'])
+        #flyto.camera.latitude = float(coordinates['lat'])
+        #flyto.camera.altitude = 200000
+        #flyto.camera.heading = 0
+        #flyto.camera.tilt = 45
+        #flyto.camera.range = 200000
+        #flyto.camera.roll = 0
+        flyto.altitudemode = simplekml.AltitudeMode.relativetoground
+            
+        flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor
+        flyto.lookat.longitude = float(coordinates['lng'])
+        flyto.lookat.latitude = float(coordinates['lat'])
+        flyto.lookat.altitude = 25000
+        flyto.lookat.range = 130000
+        flyto.lookat.heading = 0
+        flyto.lookat.tilt = 77
+        playlist.newgxwait(gxduration=4.0)
+
+    def newRotation(self, playlist,coordinates):
+        for angle in range(0, 360, 10):
+            flyto = playlist.newgxflyto(gxduration=1.0)
+            flyto.gxflytomode = "smooth"
+            flyto.altitudemode = simplekml.AltitudeMode.relativetoground
+            
+            flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor
+            flyto.lookat.latitude = float(coordinates['lat'])
+            flyto.lookat.longitude = float(coordinates['lng'])
+            flyto.lookat.altitude = 25000
+            flyto.lookat.range = 130000
+            flyto.lookat.heading = angle
+            flyto.lookat.tilt = 77
+            #flyto.camera.longitude = float(coordinates['lng'])
+            #flyto.camera.latitude = float(coordinates['lat'])
+            #flyto.camera.altitude = 200000
+            #flyto.camera.heading = angle
+            #flyto.camera.tilt = 45
+            #flyto.camera.range = 200000
+            #flyto.camera.roll = 0
 
     def newPointer(self, name, description, coordinates, extra):
         pointer_max = self.kml_var.newpoint(name=str(description[0])+ u'\u2103')
@@ -146,7 +207,7 @@ class CylindersKmlExtended(object):
         elif flag =='max':
             polygon.style.polystyle.color = simplekml.Color.red
             polygon.style.linestyle.color = simplekml.Color.red
- 
+
     def saveKml(self,current_milli_time):
         self.kml_var.save("./kmls/" + self.name+".kml")
 

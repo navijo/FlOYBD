@@ -69,7 +69,7 @@ def generateAllStationsWeatherKML(stations, weatherData, fileName):
 
     finalData.append(jsonString)
     cilinders = CylindersKml(fileName, finalData)
-    cilinders.makeKML()
+    cilinders.makeKMLWithTourAndRotation()
 
 
 def generateAllStationsKml(weatherData, stations, fileName):
@@ -86,7 +86,7 @@ def generateAllStationsKml(weatherData, stations, fileName):
     finalData.append(jsonString)
 
     cilinders = CylindersKmlExtended(fileName, finalData)
-    cilinders.makeKMZ()
+    cilinders.makeKMZWithTourAndRotation()
 
 
 def generateKml(weatherData, stationData, fileName):
@@ -97,7 +97,7 @@ def generateKml(weatherData, stationData, fileName):
 
     finalData.append(jsonString)
     cilinders = CylindersKml(fileName, finalData)
-    cilinders.makeKML()
+    cilinders.makeKMLWithTourAndRotation()
 
 
 def prepareJson(weatherData, stationData):

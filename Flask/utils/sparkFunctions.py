@@ -54,8 +54,9 @@ def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_
     datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
     if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None:
-        earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object)
-                                               & (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon)
+        print("Filtering by lat,lon and date")
+        earthquakesByDate = earthquakes.filter(earthquakes.fecha >= datetime_object)
+        earthquakesResult = earthquakesByDate.filter((earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon)
                                                & (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
     else:
         earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)

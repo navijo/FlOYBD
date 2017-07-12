@@ -17,6 +17,12 @@ class CylindersKml(object):
         self.saveKml(current_milli_time)
         #self.sendKml(current_milli_time)
 
+    def makeKMLWithTourAndRotation(self):
+        current_milli_time = int(round(time.time()))
+        self.parseData()
+        self.tourAndRotation()
+        self.saveKml(current_milli_time)
+
     def makeKMZ(self):
         current_milli_time = int(round(time.time()))
         self.parseData()
@@ -28,6 +34,48 @@ class CylindersKml(object):
             if(not element['description'][0]==None and not element['description'][1]==None  and not element['description'][2]==None):
                 self.newCylinder(element['name'], element['description'], element['coordinates'], element['extra'])
                 self.newPointer(element['name'], element['description'], element['coordinates'], element['extra'])
+
+    def tourAndRotation(self):
+        tourAndRotation = self.kml_var.newgxtour(name="Tour And Rotation")
+        playlistTourAndRotation = tourAndRotation.newgxplaylist()
+        for element in self.data:
+            if(not element['description'][0]==None and not element['description'][1]==None  and not element['description'][2]==None):
+                    #self.newFlyTo(playlistTourAndRotation, element['coordinates'])
+                    self.newRotation(playlistTourAndRotation, element['coordinates'])
+
+    def newFlyTo(self, playlist,coordinates):
+        flyto = playlist.newgxflyto(gxduration=5.0)
+        flyto.gxflytomode = "smooth"
+        flyto.camera.longitude = float(coordinates['lng'])
+        flyto.camera.latitude = float(coordinates['lat'])
+        flyto.camera.altitude = 10000
+        flyto.camera.heading = 0
+        flyto.camera.tilt = 77
+        flyto.camera.range = 30000
+        flyto.camera.roll = 0
+        playlist.newgxwait(gxduration=5.0)
+
+    def newRotation(self, playlist,coordinates):
+        for angle in range(0, 360, 10):
+            flyto = playlist.newgxflyto(gxduration=1.0)
+            flyto.gxflytomode = "smooth"
+            flyto.altitudemode = simplekml.AltitudeMode.relativetoground
+            
+            flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor
+            flyto.lookat.latitude = float(coordinates['lat'])
+            flyto.lookat.longitude = float(coordinates['lng'])
+            flyto.lookat.altitude = 25000
+            flyto.lookat.range = 130000
+            flyto.lookat.heading = angle
+            flyto.lookat.tilt = 77
+
+            #flyto.camera.longitude = float(coordinates['lng'])
+            #flyto.camera.latitude = float(coordinates['lat'])
+            #flyto.camera.altitude = 10000
+            #flyto.camera.heading = angle
+            #flyto.camera.tilt = 45
+            #flyto.camera.range = 20000
+            #flyto.camera.roll = 0
 
     def newPointer(self, name, description, coordinates, extra):
         pointer_max = self.kml_var.newpoint(name=str(description[0])+ u'\u2103')
