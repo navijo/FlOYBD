@@ -1,12 +1,10 @@
 from django.shortcuts import render
 import os
 import shutil
-from django.http import HttpResponseRedirect
+from .utils.lgUtils import *
 from .utils.utils import *
 import requests
-from django.http import JsonResponse
-from django.core.urlresolvers import resolve
-from django.utils.six.moves.urllib.parse import urlparse
+from django.http import JsonResponse, HttpResponse
 
 
 def index(request):
@@ -64,3 +62,12 @@ def openHelp(request):
 
 def weatherDemos(request):
     return render(request, 'floybd/weather/currentWeatherTour.html')
+
+
+def demoEarthquakes(request):
+    return render(request, 'floybd/earthquakes/demoEarthquakes.html')
+
+
+def stopTourView(request):
+    stopTour()
+    return HttpResponse(status=204)

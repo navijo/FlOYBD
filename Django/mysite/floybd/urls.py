@@ -28,7 +28,8 @@ urlpatterns = [
     url('weather', views.weatherIndex, name='weather'),
     url('currentWeather', viewsWeather.currentWeather, name='currentWeather'),
     url('dummyWeather', viewsWeather.dummyWeather, name='dummyWeather'),
-    url('stopCurrentWeather', viewsWeather.stopCurrentWeather, name='stopCurrentWeather'),
+    url('stopTour', views.stopTourView, name='stopTour'),
+    url('demoEarthquakes', views.demoEarthquakes, name='demoEarthquakes'),
 
 
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
@@ -41,6 +42,10 @@ urlpatterns = [
     url('getEarthquakes', viewsEarthquakes.getEarthquakes, name='getEarthquakes'),
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
+
+    url('demoLastWeekEarthquakesHeatmap', viewsEarthquakes.demoLastWeekEarthquakesHeatmap,
+        name='demoLastWeekEarthquakesHeatmap'),
+    url('demoLastWeekEarthquakes', viewsEarthquakes.demoLastWeekEarthquakes, name='demoLastWeekEarthquakes'),
 
 
     url('heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),

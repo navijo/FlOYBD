@@ -48,7 +48,7 @@
                 </div>
             </div>
         </form>
-        <form id="stopTour" name="form" action="{% url 'floybd:stopCurrentWeather' %}" method="post" class="mui-form">
+        <form id="stopTour" name="form" action="{% url 'floybd:stopTour' %}" method="post" class="mui-form">
             {% csrf_token %}
             <div class="mui-row">
                 <div class="mui--text-center">

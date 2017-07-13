@@ -2,14 +2,12 @@ from django.shortcuts import render
 from ..models import Station
 
 import requests
-import os
 import json
 import time
 import datetime
 from datetime import timedelta
-import simplekml
 from ..utils.lgUtils import *
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from collections import defaultdict
 
 
@@ -733,7 +731,7 @@ def currentWeather(request):
     time.sleep(5)
     playTour("Tour Current Weather")
 
-    return render(request, 'floybd/weather/currentWeatherTour.html')
+    return HttpResponse(status=204)
 
 
 def getData(url, headers, querystring):
@@ -763,14 +761,9 @@ def getData(url, headers, querystring):
         return getData(url)
 
 
-def stopCurrentWeather(request):
-    stopTour()
-    return render(request, 'floybd/weather/currentWeatherTour.html')
-
-
 def dummyWeather(request):
-    sendKmlToLG("dummyWeather.kmz")
+    sendDemoKmlToLG("dummyWeather.kmz")
     playTour("Tour Current Weather")
     time.sleep(5)
-    return render(request, 'floybd/weather/currentWeatherTour.html')
+    return HttpResponse(status=204)
 

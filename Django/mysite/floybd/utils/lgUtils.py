@@ -3,6 +3,12 @@ from .utils import *
 import simplekml
 
 
+def sendDemoKmlToLG(fileName):
+    command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/" + fileName + \
+              "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
+
 def sendKmlToLG(fileName):
 
     command = "echo 'http://" + getDjangoIp() + ":8000/static/kmls/" + fileName + \
@@ -51,6 +57,7 @@ def doFlyTo(playList, latitude, longitude, altitude, pRange, duration):
     flyto.lookat.heading = 0
     flyto.lookat.tilt = 77
     flyto.lookat.range = pRange
+
 
 def doRotation(playList, latitude, longitude, altitude, pRange):
     for angle in range(0, 360, 10):

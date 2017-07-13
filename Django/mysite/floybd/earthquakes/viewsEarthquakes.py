@@ -1,4 +1,4 @@
-import datetime
+
 import json
 import time
 from datetime import timedelta
@@ -6,6 +6,7 @@ import requests
 from django.shortcuts import render
 from ..utils.lgUtils import *
 from ..utils.cylinders.cylindersHeatMap import *
+from django.http import HttpResponse
 
 
 def getEarthquakes(request):
@@ -146,7 +147,7 @@ def populateInfoWindow(row, jsonData):
     contentString = '<div id="content">' + \
                     '<div id="siteNotice">' + \
                     '</div>' + \
-                    '<h3>Ocurred on ' + str(datetimeStr) + '</h3>' + \
+                    '<h3>Occurred on ' + str(datetimeStr) + '</h3>' + \
                     '<div id="bodyContent">' + \
                     '<p>' + \
                     '<br/><b>Latitude: </b>' + str(latitude) + \
@@ -440,3 +441,15 @@ def sendConcreteValuesToLG(request):
                    'center_lon': center_lon, 'date': date, 'millis': millis})
 
 
+def demoLastWeekEarthquakesHeatmap(request):
+    sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz")
+    time.sleep(5)
+    sendFlyToToLG(36.778259, -119.417931, 14500000, 0, 0, 14500000, 2)
+    return HttpResponse(status=204)
+
+
+def demoLastWeekEarthquakes(request):
+    sendDemoKmlToLG("lastWeekEarthquakes.kmz")
+    time.sleep(5)
+    playTour("LastWeekEarthquakesTour")
+    return HttpResponse(status=204)
