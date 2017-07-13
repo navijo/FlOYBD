@@ -17,6 +17,8 @@ Django/\.idea/
 
 *.kml
 
+*.kmz
+
 Django/mysite/static/kmls/
 
 Django/mysite/static/upload/gtfs/
