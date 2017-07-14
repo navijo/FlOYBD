@@ -77,6 +77,7 @@ class Command(BaseCommand):
             point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
             point.style.balloonstyle.text = contentString
             point.gxballoonvisibility = 0
+            point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
 
             doFlyTo(playlistCurrentWeather, latitude, longitude, 1000, 5000, 3.0)
             playlistCurrentWeather.newgxwait(gxduration=3.0)
