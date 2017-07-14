@@ -185,6 +185,7 @@ class Earthquake(Model):
     longitude           = columns.Decimal(required=True,index=True)
     latitude            = columns.Decimal(required=True,index=True)
     geojson             = columns.Text(required=True) #
+    quadrant            = columns.Text(index=True) #
 
 #LinearModel
 class LinearModel(Model):
@@ -202,8 +203,8 @@ connection.setup(['127.0.0.1','192.168.246.236'], "dev", protocol_version=3)
 #sync_table(Station)
 #sync_table(Monthly_Measurement)
 #sync_table(Daily_Measurement)
-#sync_table(Earthquake)
-sync_table(Station_limits)
+sync_table(Earthquake)
+#sync_table(Station_limits)
 #sync_table(Clean_Daily_Measurement)
 #sync_table(Station_Regression_Prediction)
 #sync_table(Station_NaiveBayes_Prediction)
