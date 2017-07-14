@@ -7,12 +7,12 @@ def initEnvironment():
     global sc, sql
     try:
         conf = SparkConf()
-        conf.setMaster("spark://192.168.246.236:7077")
-        #conf.setMaster("local[*]")
+        #conf.setMaster("spark://192.168.246.236:7077")
+        conf.setMaster("local[*]")
         conf.setAppName("Earthquakes Quandrants parser")
         conf.set("spark.cassandra.connection.host", "192.168.246.236")
-        conf.set("spark.executor.memory", "10g")
-        conf.set("spark.num.executors", "2")
+        #conf.set("spark.executor.memory", "10g")
+        #conf.set("spark.num.executors", "1")
 
         sc = SparkContext(conf=conf)
         sql = SQLContext(sc)
@@ -25,6 +25,7 @@ def initEnvironment():
 
 
 def getX(longitude):
+    print("\t Longitude:" + str(longitude))
     x = 0
 
     if 0 <= longitude < 30:
@@ -51,31 +52,37 @@ def getX(longitude):
         x = 11
     elif -30 <= longitude < 0:
         x = 12
-
+    print("\t Quadrant x:" + str(x))
     return x
 
 
 def getY(latitude):
+    print("\t Latitude:" + str(latitude))
     y = 0
 
-    if 80 <= latitude < 60:
+    if 60 <= latitude < 80:
         y = 1
-    elif 60 <= latitude < 40:
+    elif 40 <= latitude < 60:
         y = 2
-    elif 40 <= latitude < 20:
+    elif 20 <= latitude < 40:
         y = 3
-    elif 20 <= latitude < 0:
+    elif 0 <= latitude < 20:
         y = 4
     elif 0 <= latitude < -20:
         y = 5
-    elif -20 <= latitude < -40:
+    elif -40 <= latitude < -20:
         y = 6
-    elif -40 <= latitude < -60:
+    elif -60 <= latitude < -20:
         y = 7
-    elif -60 <= latitude < -80:
+    elif -80 <= latitude < -60:
         y = 8
-
+    print("\t Quadrant y:" + str(y))
     return y
+
+
+def dataframeToJson(dataFrame):
+    pandas_df = dataFrame.toPandas()
+    return pandas_df.to_json()
 
 
 def parseQuadrant():
@@ -83,17 +90,24 @@ def parseQuadrant():
     session = cluster.connect("dev")
 
     earthquakes = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="earthquake")
+    earthquakesFiltered = earthquakes.select("eventId","latitude","longitude")
+    earthquakesFiltered.show()
+    pandas_df = earthquakesFiltered.toPandas()
+    
     earthquakeCounter = 1
-    for earthquake in earthquakes:
+    for index, row in pandas_df.iterrows():
         print("Parsing earthquake #" + str(earthquakeCounter))
-        x = getX(earthquake.longitude)
-        y = getY(earthquake.latitude)
+        x = getX(float(row['longitude']))
+        y = getY(float(row['latitude']))
 
         quadrantXY = str(x)+","+str(y)
+        print(quadrantXY)
 
-        session.execute("UPDATE Earthquake SET \"quadrant\" = '%s' WHERE \"eventId\"=\""+earthquake.eventId+"\"",
-                        [str(quadrantXY)])
+        session.execute("UPDATE Earthquake SET \"quadrant\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(str(quadrantXY),))
         earthquakeCounter += 1
+
+    earthquakesResultant = earthquakes.select("eventId","latitude","longitude","quadrant")
+    earthquakesResultant.show()
 
 
 if __name__ == "__main__":
