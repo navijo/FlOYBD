@@ -22,7 +22,6 @@ def initEnvironment():
         print("SQLContext => ", sql)
     except:
         sc.stop()
-        initEnvironment()
 
 
 def getX(longitude):
@@ -84,8 +83,9 @@ def parseQuadrant():
     session = cluster.connect("dev")
 
     earthquakes = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="earthquake")
-
+    earthquakeCounter = 1
     for earthquake in earthquakes:
+        print("Parsing earthquake #" + str(earthquakeCounter))
         x = getX(earthquake.longitude)
         y = getY(earthquake.latitude)
 
@@ -93,6 +93,7 @@ def parseQuadrant():
 
         session.execute("UPDATE Earthquake SET \"quadrant\" = '%s' WHERE \"eventId\"=\""+earthquake.eventId+"\"",
                         [str(quadrantXY)])
+        earthquakeCounter += 1
 
 
 if __name__ == "__main__":
