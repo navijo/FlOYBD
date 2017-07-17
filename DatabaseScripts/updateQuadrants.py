@@ -80,10 +80,6 @@ def getY(latitude):
     return y
 
 
-def dataframeToJson(dataFrame):
-    pandas_df = dataFrame.toPandas()
-    return pandas_df.to_json()
-
 
 def parseQuadrant():
     cluster = Cluster(['192.168.246.236'])
@@ -101,7 +97,6 @@ def parseQuadrant():
         y = getY(float(row['latitude']))
 
         quadrantXY = str(x)+","+str(y)
-        print(quadrantXY)
 
         session.execute("UPDATE Earthquake SET \"quadrant\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(str(quadrantXY),))
         earthquakeCounter += 1
