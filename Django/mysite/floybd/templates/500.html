@@ -1,0 +1,25 @@
+{% include "floybd/header.html" %}
+{% load static %}
+
+<div id="content-wrapper">
+    <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        <div class="mui-row">
+        <div class="mui-col-md-12">
+           <div class="mui--text-center">
+                <div class="mui--text-display3">
+                    <font  color="red">Error 500!</font>
+                </div>
+                <br/><br/>
+                <div class="mui--text-display2">
+                   Something went wrong. Please try again or contact the administrator
+                </div>
+               <br/><br/>
+               <input class="mui-btn mui-btn--raised mui-btn--primary" type=button value="Go Back" onClick="javascript:history.go(-1);">
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% include "floybd/footer.html" %}
