@@ -12,6 +12,14 @@
         useCurrent: false,
         'maxDate' : new Date()
     });
+
+    $('#aproxValues').click(function() {
+        if($('#aproxValues').is(':checked')){
+            $('#earthquakesForm').attr("action","{% url 'floybd:getApproxEarthquakes' %}");
+        }else{
+            $('#earthquakesForm').attr("action","{% url 'floybd:getExactEarthquakes' %}");
+        }
+    });
   })
 
 
@@ -35,22 +43,28 @@
           </div>
           <div class="mui-row">
             <div class="mui--text-center">
-                <form  class="mui-form"  id="earthquakesForm" action="{% url 'floybd:getEarthquakes' %}" method="post" >
+                <form  class="mui-form"  id="earthquakesForm" action="{% url 'floybd:getExactEarthquakes' %}" method="post" >
                     {% csrf_token %}
                         <div class="mui-row">
                             <div class="mui-panel">
-                            <div class="col-xs-6">
-                                <div class="mui-checkbox">
-                                    <input type="checkbox" id="createTour" name="createTour" value="1"><label for="createTour">
-                                    Create a tour through all earthquakes</label>
+                                <div class="mui-col-md-3">
+                                    <div class="mui-textfield">
+                                        <input required type="text" name="date" id="date"  />
+                                         <label for="date">Date From</label>
+                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-6">
-                                <div class="mui-textfield mui-textfield--float-label">
-                                    <input required type="text" name="date" id="date" class="form-control" />
-                                     <label for="date">Date From</label>
+                                <div class="mui-col-md-3">
+                                    <div class="mui-checkbox">
+                                        <input type="checkbox" id="createTour" name="createTour" value="1">
+                                        <label for="createTour">Create a tour through all earthquakes</label>
+                                    </div>
+                                </div>
+                                 <div class="mui-col-md-6">
+                                <div class="mui-checkbox">
+                                        <input type="checkbox" id="aproxValues" name="aproxValues" value="1">
+                                    <label for="aproxValues">Approximate with Lat/Lon Quadrants <br/><i><font size="2">Cached results might speed up the request, but may include more results</font></i> </label>
+                                    </div>
                                  </div>
-                            </div>
                             </div>
                         </div>
                         <div class="mui-row">
@@ -58,22 +72,22 @@
         <script type="text/javascript" src="{% static 'js/mapEarthquakes.js' %}"></script>
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=drawing&callback=initMap"></script>
-    </div>
-                      <div class="mui--text-center col-xs-6">
+            </div>
+                      <div class="mui--text-center mui-col-md-6">
                         <fieldset>
                             <legend>Coordinates</legend>
-                            <div class="col-xs-6">
+                            <div class="mui-col-md-6">
                                 Max Latitude: <input readonly="readonly" type="text" id="max_lat" name="max_lat"/>
                                 Min Latitude: <input readonly="readonly" type="text" id="min_lat" name="min_lat"/>
                             </div>
-                            <div class="col-xs-6">
+                            <div class="mui-col-md-6">
 
                                 Max Longitude: <input readonly="readonly" type="text" id="max_lon" name="max_lon"/>
                                 Min Longitude: <input readonly="readonly" type="text" id="min_lon" name="min_lon"/>
                             </div>
                         </fieldset>
                       </div>
-                    <div class="mui--text-center col-xs-6">
+                    <div class="mui--text-center mui-col-md-6">
                          <div class="mui--appbar-height"></div>
                         <div class="mui-row">
                             <input type="submit" value="Get Earthquakes" class="mui-btn mui-btn--primary"/>

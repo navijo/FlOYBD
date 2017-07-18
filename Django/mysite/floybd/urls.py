@@ -39,7 +39,8 @@ urlpatterns = [
     url('sendPredictionsToLG', viewsWeather.sendPredictionsToLG, name='sendPredictionsToLG'),
 
     url('earthquakes', views.eartquakesIndex, name='earthquakes'),
-    url('getEarthquakes', viewsEarthquakes.getEarthquakes, name='getEarthquakes'),
+    url('getApproxEarthquakes', viewsEarthquakes.getEarthquakesApprox, name='getApproxEarthquakes'),
+    url('getExactEarthquakes', viewsEarthquakes.getEarthquakesExact, name='getExactEarthquakes'),
     url('sendConcreteEarthquakesValuesToLG', viewsEarthquakes.sendConcreteValuesToLG,
         name='sendConcreteEarthquakesValuesToLG'),
 
@@ -72,6 +73,7 @@ urlpatterns = [
     url('openHelp', views.openHelp, name='openHelp'),
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
+
 ]
 
 

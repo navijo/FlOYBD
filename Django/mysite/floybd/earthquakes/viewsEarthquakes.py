@@ -1,15 +1,18 @@
-
+from django.http import HttpResponseServerError
 import json
 import time
 from datetime import timedelta
 import requests
 from django.shortcuts import render
 from ..utils.lgUtils import *
+from ..utils.earthquakesUtils import *
 from ..utils.cylinders.cylindersHeatMap import *
 from django.http import HttpResponse
 
 
-def getEarthquakes(request):
+def getEarthquakesExact(request):
+    start_time = time.time()
+
     print("Getting Earthquakes")
     date = request.POST['date']
     createTourParam = request.POST.get('createTour', 0)
@@ -24,20 +27,81 @@ def getEarthquakes(request):
 
     center_lat = (float(max_lat) + float(min_lat)) / 2
     center_lon = (float(max_lon) + float(min_lon)) / 2
-
-    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
+    try:
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
                             '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
     print("Obtained " + str(numberObtained) + " earthquakes")
 
+    print("--- %s getting the data---" % (time.time() - start_time))
+
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                       {'noData': True})
 
+    start_time = time.time()
+
     millis = int(round(time.time() * 1000))
     fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
+
+    print("--- %s seconds creating KML---" % (time.time() - start_time))
+
+    return render(request, 'floybd/earthquakes/viewEarthquakes.html',
+                  {'kml': fileUrl, 'center_lat': center_lat,
+                   'center_lon': center_lon, 'date': date, 'millis': millis,
+                   'showAll': createTourParam})
+
+
+def getEarthquakesApprox(request):
+    start_time = time.time()
+    print("Getting Earthquakes with quadrants")
+    date = request.POST['date']
+    createTourParam = request.POST.get('createTour', 0)
+    createTour = createTourParam == str(1)
+
+    sparkIp = getSparkIp()
+
+    max_lat = request.POST['max_lat']
+    min_lat = request.POST['min_lat']
+
+    maxY = getYQuadrant(float(max_lat))
+    minY = getYQuadrant(float(min_lat))
+
+    max_lon = request.POST['max_lon']
+    min_lon = request.POST['min_lon']
+
+    maxX = getXQuadrant(float(max_lon))
+    minX = getXQuadrant(float(min_lon))
+
+    center_lat = (float(max_lat) + float(min_lat)) / 2
+    center_lon = (float(max_lon) + float(min_lon)) / 2
+
+    try:
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakesWithQuadrants?date=' + date
+                                + '&maxY=' + str(maxY)
+                                + '&minY=' + str(minY)
+                                + '&maxX=' + str(maxX)
+                                + '&minX=' + str(minX))
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
+
+    jsonData = json.loads(response.json())
+    numberObtained = len(jsonData)
+    print("Obtained " + str(numberObtained) + " earthquakes")
+    print("--- %s getting the data---" % (time.time() - start_time))
+    if numberObtained == 0:
+        return render(request, 'floybd/earthquakes/viewEarthquakes.html',
+                      {'noData': True})
+
+    start_time = time.time()
+    millis = int(round(time.time() * 1000))
+    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
+
+    print("--- %s seconds creating KML---" % (time.time() - start_time))
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
@@ -50,8 +114,10 @@ def getHeatMap(request):
     date = request.POST['date']
 
     sparkIp = getSparkIp()
-
-    response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+    try:
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
@@ -82,10 +148,11 @@ def getEartquakesArray(jsonData, includeDescription):
 def generateHeapMapKml(request):
     print("Generating HeatMap")
     date = request.POST['date']
-    #dataMapsJs = request.POST['data']
     millis = int(round(time.time() * 1000))
-
-    response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
+    try:
+        response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     jsonData = json.loads(response.json())
     dataMapsJs = getEartquakesArray(jsonData, False)
