@@ -49,13 +49,11 @@ def getApiKey():
     return apiKey
 
 def dataframeToJson(dataFrame):
-    pandas_df = dataFrame.toPandas()
-    return pandas_df.to_json(orient='records', lines=True)
+    return dataFrame.toPandas().to_json(orient='records', lines=True)
 
 
 def dataFrameToJsonStr(dataFrame):
-    pandas_df = dataFrame.toPandas()
-    return pandas_df.reset_index().to_json(path_or_buf=None, orient='records')
+    return dataFrame.toPandas().reset_index().to_json(path_or_buf=None, orient='records')
 
 
 def generateAllStationsWeatherKML(stations, weatherData, fileName):

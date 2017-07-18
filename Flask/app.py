@@ -36,6 +36,16 @@ def make_cache_key_post(*args, **kwargs):
     args = str(hash(frozenset(dataDict.items())))
     return (path + args).encode('utf-8')
 
+def make_cache_key_earthquakes(*args, **kwargs):
+    path = request.path
+    date = request.args.get('date')
+    max_y = request.args.get('maxY')
+    min_y = request.args.get('minY')
+    max_x = request.args.get('maxX')
+    min_x = request.args.get('minX')
+    args = str(hash(frozenset([date, max_y, min_y, max_x, min_x])))
+    return (path + args).encode('utf-8')
+
 
 def timing(func):
     @functools.wraps(func)
@@ -134,13 +144,43 @@ def getEarthquakes():
     min_lat = request.args.get('min_lat')
     max_lon = request.args.get('max_lon')
     min_lon = request.args.get('min_lon')
-
+    
+    start_time = time.time()
     earthquakesData = sparkFunctions.getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon)
-    earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData)
+    print("--- %s seconds getting the data ---" % (time.time() - start_time))
+    
+    start_time = time.time()
+    earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData) 
+    print("--- %s seconds parsing the data to json---" % (time.time() - start_time))
     # earthquakesJson = earthquakesData
 
     stopEnvironment(sc)
     return jsonify(earthquakesJson)
+
+
+@app.route('/getEarthquakesWithQuadrants')
+@cache.cached(timeout=24 * 60 * 60, key_prefix=make_cache_key_earthquakes)
+def getEarthquakesWithQuadrants():
+    initEnvironment()
+    loadEarthquakes()
+    date = request.args.get('date')
+    max_y = request.args.get('maxY')
+    min_y = request.args.get('minY')
+    max_x = request.args.get('maxX')
+    min_x = request.args.get('minX')
+
+    start_time = time.time()
+    earthquakesData = sparkFunctions.getConcreteEarhquakesDataWithQuadrants(earthquakes, date, max_y, min_y, max_x, min_x)
+    print("--- %s seconds getting the data ---" % (time.time() - start_time))
+    
+    start_time = time.time()
+    earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData)
+    print("--- %s seconds parsing the data to json---" % (time.time() - start_time))
+
+    stopEnvironment(sc)
+    return jsonify(earthquakesJson)
+
+
 
 
 @app.route('/getPrediction', methods=['POST'])

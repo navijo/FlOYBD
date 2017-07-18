@@ -186,6 +186,8 @@ class Earthquake(Model):
     latitude            = columns.Decimal(required=True,index=True)
     geojson             = columns.Text(required=True) #
     quadrant            = columns.Text(index=True) #
+    quadrantX           = columns.Decimal(index=True) #
+    quadrantY           = columns.Decimal(index=True) #
 
 #LinearModel
 class LinearModel(Model):

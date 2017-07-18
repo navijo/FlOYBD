@@ -38,9 +38,9 @@ def getX(longitude):
         x = 4
     elif 120 <= longitude < 150:
         x = 5
-    elif 150 <= longitude < 180:
+    elif 150 <= longitude <= 180:
         x = 6
-    elif -179 <= longitude < -150:
+    elif -180 <= longitude < -150:
         x = 7
     elif -150 <= longitude < -120:
         x = 8
@@ -68,14 +68,19 @@ def getY(latitude):
         y = 3
     elif 0 <= latitude < 20:
         y = 4
-    elif 0 <= latitude < -20:
+    elif -20 <= latitude < 0:
         y = 5
     elif -40 <= latitude < -20:
         y = 6
-    elif -60 <= latitude < -20:
+    elif -60 <= latitude < -40:
         y = 7
     elif -80 <= latitude < -60:
         y = 8
+    elif latitude < -80:
+        y = 8
+    elif 80 <= latitude:
+        y = 1
+  
     print("\t Quadrant y:" + str(y))
     return y
 
@@ -95,13 +100,18 @@ def parseQuadrant():
         print("Parsing earthquake #" + str(earthquakeCounter))
         x = getX(float(row['longitude']))
         y = getY(float(row['latitude']))
+        if x==0 or y==0:
+            print (x,y)
+            break
 
         quadrantXY = str(x)+","+str(y)
 
-        session.execute("UPDATE Earthquake SET \"quadrant\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(str(quadrantXY),))
+        session.execute("UPDATE Earthquake SET \"quadrant\" = %s, \"quadrantX\" = %s, \"quadrantY\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(str(quadrantXY),int(x),int(y)))
+        #session.execute("UPDATE Earthquake SET \"quadrantX\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(x,))
+        #session.execute("UPDATE Earthquake SET \"quadrantY\" = %s WHERE \"eventId\"='"+row['eventId']+"'",(y,))
         earthquakeCounter += 1
 
-    earthquakesResultant = earthquakes.select("eventId","latitude","longitude","quadrant")
+    earthquakesResultant = earthquakes.select("eventId","latitude","longitude","quadrant","quadrantX","quadrantY")
     earthquakesResultant.show()
 
 

@@ -47,22 +47,33 @@ def getConcreteWeatherData(daily_measures, station_id, date, allStations):
     return measurement
 
 
-def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon):
-    start_time = time.time()
+def getConcreteEarhquakesDataWithQuadrants(earthquakes, date, maxY, minY, maxX, minX):
+    datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
+    datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
+    if maxY is not None and minY is not None and maxX is not None and minX is not None:
+           
+        earthquakesResult = earthquakes.filter((earthquakes.quadrantX <= maxX) & (earthquakes.quadrantX >= minX)
+                                               & (earthquakes.quadrantY <= maxY) & (earthquakes.quadrantY >= minY) 
+                                               & (earthquakes.fecha >= datetime_object))
+     
+    else:
+        earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
+
+    return earthquakesResult.na.fill(0)
+
+
+def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon):
     datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
     datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
     if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None:
         print("Filtering by lat,lon and date")
-        earthquakesByDate = earthquakes.filter(earthquakes.fecha >= datetime_object)
-        earthquakesResult = earthquakesByDate.filter((earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon)
+        earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object) & (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon)
                                                & (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
     else:
         earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
-    # earthquakesResult.orderBy('fecha', ascending=True)
     return earthquakesResult.na.fill(0)
 
 
