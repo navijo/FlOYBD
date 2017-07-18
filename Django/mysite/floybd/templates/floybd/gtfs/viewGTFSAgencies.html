@@ -1,5 +1,11 @@
 {% include "floybd/header.html" %}
 
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
 
 {% load static %}
 {% load i18n %}

@@ -131,6 +131,14 @@
                    if(returnBody){
                         $("body").html(returnhtml)
                    }
+                },
+                error: function(response){
+                   alert("Ooops, something went wrong. Please try again or contact the administrator");
+                   mui.overlay('off');
+                   $('.modal').toggleClass('hide');
+                   $('#spinnerDiv').hide()
+                   FLEXPAPER.utils.removeSpinner('spinner-target');
+                   $("body").html(response)
                 }
             });
         })

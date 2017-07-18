@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from ..models import Station
-
+from ..models import ApiKey
 import requests
 import json
 import time
@@ -15,7 +15,6 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-
 def getConcreteValues(request):
     date = request.POST['date']
     station_id = request.POST.get('station', 0)
@@ -28,9 +27,13 @@ def getConcreteValues(request):
 
     stations = Station.objects.all()
 
-    response = requests.get(
-        'http://' + sparkIp + ':5000/getMeasurement?date=' + date + '&station_id=' + station_id + '&allStations=' + str(
-            getAllStations), stream=True)
+    try:
+        response = requests.get(
+            'http://' + sparkIp + ':5000/getMeasurement?date=' + date + '&station_id=' + station_id + '&allStations=' + str(
+                getAllStations), stream=True)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
+
     jsonData = json.loads(response.json())
 
     stationsWeather = {}
@@ -109,9 +112,13 @@ def sendConcreteValuesToLG(request):
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
 
-        response = requests.get(
-            'http://' + sparkIp + ':5000/getAllStationsMeasurementsKML?date=' + date,
-            stream=True)
+        try:
+            response = requests.get(
+                'http://' + sparkIp + ':5000/getAllStationsMeasurementsKML?date=' + date,
+                stream=True)
+        except requests.exceptions.ConnectionError:
+            return render(request, '500.html')
+
         with open(dirPath2, 'wb') as f:
             print("Downloading Cylinders KMZ from Flask...")
             for chunk in response.iter_content(chunk_size=1024):
@@ -184,10 +191,13 @@ def getPrediction(request):
     jsonData = {"station_id": station_id, "columnsToPredict": columnsToPredict}
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://' + sparkIp + ':5000/getPrediction',
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-                             data=payload)
-    print(response.json())
+    try:
+        response = requests.post('http://' + sparkIp + ':5000/getPrediction',
+                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                 data=payload)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
+
     if response.json():
         result = json.loads(response.json())
         concreteStation = Station.objects.get(station_id=station_id)
@@ -195,7 +205,6 @@ def getPrediction(request):
         kml = simplekml.Kml()
         for row in result:
             jsonRow = json.loads(row)
-           # kml = simplekml.Kml()
 
             for column in columnsToPredict:
                 if jsonRow.get("prediction_" + column) is not None:
@@ -282,9 +291,12 @@ def getStats(request):
 
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://130.206.117.178:5000/getStats',
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-                             data=payload)
+    try:
+        response = requests.post('http://130.206.117.178:5000/getStats',
+                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                 data=payload)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     result = json.loads(response.json())
     intervalData = False
@@ -477,9 +489,12 @@ def getGraphDataForStats(request):
     jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom}
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://' + getSparkIp() + ':5000/getWeatherDataInterval',
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-                             data=payload)
+    try:
+        response = requests.post('http://' + getSparkIp() + ':5000/getWeatherDataInterval',
+                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                 data=payload)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     result = json.loads(response.json())
     if result:
@@ -553,9 +568,12 @@ def viewDashboard(request):
 
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://' + sparkIp + ':5000/getWeatherDataInterval',
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-                             data=payload)
+    try:
+        response = requests.post('http://' + sparkIp + ':5000/getWeatherDataInterval',
+                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                 data=payload)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     result = json.loads(response.json())
     if result:
@@ -583,9 +601,12 @@ def getPredictionStats(request):
     jsonData = {"station_id": station_id, "fecha": today}
     payload = json.dumps(jsonData)
 
-    response = requests.post('http://' + sparkIp + ':5000/getPredictionStats',
-                             headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
-                             data=payload)
+    try:
+        response = requests.post('http://' + sparkIp + ':5000/getPredictionStats',
+                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                 data=payload)
+    except requests.exceptions.ConnectionError:
+        return render(request, '500.html')
 
     if response.json():
         result = json.loads(response.json())
@@ -642,17 +663,23 @@ def getPredictionStats(request):
 
 def currentWeather(request):
     print("Getting current weather... ")
-    response = requests.get('http://' + getSparkIp() + ':5000/getKey',
-                            headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
+    try:
+        response = requests.get('http://' + getSparkIp() + ':5000/getKey',
+                                headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
 
-    api_key_resp = response.json()
-    api_key = api_key_resp[0]['api_key']
+        api_key_resp = response.json()
+        api_key = api_key_resp[0]['api_key']
+    except requests.exceptions.ConnectionError:
+        print("Server not available. Getting local apiKey")
+        apiKeyObject = ApiKey.objects.all()[0]
+        api_key = apiKeyObject.key
+        print("Local ApiKey: ", api_key)
 
     querystring = {"api_key": api_key}
     headers = {'cache-control': "no-cache"}
     base_url = "https://opendata.aemet.es/opendata"
 
-    currentWeather = getData(base_url + "/api/observacion/convencional/todas", headers, querystring)
+    currentWeatherData = getData(base_url + "/api/observacion/convencional/todas", headers, querystring)
 
     stationsDict = defaultdict(list)
     print("Parsing current weather... ")
@@ -660,7 +687,7 @@ def currentWeather(request):
     tourCurrentWeather = kml.newgxtour(name="Tour Current Weather")
     playlistCurrentWeather = tourCurrentWeather.newgxplaylist()
 
-    for row in currentWeather:
+    for row in currentWeatherData:
         jsonData = json.loads(json.dumps(row))
         stationId = jsonData.get("idema")
         stationsDict[stationId].append(jsonData)
@@ -726,9 +753,12 @@ def currentWeather(request):
     dirPath2 = os.path.join(dir1, fileName)
 
     kml.savekmz(dirPath2, format=False)
-
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+    stopTour()
     sendKmlToLG(fileName)
-    time.sleep(5)
+    time.sleep(3)
     playTour("Tour Current Weather")
 
     return HttpResponse(status=204)
@@ -744,7 +774,7 @@ def getData(url, headers, querystring):
             if jsonResponse.get('estado') == 200:
                 link = jsonResponse.get('datos')
                 data = requests.request("GET", link, verify=False)
-                if (data.status_code == 200):
+                if data.status_code == 200:
                     return data.json()
                 else:
                     return 0
@@ -762,8 +792,14 @@ def getData(url, headers, querystring):
 
 
 def dummyWeather(request):
+    stopTour()
+
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
     sendDemoKmlToLG("dummyWeather.kmz")
     playTour("Tour Current Weather")
-    time.sleep(5)
+    time.sleep(3)
     return HttpResponse(status=204)
 

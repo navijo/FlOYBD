@@ -66,13 +66,15 @@
                            value="1"><label for="allStations">Get All Stations</label>
                          </div>
                      <div class="mui-col-md-12">
-<div id="comboDiv">
-    <select id="combobox" name="station">
-        {% for entry in stations %}
-            <option value="{{ entry.station_id }}">{{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})</option>
-        {% endfor %}
-    </select>
-</div>
+                    <div id="comboDiv" class="mui-select">
+                        <select id="combobox" name="station">
+                            {% for entry in stations %}
+                                <option value="{{ entry.station_id }}">{{ entry.name }} - {{ entry.station_id }} ( {{entry.province }})</option>
+                            {% endfor %}
+                            <label>Station</label>
+
+                        </select>
+                    </div>
                      </div>
                   </div>
                 </div>
