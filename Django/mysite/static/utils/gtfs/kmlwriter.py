@@ -168,17 +168,24 @@ class KMLWriter(object):
     style = ET.SubElement(doc, 'Style', {'id': style_id})
     linestyle = ET.SubElement(style, 'LineStyle')
     width = ET.SubElement(linestyle, 'width')
+    width.text = '12'
     type_to_width = {0: '3',  # Tram
                      1: '3',  # Subway
                      2: '5',  # Rail
                      3: '1'}  # Bus
-    width.text = type_to_width.get(route.route_type, '1')
-    if route.route_color:
-      color = ET.SubElement(linestyle, 'color')
-      red = route.route_color[0:2].lower()
-      green = route.route_color[2:4].lower()
-      blue = route.route_color[4:6].lower()
-      color.text = 'ff%s%s%s' % (blue, green, red)
+    #width.text = type_to_width.get(route.route_type, '1')
+    #if route.route_color:
+    #  color = ET.SubElement(linestyle, 'color')
+    #  red = route.route_color[0:2].lower()
+    #  green = route.route_color[2:4].lower()
+    #  blue = route.route_color[4:6].lower()
+    #  color.text = 'ff%s%s%s' % (blue, green, red)
+
+    color = ET.SubElement(linestyle, 'color')
+    red = '55'
+    green = 'ff'
+    blue = '55'
+    color.text = 'ff%s%s%s' % (blue, green, red)
     return style_id
 
   def _CreatePlacemark(self, parent, name, style_id=None, visible=True,
@@ -281,8 +288,10 @@ class KMLWriter(object):
       if (self.show_stop_hierarchy and
           stop.location_type != transitfeed.Stop.LOCATION_TYPE_STATION and
           stop.parent_station and stop.parent_station in schedule.stops):
+
         placemark = self._CreatePlacemark(
             pathway_folder, stop.stop_name, pathway_style_id)
+
         parent_station = schedule.stops[stop.parent_station]
         coordinates = [(stop.stop_lon, stop.stop_lat),
                        (parent_station.stop_lon, parent_station.stop_lat)]

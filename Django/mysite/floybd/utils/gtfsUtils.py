@@ -14,9 +14,16 @@ import numpy as np
 from django.contrib.contenttypes.models import ContentType
 
 from math import sin, cos, sqrt, atan2, radians
+from geopy.distance import great_circle
 
 
-def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point3Lon):
+def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point2Lon):
+    point1 = (point1Lat, point1Lon)
+    point2 = (point2Lat, point2Lon)
+    return great_circle(point1, point2).kilometers
+
+
+def getDistanceBetweenPoints1(point1Lat, point1Lon, point2Lat, point3Lon):
     # approximate radius of earth in km
     R = 6373.0
 

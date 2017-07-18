@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from ..utils.gtfsUtils import *
 from .gtfsKMLWriter import *
 from ..forms import UploadFileForm
@@ -10,6 +11,7 @@ import tarfile
 import time
 import zipfile
 import simplekml
+import random
 
 
 def uploadGTFS(request):
@@ -106,17 +108,17 @@ def decompressFile(file, title, extension):
 
 
 def sendGTFSToLG(request):
+    kmlName = request.POST["kmlName"]
     kmlPath = request.POST["kmlPath"]
     carKml = request.POST["carKml"]
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
-    form = UploadFileForm()
     lgIp = getLGIp()
     ip = getDjangoIp()
 
-    command = "echo '" + kmlPath + \
+    command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
               "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
-              "' | sshpass -p "+getLGPass()+" ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
+              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
     sendFlyToToLG(flyToLat, flyToLon, 10, 14, 45, 20000, 4)
@@ -124,8 +126,9 @@ def sendGTFSToLG(request):
     time.sleep(5)
     playTour("GTFSTour")
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'form': form, 'kml': kmlPath,
-                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat})
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + kmlName,
+                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat,
+                                                         'carKml': carKml, 'kmlName': kmlName})
 
 
 def uploadgtfs(request):
@@ -279,8 +282,6 @@ def getAgenciesAndGenerateKML(request):
     os.system(command1)
 
     ip = getDjangoIp()
-    # Javi : 192.168.88.234
-    # Gerard: 192.168.88.198
     lgIp = getLGIp()
 
     carKml = extractLinesCoordinates("static/kmls/" + kmlName, millis, maxCars)
@@ -288,32 +289,9 @@ def getAgenciesAndGenerateKML(request):
     flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
-    flyTo = "flytoview=<LookAt>" \
-            + "<longitude>" + str(flyToLon) + "</longitude>" \
-            + "<latitude>" + str(flyToLat) + "</latitude>" \
-            + "<altitude>10</altitude>" \
-            + "<heading>14</heading>" \
-            + "<tilt>45</tilt>" \
-            + "<range>200000</range>" \
-            + "<altitudeMode>relativeToGround</altitudeMode>" \
-            + "<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode></LookAt>"
-
-    command = "echo '" + flyTo + "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-    os.system(command)
-
-    time.sleep(5)
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
-              "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
-
-    time.sleep(1)
-    command = "echo 'playtour=GTFSTour' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /tmp/query.txt'"
-    os.system(command)
-
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + kmlName,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
-                                                         'carKml': carKml})
+                                                         'carKml': carKml, 'kmlName': kmlName})
 
 
 def extractLinesCoordinates(filePath, millis, maxCars):
@@ -354,25 +332,20 @@ def extractLinesCoordinates(filePath, millis, maxCars):
     tour1 = kml1.newgxtour(name="GTFSTour")
     playlist1 = tour1.newgxplaylist()
     folder1 = kml1.newfolder(name="Cars")
-
+    print("Total Cars: ", carCounter)
     firstPlacemark = True
-    counter = 0
-    carCounter = 0
 
-    if maxCars <= carCounter:
+    if maxCars >= carCounter:
         maxCars = carCounter
 
     addedTrips = []
-
-    for key, value in cars.items():
+    carCounter = 0
+    #Get maxCars random cars
+    for key, value in random.sample(cars.items(), maxCars):
+        carCounter += 1
         numberOfItems = len(value)
 
-        if carCounter >= maxCars:
-            break
-        carCounter += 1
-
         for index, current in enumerate(value):
-
             if index + 1 >= numberOfItems:
                 continue
             nextelem = value[index + 1]
@@ -416,6 +389,11 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                 movementFactor = 90
                 camera = 0.01
 
+            zoomFactor = 1500000
+            cameraRange = 1500000
+            movementFactor = 90
+            camera = 0.01
+
             if [startLatitude, startLongitude, objectiveLatitude, objectiveLongitude] not in addedTrips:
                 addedTrips.append([startLatitude, startLongitude, objectiveLatitude, objectiveLongitude])
 
@@ -451,25 +429,29 @@ def extractLinesCoordinates(filePath, millis, maxCars):
                     distance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude+latitudeModificator,
                                                         startLongitude+longitudeModificator)
 
-                    timeElapsed = distance/800
+                    #800 m/h * 1h/3600s
+                    speedFactor = 800/3600
+                    #timeElapsed = distance/speedFactor
+                    timeElapsed = distance / 800
+                    #camera = 0.03
 
                     if distance < 300:
                         timeElapsed = 0.001
 
-                    #currentPoint.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
-                    currentPoint.style.iconstyle.icon.href = 'https://frikerio.files.wordpress.com/2017/05/kinton.png'
+                    currentPoint.style.iconstyle.icon.href = 'files/train.png'
                     currentPoint.style.iconstyle.scale = 1
 
                     animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
                         .format(currentPoint.placemark.id)
 
-                    # if counter % 5 == 0:
+                    playlist1.newgxwait(gxduration=timeElapsed)
+
                     flyto = playlist1.newgxflyto(gxduration=camera, gxflytomode=simplekml.GxFlyToMode.smooth)
-                    flyto.camera.longitude = startLongitude
-                    flyto.camera.latitude = startLatitude
-                    flyto.camera.altitude = zoomFactor
-                    flyto.camera.range = cameraRange
+                    flyto.lookat.longitude = startLongitude
+                    flyto.lookat.latitude = startLatitude
+                    flyto.lookat.altitude = zoomFactor
+                    flyto.lookat.range = cameraRange
                     playlist1.newgxwait(gxduration=camera)
 
                     animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
@@ -496,8 +478,15 @@ def extractLinesCoordinates(filePath, millis, maxCars):
 
                 playlist1.newgxwait(gxduration=2)
 
-    print("Total Cars: ", carCounter)
+    print("Total Cars Added: ", carCounter)
     print("Writing car file " + newKmlName)
+
+    currentDir = os.getcwd()
+    dir1 = os.path.join(currentDir, "static/img")
+    imagePath = os.path.join(dir1, "train.png")
+    print("Image located in ", imagePath)
+
+    kml1.addfile(imagePath)
     kml1.savekmz("static/kmls/" + newKmlName, format=False)
     return newKmlName
 
