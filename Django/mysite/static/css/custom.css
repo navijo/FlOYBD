@@ -34,3 +34,13 @@
     border-radius: 35px !important;
 }
 
+.menuApp{
+    padding: 10px;
+    vertical-align: bottom;
+}
+
+.menuIcon:hover {
+    background-color: rgba(120, 135, 171, 0.59);
+    cursor: pointer;
+    border-radius: 50%;
+}
