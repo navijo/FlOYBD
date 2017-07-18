@@ -15,12 +15,7 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 
-{% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages %}
 {% load i18n %}
 {% load coma_point %}
 {% load static %}
@@ -28,16 +23,16 @@
 {% include 'material/includes/material_js.html' %}
 <link rel="shortcut icon" type="image/png" href="https://png.icons8.com/space-shuttle/color/24"/>
 
-<link rel="stylesheet" type="text/css" href="//cdn.muicss.com/mui-latest/css/mui.min.css" >
+<link rel="stylesheet" type="text/css" href="{% static 'css/mui.min.css' %}" >
 <script src="{% static 'js/mui.min.js' %}"></script>
 
 <script src="{% static 'js/flexpaper.spinner.js' %}"></script>
 
 <!-- Datepicker moment with locales -->
-<script type="text/javascript" language="javascript" src="http://propeller.in/components/datetimepicker/js/moment-with-locales.js"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/moment-with-locales.js' %}"></script>
 
 <!-- Propeller Bootstrap datetimepicker -->
-<script type="text/javascript" language="javascript" src="http://propeller.in/components/datetimepicker/js/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
 <!-- Propeller bootstrap datetimepicker -->
 <link href="{% static 'css/bootstrap-datetimepicker.css' %}" type="text/css" rel="stylesheet" />
 
@@ -107,6 +102,12 @@
             var form_url = $(this).attr("action");
             var form_method = $(this).attr("method").toUpperCase();
 
+            var options = {
+            'keyboard': true, // teardown when <esc> key is pressed
+            'static': true, // maintain overlay when clicked
+            };
+
+            mui.overlay('on',options);
             $('#spinnerDiv').show()
             $('.modal').toggleClass('show');
             FLEXPAPER.utils.addSpinner({
@@ -122,6 +123,7 @@
                 data: form_data,
                 cache: false,
                 success: function (returnhtml) {
+                   mui.overlay('off');
                    $('.modal').toggleClass('hide');
                    $('#spinnerDiv').hide()
                    FLEXPAPER.utils.removeSpinner('spinner-target');
