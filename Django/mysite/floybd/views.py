@@ -44,7 +44,8 @@ def clearKML(request):
 
     requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
-    return render(request, 'floybd/cleaningComplete.html')
+    #return render(request, 'floybd/cleaningComplete.html')
+    return HttpResponse(status=204)
 
 
 def settingsIndex(request):

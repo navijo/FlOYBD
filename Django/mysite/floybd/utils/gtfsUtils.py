@@ -58,6 +58,7 @@ def parseAgency(basePath):
             agency.agency_name = row['agency_name']
             agency.agency_timezone = row['agency_timezone']
             agency.save()
+            print(agency)
         except IntegrityError:
             print("Agency Error: ", row['agency_name'])
             pass

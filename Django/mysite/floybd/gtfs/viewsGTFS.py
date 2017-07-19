@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from django.contrib.staticfiles.templatetags.staticfiles import static
+
 from ..utils.gtfsUtils import *
-from .gtfsKMLWriter import *
+
 from ..forms import UploadFileForm
 from ..gtfs_models import Agency
 from ..utils.lgUtils import *
 
-import shutil
+
 import tarfile
 import time
 import zipfile
@@ -121,7 +121,7 @@ def sendGTFSToLG(request):
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
-    sendFlyToToLG(flyToLat, flyToLon, 10, 14, 45, 20000, 4)
+    sendFlyToToLG(flyToLat, flyToLon, 6000000, 0, 0, 1, 4)
 
     time.sleep(5)
     playTour("GTFSTour")
@@ -146,95 +146,30 @@ def viewgtfs(request):
 def getAgenciesAndGenerateKML(request):
     agencies = request.POST.getlist('agenciesSelected')
     maxCars = int(request.POST.get('maxCars'))
-    calendars_added = []
     stops_added = []
+    tripsAdded = []
 
     millis = int(round(time.time() * 1000))
-    folderName = "static/kmls/" + str(millis)
-    os.mkdir(folderName)
 
     flyToLatMax = 0
     flyToLatMin = 0
     flyToLonMax = 0
     flyToLonMin = 0
 
-    agencies_file = open(folderName + "/agency.txt", 'w')
-    agencies_file.write("agency_url,agency_name,agency_id,agency_timezone\n")
-
-    calendar_file = open(folderName + "/calendar.txt", 'w')
-    calendar_file.write("service_id,start_date,end_date,monday,tuesday,wednesday,thursday,friday,saturday,sunday\n")
-
-    routes_file = open(folderName + "/routes.txt", 'w')
-    routes_file.write("route_type,route_id,route_short_name,route_long_name,agency_id\n")
-
-    stops_file = open(folderName + "/stops.txt", 'w')
-    stops_file.write("stop_lon,stop_name,stop_lat,stop_id,location_type\n")
-
-    stops_times_file = open(folderName + "/stop_times.txt", 'w')
-    stops_times_file.write("trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,"
-                           "drop_off_type,shape_dist_traveled\n")
-
-    trips_file = open(folderName + "/trips.txt", 'w')
-    trips_file.write("route_id,trip_id,trip_headsign,service_id\n")
-
     for selectedAgency in agencies:
         agency = Agency.objects.get(agency_id=selectedAgency)
-        agencyStr = str(agency.agency_url) + \
-                    "," + str(agency.agency_name) + \
-                    "," + str(agency.agency_id) + \
-                    "," + str(agency.agency_timezone) + "\n"
-        agencies_file.write(agencyStr)
 
         routes = Route.objects.filter(agency=agency)
         for route in routes:
 
-            routeStr = str(route.route_type) + "," + str(route.route_id) + \
-                       "," + str(route.route_short_name) + \
-                       "," + str(route.route_long_name) + \
-                       "," + str(route.agency_id) + "\n"
-
-            routes_file.write(routeStr)
-
             trips = Trip.objects.filter(route_id=route.route_id)
 
             for trip in trips:
-                tripStr = str(trip.route_id) + "," + str(trip.trip_id) + \
-                          "," + str(trip.trip_headsign) + \
-                          "," + str(trip.service_id) + "\n"
-
-                trips_file.write(tripStr)
-
-                if trip.service_id not in calendars_added:
-                    calendars_added.append(trip.service_id)
-                    calendar = Calendar.objects.get(service_id=trip.service_id)
-
-                    calendarStr = str(calendar.service_id) + \
-                                  "," + str(calendar.start_date.strftime("%Y%m%d")) + \
-                                  "," + str(calendar.end_date.strftime("%Y%m%d")) + \
-                                  (str(",1") if calendar.monday else (str(",0"))) + \
-                                  (str(",1") if calendar.tuesday else (str(",0"))) + \
-                                  (str(",1") if calendar.wednesday else (str(",0"))) + \
-                                  (str(",1") if calendar.thursday else (str(",0"))) + \
-                                  (str(",1") if calendar.friday else (str(",0"))) + \
-                                  (str(",1") if calendar.saturday else (str(",0"))) + \
-                                  (str(",1") if calendar.sunday else (str(",0"))) + \
-                                  str("\n")
-                    calendar_file.write(calendarStr)
+                if trip.trip_id not in tripsAdded:
+                    tripsAdded.append(trip)
 
                 stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
                 for stop_time in stop_times:
-                    stop_times_str = str(stop_time.trip.trip_id) + \
-                                     "," + str(stop_time.arrival_time) + \
-                                     "," + str(stop_time.departure_time) + \
-                                     "," + str(stop_time.stop_id) + \
-                                     "," + str(stop_time.stop_sequence) + \
-                                     "," + str(stop_time.stop_headsign) + \
-                                     "," + str(stop_time.pickup_type) + \
-                                     "," + str(stop_time.drop_off_type) + \
-                                     "," + str("0") + "\n"
-
-                    stops_times_file.write(stop_times_str)
-
                     stop = stop_time.stop
                     if stop.stop_id not in stops_added:
                         print("Added Stop:" + stop.stop_id)
@@ -259,234 +194,237 @@ def getAgenciesAndGenerateKML(request):
             elif stop.stop_lon < flyToLonMin:
                 flyToLonMin = stop.stop_lon
 
-            stopStr = str(stop.stop_lon) + \
-                      "," + str(stop.stop_name) + \
-                      "," + str(stop.stop_lat) + \
-                      "," + str(stop.stop_id) + \
-                      "," + str(stop.location_type) + "\n"
-            stops_file.write(stopStr)
-
-    agencies_file.close()
-    calendar_file.close()
-    routes_file.close()
-    stops_file.close()
-    stops_times_file.close()
-    trips_file.close()
-
-    shutil.make_archive(folderName, 'zip', folderName)
-
-    zipName = folderName + ".zip"
-    kmlName = str(millis) + ".kml"
-
-    command1 = "python2 static/utils/gtfs/kmlwriter.py " + zipName + " static/kmls/" + kmlName
-    os.system(command1)
-
     ip = getDjangoIp()
-    lgIp = getLGIp()
 
-    carKml = extractLinesCoordinates("static/kmls/" + kmlName, millis, maxCars)
+    linesKml, carKml = getAgenciesTrips(maxCars, tripsAdded, millis)
 
     flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + kmlName,
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + linesKml,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
-                                                         'carKml': carKml, 'kmlName': kmlName})
+                                                         'carKml': carKml, 'kmlName': linesKml})
 
 
-def extractLinesCoordinates(filePath, millis, maxCars):
-    kml = simplekml.Kml()
+def getAgenciesTrips(maxCars, trips, millis):
+    carsCounter = 0
+    kmlCars = simplekml.Kml()
+    kmlLines = simplekml.Kml()
+    tourCars = kmlCars.newgxtour(name="GTFSTour")
+    playlistCars = tourCars.newgxplaylist()
+    folderCars = kmlCars.newfolder(name="Cars")
+    folderCars.visibility = 1
 
-    tree = ET.parse(filePath)
-    lineStrings = tree.findall('.//{http://earth.google.com/kml/2.1}LineString')
-    counter = 0
-    cars = {}
-    print("We have " + str(len(lineStrings)) + " lines")
-    carCounter = 0
-    for attributes in lineStrings:
-
-        for subAttribute in attributes:
-            if subAttribute.tag == '{http://earth.google.com/kml/2.1}coordinates':
-                linePoints = []
-                allCoords = subAttribute.text
-                splittedPairsCoords = allCoords.split(" ")
-                for pair in splittedPairsCoords:
-                    counter += 1
-                    if counter % 2 == 0:
-                        continue
-
-                    lonLan = pair.split(",")
-
-                    pnt = kml.newpoint(name='Car')
-                    pnt.coords = [(lonLan[0], lonLan[1])]
-                    pnt.visibility = 0
-                    pnt.style.iconstyle.icon.href = 'https://mt.googleapis.com/vt/icon/name=icons/onion/27-cabs.png'
-
-                    if pnt not in linePoints:
-                        linePoints.append(pnt)
-                cars[carCounter] = linePoints
-        carCounter += 1
-
-    newKmlName = "car_" + str(millis) + ".kmz"
-    kml1 = simplekml.Kml()
-    tour1 = kml1.newgxtour(name="GTFSTour")
-    playlist1 = tour1.newgxplaylist()
-    folder1 = kml1.newfolder(name="Cars")
-    print("Total Cars: ", carCounter)
     firstPlacemark = True
-
-    if maxCars >= carCounter:
-        maxCars = carCounter
-
-    addedTrips = []
-    carCounter = 0
-    #Get maxCars random cars
-    for key, value in random.sample(cars.items(), maxCars):
-        carCounter += 1
-        numberOfItems = len(value)
-
-        for index, current in enumerate(value):
-            if index + 1 >= numberOfItems:
+    addedStops = []
+    addedLines = {}
+    for trip in trips:
+        stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
+        for index, current in enumerate(stop_times):
+            if index + 1 >= len(stop_times):
                 continue
-            nextelem = value[index + 1]
+            nextelem = stop_times[index + 1]
 
-            pLatitude = str(current.coords).split(",")[1]
-            pLongitude = str(current.coords).split(",")[0]
-            pNLatitude = str(nextelem.coords).split(",")[1]
-            pNLongitude = str(nextelem.coords).split(",")[0]
+            stop1 = current.stop
+            stop2 = nextelem.stop
+            if stop1 not in addedStops:
+                addedStops.append(stop1)
+                doPlacemarks(stop1, kmlLines)
+            if stop2 not in addedStops:
+                addedStops.append(stop2)
+                doPlacemarks(stop2, kmlLines)
 
-            startLatitude = float(pLatitude)
-            startLongitude = float(pLongitude)
-            objectiveLatitude = float(pNLatitude)
-            objectiveLongitude = float(pNLongitude)
+            #doLines(stop1, stop2, kmlLines)
 
-            distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
 
-            movementFactor = 100
-            zoomFactor = 50000
-            cameraRange = 30000
-            camera = 0.1
-
-            if distance == 0:
-                print("Distance 0")
+    while carsCounter < maxCars:
+        #We take a random trip
+        randomTrip = random.sample(trips, 1)
+        #We get its stops
+        stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
+        print("\tNew Car #", str(carsCounter))
+        for index, current in enumerate(stop_times):
+            if index + 1 >= len(stop_times):
                 continue
-            elif 500 < distance < 1000:
-                print("Distance between 500 and 1000")
-                movementFactor = 70
-                zoomFactor = 1500000
-                cameraRange = 1500000
-                camera = 0.01
-            elif 1000 < distance < 2000:
-                print("Distance between 1000 and 2000")
-                zoomFactor = 1500000
-                cameraRange = 1500000
-                movementFactor = 80
-                camera = 0.01
-            elif distance > 2000:
-                print("Distance over 2000")
-                zoomFactor = 1500000
-                cameraRange = 1500000
-                movementFactor = 90
-                camera = 0.01
+            nextelem = stop_times[index + 1]
 
-            zoomFactor = 1500000
-            cameraRange = 1500000
-            movementFactor = 90
-            camera = 0.01
+            stop1 = current.stop
+            stop2 = nextelem.stop
 
-            if [startLatitude, startLongitude, objectiveLatitude, objectiveLongitude] not in addedTrips:
-                addedTrips.append([startLatitude, startLongitude, objectiveLatitude, objectiveLongitude])
+            doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines,addedLines)
 
-                latitudeModificator = (objectiveLatitude - startLatitude) / float(movementFactor)
-                longitudeModificator = (objectiveLongitude - startLongitude) / float(movementFactor)
+            if firstPlacemark:
+                firstPlacemark = False
 
-                incrementLatitude = True if latitudeModificator > 0 else False
-                incrementLongitude = True if longitudeModificator > 0 else False
+        carsCounter += 1
 
-                print("Start Latitude: ", str(startLatitude))
-                print("Start Longitude: ", str(startLongitude))
-                print("Objective Latitude: ", str(objectiveLatitude))
-                print("Objective Longitude: ", str(objectiveLongitude))
-                print("Longitude Modificator: ", str(longitudeModificator))
-                print("Latitude Modificator: ", str(latitudeModificator))
+    for trip in trips:
+        stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
+        for index, current in enumerate(stop_times):
+            if index + 1 >= len(stop_times):
+                continue
+            nextelem = stop_times[index + 1]
 
-                latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
-                    startLatitude <= objectiveLatitude)
-                longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
-                    startLongitude <= objectiveLongitude)
+            stop1 = current.stop
+            stop2 = nextelem.stop
+            key = (stop1.stop_id, stop2.stop_id)
+            if key not in addedLines:
+                print("\t Adding not included line")
+                doLinesNotIncluded(stop1, stop2, kmlLines)
 
-                counter = 0
-
-                while not latitudeAchieved and not longitudeAchieved:
-                    currentPoint = folder1.newpoint(name='Car')
-                    currentPoint.coords = [(startLongitude, startLatitude)]
-                    if firstPlacemark:
-                        firstPlacemark = False
-                        currentPoint.visibility = 1
-                    else:
-                        currentPoint.visibility = 0
-
-                    distance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude+latitudeModificator,
-                                                        startLongitude+longitudeModificator)
-
-                    #800 m/h * 1h/3600s
-                    speedFactor = 800/3600
-                    #timeElapsed = distance/speedFactor
-                    timeElapsed = distance / 800
-                    #camera = 0.03
-
-                    if distance < 300:
-                        timeElapsed = 0.001
-
-                    currentPoint.style.iconstyle.icon.href = 'files/train.png'
-                    currentPoint.style.iconstyle.scale = 1
-
-                    animatedupdateshow = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
-                        .format(currentPoint.placemark.id)
-
-                    playlist1.newgxwait(gxduration=timeElapsed)
-
-                    flyto = playlist1.newgxflyto(gxduration=camera, gxflytomode=simplekml.GxFlyToMode.smooth)
-                    flyto.lookat.longitude = startLongitude
-                    flyto.lookat.latitude = startLatitude
-                    flyto.lookat.altitude = zoomFactor
-                    flyto.lookat.range = cameraRange
-                    playlist1.newgxwait(gxduration=camera)
-
-                    animatedupdatehide = playlist1.newgxanimatedupdate(gxduration=timeElapsed)
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
-                        .format(currentPoint.placemark.id)
-
-                    playlist1.newgxwait(gxduration=timeElapsed)
-
-                    if not latitudeAchieved:
-                        startLatitude += latitudeModificator
-                        #print("Modified Start latitude:", str(startLatitude))
-
-                    if not longitudeAchieved:
-                        startLongitude += longitudeModificator
-                       # print("Modified Start longitude:", str(startLongitude))
-
-                    latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
-                        startLatitude <= objectiveLatitude)
-
-                    longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
-                        startLongitude <= objectiveLongitude)
-
-                    counter += 1
-
-                playlist1.newgxwait(gxduration=2)
-
-    print("Total Cars Added: ", carCounter)
-    print("Writing car file " + newKmlName)
-
+    kmlCarsName = "car_" + str(millis) + ".kmz"
+    kmlLinesName = "lines_" + str(millis) + ".kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/img")
     imagePath = os.path.join(dir1, "train.png")
     print("Image located in ", imagePath)
+    print("Cars to be added: " + str(maxCars))
+    print("Cars really added: " + str(carsCounter))
 
-    kml1.addfile(imagePath)
-    kml1.savekmz("static/kmls/" + newKmlName, format=False)
-    return newKmlName
+    kmlCars.addfile(imagePath)
+    kmlCars.savekmz("static/kmls/" + kmlCarsName, format=False)
+    kmlLines.save("static/kmls/" + kmlLinesName)
+    return kmlLinesName, kmlCarsName
+
+
+def doPlacemarks(stop, kmlTrips):
+    point = kmlTrips.newpoint(name=stop.stop_name + " HUB")
+    point.coords = [(stop.stop_lon, stop.stop_lat, 50000)]
+    point.altitudemode = simplekml.AltitudeMode.relativetoground
+    point.extrude = 1
+    point.linestyle.width = 20
+    point.style.labelstyle.scale = 1.5
+    point.style.labelstyle.color = simplekml.Color.blue
+    point.style.linestyle.color = simplekml.Color.blue
+    point.style.iconstyle.icon.href = "http://maps.google.com/mapfiles/kml/shapes/subway.png"
+
+
+def doLinesNotIncluded(stopSrc, stopDst, kmlTrips):
+
+    linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
+    linestring.coords = [(stopSrc.stop_lon, stopSrc.stop_lat, 50000), (stopDst.stop_lon, stopDst.stop_lat, 50000)]
+    linestring.altitudemode = simplekml.AltitudeMode.relativetoground
+    #linestring.extrude = 1
+    linestring.tesellate = 1
+    linestring.style.linestyle.width = 15
+    linestring.style.linestyle.color = "FF7800F0"
+
+
+def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips):
+
+    linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
+    linestring.coords = [(startLon, startLat, 50000), (dstLon, dstLat, 50000)]
+    linestring.altitudemode = simplekml.AltitudeMode.relativetoground
+    #linestring.extrude = 1
+    linestring.tesellate = 1
+    linestring.style.linestyle.width = 15
+    linestring.style.linestyle.color = "FF7800F0"
+
+
+def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines):
+
+    startLatitude = float(stopSrc.stop_lat)
+    startLongitude = float(stopSrc.stop_lon)
+    objectiveLatitude = float(stopDst.stop_lat)
+    objectiveLongitude = float(stopDst.stop_lon)
+    addedLines[(stopSrc.stop_id, stopDst.stop_id)] = True
+
+    zoomFactor = 1500000
+    cameraRange = 1500000
+    movementFactor = 100
+    camera = 0.01
+
+    latitudeModificator = (objectiveLatitude - startLatitude) / float(movementFactor)
+    longitudeModificator = (objectiveLongitude - startLongitude) / float(movementFactor)
+
+    incrementLatitude = True if latitudeModificator > 0 else False
+    incrementLongitude = True if longitudeModificator > 0 else False
+
+    print("Start Latitude: ", str(startLatitude))
+    print("Start Longitude: ", str(startLongitude))
+    print("Objective Latitude: ", str(objectiveLatitude))
+    print("Objective Longitude: ", str(objectiveLongitude))
+    print("Longitude Modificator: ", str(longitudeModificator))
+    print("Latitude Modificator: ", str(latitudeModificator))
+
+    latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
+        startLatitude <= objectiveLatitude)
+    longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
+        startLongitude <= objectiveLongitude)
+
+    counter = 0
+    firstCarOfTrip = True
+    while not latitudeAchieved and not longitudeAchieved:
+        currentPoint = folder.newpoint(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
+        currentPoint.coords = [(startLongitude, startLatitude, 50000)]
+        currentPoint.altitudemode = simplekml.AltitudeMode.relativetoground
+
+        if firstPlacemark:
+            firstPlacemark = False
+            currentPoint.visibility = 1
+        else:
+            currentPoint.visibility = 0
+
+        distance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude + latitudeModificator,
+                                            startLongitude + longitudeModificator)
+
+        timeElapsed = distance / 800
+
+        if distance < 300:
+            timeElapsed = 0.001
+
+        currentPoint.style.iconstyle.icon.href = 'files/train.png'
+        currentPoint.style.iconstyle.scale = 1
+
+        if firstCarOfTrip:
+            firstCarOfTrip = False
+            doFlyTo(playlist, startLatitude, startLongitude, 750000, 750000, 3, 0)
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=3.0)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                .format(currentPoint.placemark.id)
+
+            playlist.newgxwait(gxduration=3.0)
+        else:
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=timeElapsed)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
+                .format(currentPoint.placemark.id)
+
+            playlist.newgxwait(gxduration=timeElapsed)
+
+        flyto = playlist.newgxflyto(gxduration=camera, gxflytomode=simplekml.GxFlyToMode.smooth)
+        flyto.lookat.longitude = startLongitude
+        flyto.lookat.latitude = startLatitude
+        flyto.lookat.altitude = zoomFactor
+        flyto.lookat.range = cameraRange
+        playlist.newgxwait(gxduration=camera)
+
+        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=timeElapsed)
+        animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility></Placemark>' \
+            .format(currentPoint.placemark.id)
+
+        playlist.newgxwait(gxduration=timeElapsed)
+
+        doLines(stopSrc, stopDst, startLatitude, startLongitude,
+                startLatitude+latitudeModificator,
+                startLongitude+longitudeModificator,
+                kmlLines)
+
+        if not latitudeAchieved:
+            startLatitude += latitudeModificator
+            # print("Modified Start latitude:", str(startLatitude))
+
+        if not longitudeAchieved:
+            startLongitude += longitudeModificator
+            # print("Modified Start longitude:", str(startLongitude))
+
+        latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
+            startLatitude <= objectiveLatitude)
+
+        longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
+            startLongitude <= objectiveLongitude)
+
+        counter += 1
+
+    playlist.newgxwait(gxduration=2)
+
 

@@ -45,7 +45,7 @@ def stopTour():
     os.system(command)
 
 
-def doFlyTo(playList, latitude, longitude, altitude, pRange, duration):
+def doFlyTo(playList, latitude, longitude, altitude, pRange, duration, tilt=77):
     flyto = playList.newgxflyto(gxduration=duration)
     flyto.gxflytomode = simplekml.GxFlyToMode.bounce
     flyto.altitudemode = simplekml.AltitudeMode.relativetoground
@@ -55,7 +55,7 @@ def doFlyTo(playList, latitude, longitude, altitude, pRange, duration):
     flyto.lookat.latitude = float(latitude)
     flyto.lookat.altitude = altitude
     flyto.lookat.heading = 0
-    flyto.lookat.tilt = 77
+    flyto.lookat.tilt = tilt
     flyto.lookat.range = pRange
 
 

@@ -756,9 +756,9 @@ def currentWeather(request):
     command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
               " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
-    stopTour()
+
     sendKmlToLG(fileName)
-    time.sleep(3)
+    time.sleep(5)
     playTour("Tour Current Weather")
 
     return HttpResponse(status=204)
