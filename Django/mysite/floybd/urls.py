@@ -10,6 +10,8 @@ from .models import Setting
 from .utils.utils import *
 import subprocess
 from django.db import connection
+import simplekml
+import time
 
 
 app_name = 'floybd'
@@ -83,14 +85,49 @@ def sendLogos():
     #leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
     #print("Left Screen: ", leftScreenClean)
 
+    kml = simplekml.Kml(name="Layout")
+    screen = kml.newscreenoverlay(name='FLOYBD')
+    screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png"
+    screen.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
+                                           yunits=simplekml.Units.fraction)
+    screen.screenxy = simplekml.ScreenXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
+                                         yunits=simplekml.Units.fraction)
+    screen.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                         yunits=simplekml.Units.fraction)
+    screen.size.x = 0.25
+    screen.size.y = 0.2
+    screen.size.xunits = simplekml.Units.fraction
+    screen.size.yunits = simplekml.Units.fraction
+
+    screen1 = kml.newscreenoverlay(name='Logos')
+    screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png"
+    screen1.overlayxy = simplekml.OverlayXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                           yunits=simplekml.Units.fraction)
+    screen1.screenxy = simplekml.ScreenXY(x=0.0, y=0.01, xunits=simplekml.Units.fraction,
+                                         yunits=simplekml.Units.fraction)
+    screen1.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                           yunits=simplekml.Units.fraction)
+    screen1.size.x = 0.5
+    screen1.size.y = 0.45
+    screen1.size.xunits = simplekml.Units.fraction
+    screen1.size.yunits = simplekml.Units.fraction
+
+    currentDir = os.getcwd()
+    fileName = "Layout.kml"
+    dir1 = os.path.join(currentDir, "static/logos")
+    dirPath2 = os.path.join(dir1, fileName)
+    print("Saving kml: ", dirPath2)
+
+    kml.save(dirPath2)
+
     if db_table_exists("floybd_setting"):
         if checkPing(getLGIp()):
             print("Sending Logos...")
-            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
+            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/"+fileName +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
             os.system(command)
-
+    
 
 def createDefaultSettingsObjects():
     if db_table_exists("floybd_setting"):
