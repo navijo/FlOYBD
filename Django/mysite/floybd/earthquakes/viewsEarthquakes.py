@@ -517,6 +517,6 @@ def demoLastWeekEarthquakesHeatmap(request):
 
 def demoLastWeekEarthquakes(request):
     sendDemoKmlToLG("lastWeekEarthquakes.kmz")
-    time.sleep(5)
+    time.sleep(10)
     playTour("LastWeekEarthquakesTour")
     return HttpResponse(status=204)

@@ -40,14 +40,18 @@ class Command(BaseCommand):
         playlist = tour.newgxplaylist()
 
         balloonDuration = 1
+        flyToDuration = 2
         if numberObtained > 1000:
             balloonDuration = numberObtained / 1000
 
         self.stdout.write("Default duration: " + str(balloonDuration))
         earthquakeNumber = 1
         for row in jsonData:
-            actualPercentage = (earthquakeNumber / numberObtained) * 100
-            self.stdout.write(str(actualPercentage))
+            if earthquakeNumber > 50:
+                break
+            #actualPercentage = (earthquakeNumber / numberObtained) * 100
+            #self.stdout.write(str(actualPercentage))
+            self.stdout.write(str(earthquakeNumber))
 
             place = row["place"]
             latitude = row["latitude"]
@@ -84,15 +88,24 @@ class Command(BaseCommand):
                     pol.style.linestyle.color = color
                     pol.style.linestyle.width = 10
 
-                    pol.visibility = 1
+                    pol.visibility = 0
 
-                    flyto = playlist.newgxflyto(gxduration=balloonDuration,
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
                                                 gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude
                     flyto.camera.latitude = latitude
-                    flyto.camera.altitude = 100000
-                    # flyto.camera.tilt = 20
-                    playlist.newgxwait(gxduration=balloonDuration)
+                    flyto.camera.altitude = 150000
+                    flyto.camera.range = 150000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
+
+                    self.simulateEarthquake(playlist, latitude, longitude, 2)
+
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                       '<visibility>1</visibility></Placemark>' \
+                        .format(pol.placemark.id)
 
                     for i in range(1, 11):
                         polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
@@ -128,6 +141,11 @@ class Command(BaseCommand):
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                       '<visibility>1</visibility></Placemark>' \
+                        .format(pol.placemark.id)
             except ValueError:
                 kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
                 print(absMagnitude)
@@ -141,7 +159,20 @@ class Command(BaseCommand):
         dir1 = os.path.join(currentDir, "static/demos")
         dirPath2 = os.path.join(dir1, fileName)
         print("Saving kml: ", dirPath2)
+        if os.path.exists(dirPath2):
+          os.remove(dirPath2)
         kml.savekmz(dirPath2, format=False)
+
+    def simulateEarthquake(self, playlist, latitude, longitude, duration):
+        for i in range(0, 50):
+            bounce = 5 if (i % 2 == 0) else 0
+            flyto = playlist.newgxflyto(gxduration=0.01)
+            flyto.camera.longitude = longitude
+            flyto.camera.latitude = latitude
+            flyto.camera.altitude = 150000
+            flyto.camera.range = 150000
+            flyto.camera.tilt = bounce
+            playlist.newgxwait(gxduration=0.01)
 
     def populateInfoWindow(self, row, jsonData):
         latitude = row["latitude"]
@@ -161,8 +192,8 @@ class Command(BaseCommand):
                         '<br/><b>Latitude: </b>' + str(latitude) + \
                         '<br/><b>Longitude: </b>' + str(longitude) + \
                         '<br/><b>Magnitude: </b>' + str(magnitude) + \
-                        '<br/><a href=' + str(url) + ' target="_blank">More Info</a>' \
-                                                     '</p>' + \
+                        '<br/><a href=' + str(url) + ' target="_blank">More Info</a>' +\
+                        '</p>' + \
                         '</div>' + \
                         '</div>'
         return contentString
