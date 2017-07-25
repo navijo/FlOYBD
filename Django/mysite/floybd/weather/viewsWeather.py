@@ -792,14 +792,15 @@ def getData(url, headers, querystring):
 
 
 def dummyWeather(request):
-    stopTour()
+    '''stopTour()
 
     command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
               " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
+    os.system(command)'''
 
     sendDemoKmlToLG("dummyWeather.kmz")
-    playTour("Tour Current Weather")
     time.sleep(3)
+    playTour("Tour Current Weather")
+
     return HttpResponse(status=204)
 
