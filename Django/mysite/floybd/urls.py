@@ -122,12 +122,17 @@ def sendLogos():
 
     if db_table_exists("floybd_setting"):
         if checkPing(getLGIp()):
-            print("Sending Logos...")
-            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/"+fileName +\
-                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
+            print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
+            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
+                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_1.txt'"
 
             os.system(command)
-    
+
+            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" + \
+                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_2.txt'"
+
+            os.system(command)
+
 
 def createDefaultSettingsObjects():
     if db_table_exists("floybd_setting"):
