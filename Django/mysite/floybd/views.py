@@ -45,7 +45,6 @@ def clearKML(request):
 
     requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
-    #return render(request, 'floybd/cleaningComplete.html')
     return HttpResponse(status=204)
 
 
@@ -94,4 +93,11 @@ def stopScreenSaver(request):
               " 'pkill screensaver.py '"
     os.system(command)
 
+    return HttpResponse(status=204)
+
+
+def clearLGCache(request):
+    command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'rm -r /home/lg/.googleearth/Cache/* '"
+    os.system(command)
     return HttpResponse(status=204)

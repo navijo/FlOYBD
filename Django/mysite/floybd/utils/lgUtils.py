@@ -1,17 +1,19 @@
 import os
 from .utils import *
 import simplekml
+import time
 
 
 def sendDemoKmlToLG(fileName):
-    command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/" + fileName + \
+    millis = int(round(time.time() * 1000))
+    command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/" + fileName + "?a=" + str(millis) + \
               "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
 def sendKmlToLG(fileName):
-
-    command = "echo 'http://" + getDjangoIp() + ":8000/static/kmls/" + fileName + \
+    millis = int(round(time.time() * 1000))
+    command = "echo 'http://" + getDjangoIp() + ":8000/static/kmls/" + fileName + "?a=" + str(millis) + \
               "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
