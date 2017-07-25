@@ -103,7 +103,7 @@ class Command(BaseCommand):
 
         kml.savekmz(dirPath2, format=False)
 
-    def getData(self,url, headers, querystring):
+    def getData(self, url, headers, querystring):
         """	Make the request to the api	"""
         try:
             response = requests.request("GET", url, headers=headers, params=querystring, verify=False)

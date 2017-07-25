@@ -41,7 +41,8 @@ class Command(BaseCommand):
         cylinder.makeKMZ(dirPath2)
         time.sleep(2)
 
-    def getEartquakesArray(self, jsonData):
+    @staticmethod
+    def getEartquakesArray(jsonData):
         data = []
         for row in jsonData:
             data.append([row.get("latitude"), row.get("longitude"), row.get("magnitude"), row.get("place"),

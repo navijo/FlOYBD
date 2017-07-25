@@ -40,14 +40,14 @@ class Command(BaseCommand):
         playlist = tour.newgxplaylist()
 
         balloonDuration = 1
-        flyToDuration = 2
+        flyToDuration = 3
         if numberObtained > 1000:
             balloonDuration = numberObtained / 1000
 
         self.stdout.write("Default duration: " + str(balloonDuration))
         earthquakeNumber = 1
         for row in jsonData:
-            if earthquakeNumber > 50:
+            if earthquakeNumber > 666:
                 break
             #actualPercentage = (earthquakeNumber / numberObtained) * 100
             #self.stdout.write(str(actualPercentage))
@@ -90,17 +90,27 @@ class Command(BaseCommand):
 
                     pol.visibility = 0
 
+                    #Fly To the atmosphere
                     flyto = playlist.newgxflyto(gxduration=flyToDuration,
                                                 gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude
                     flyto.camera.latitude = latitude
-                    flyto.camera.altitude = 150000
-                    flyto.camera.range = 150000
+                    flyto.camera.altitude = 15000000
+                    flyto.camera.range = 15000000
                     flyto.camera.tilt = 0
                     playlist.newgxwait(gxduration=flyToDuration)
 
-                    self.simulateEarthquake(playlist, latitude, longitude, 2)
+                    #Go Back To the point
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
+                                                gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = longitude
+                    flyto.camera.latitude = latitude
+                    flyto.camera.altitude = 100000
+                    flyto.camera.range = 100000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
 
+                    self.simulateEarthquake(playlist, latitude, longitude, absMagnitude)
 
                     animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
                     animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
@@ -160,11 +170,12 @@ class Command(BaseCommand):
         dirPath2 = os.path.join(dir1, fileName)
         print("Saving kml: ", dirPath2)
         if os.path.exists(dirPath2):
-          os.remove(dirPath2)
+            os.remove(dirPath2)
         kml.savekmz(dirPath2, format=False)
 
-    def simulateEarthquake(self, playlist, latitude, longitude, duration):
-        for i in range(0, 50):
+    @staticmethod
+    def simulateEarthquake(playlist, latitude, longitude, magnitude):
+        for i in range(0, int(10*magnitude)):
             bounce = 5 if (i % 2 == 0) else 0
             flyto = playlist.newgxflyto(gxduration=0.01)
             flyto.camera.longitude = longitude
@@ -174,7 +185,8 @@ class Command(BaseCommand):
             flyto.camera.tilt = bounce
             playlist.newgxwait(gxduration=0.01)
 
-    def populateInfoWindow(self, row, jsonData):
+    @staticmethod
+    def populateInfoWindow(row, jsonData):
         latitude = row["latitude"]
         longitude = row["longitude"]
         magnitude = row["magnitude"]
