@@ -101,3 +101,10 @@ def clearLGCache(request):
               " 'rm -r /home/lg/.googleearth/Cache/* '"
     os.system(command)
     return HttpResponse(status=204)
+
+
+def relaunchLG(request):
+    command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " './bin/lg-relaunch '"
+    os.system(command)
+    return HttpResponse(status=204)

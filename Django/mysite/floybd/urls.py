@@ -76,6 +76,7 @@ urlpatterns = [
     url('launchScreenSaver', views.launchScreenSaver, name='launchScreenSaver'),
     url('stopScreenSaver', views.stopScreenSaver, name='stopScreenSaver'),
     url('clearCache', views.clearLGCache, name='clearCache'),
+    url('relaunchLG', views.relaunchLG, name='relaunchLG'),
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
 
