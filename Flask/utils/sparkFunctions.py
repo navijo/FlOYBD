@@ -60,7 +60,8 @@ def getConcreteEarhquakesDataWithQuadrants(earthquakes, date, maxY, minY, maxX, 
     else:
         earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
 
-    return earthquakesResult.na.fill(0)
+    earthquakesReturn = earthquakesResult.sort(asc("fecha"))
+    return earthquakesReturn.na.fill(0)
 
 
 def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon):
@@ -74,7 +75,8 @@ def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_
     else:
         earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
 
-    return earthquakesResult.na.fill(0)
+    earthquakesReturn = earthquakesResult.sort(asc("fecha"))
+    return earthquakesReturn.na.fill(0)
 
 
 def getStationInfo(stations, station_id):
