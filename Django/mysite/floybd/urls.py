@@ -73,8 +73,13 @@ urlpatterns = [
     url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),
 
     url('openHelp', views.openHelp, name='openHelp'),
+    url('launchScreenSaver', views.launchScreenSaver, name='launchScreenSaver'),
+    url('stopScreenSaver', views.stopScreenSaver, name='stopScreenSaver'),
+
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
+
+
 
 ]
 
@@ -124,12 +129,7 @@ def sendLogos():
         if checkPing(getLGIp()):
             print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
-                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_1.txt'"
-
-            os.system(command)
-
-            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" + \
-                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_2.txt'"
+                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
             os.system(command)
 

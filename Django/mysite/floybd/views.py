@@ -36,11 +36,12 @@ def clearKML(request):
               " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
-    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " 'cat - > /var/www/html/kmls_4.txt'"
-    os.system(command)
+    for i in range(1, 6):
+        command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+                  " 'cat - > /var/www/html/kmls_"+str(i)+".txt'"
+        os.system(command)
 
-    print("Deletings remote kmls folder")
+    print("Deleting remote kmls folder")
 
     requests.get('http://' + getSparkIp() + ':5000/clearKML')
 
@@ -71,4 +72,26 @@ def demoEarthquakes(request):
 
 def stopTourView(request):
     stopTour()
+    return HttpResponse(status=204)
+
+
+def launchScreenSaver(request):
+    stopTour()
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
+    command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " './bin/screensaver.py \"./bin/tour.sh ./bin/queries.txt\"'"
+    os.system(command)
+
+    return HttpResponse(status=204)
+
+
+def stopScreenSaver(request):
+
+    command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'pkill screensaver.py '"
+    os.system(command)
+
     return HttpResponse(status=204)
