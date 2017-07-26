@@ -1,6 +1,6 @@
 #!/bin/bash
 source ~/FlOYBD/virtualEnv/bin/activate
 cd ~/FlOYBD/Django/mysite/
-python manage.py getCurrentWeather
-python manage.py getLastWeekEarthquakes
-python manage.py getLastWeekEarthquakesHeatMap
+nohup python manage.py getCurrentWeather &> logCurrentWeatherJob.out &
+nohup python manage.py getLastWeekEarthquakes &> loglastWeekEarthquakes.out &
+nohup python manage.py getLastWeekEarthquakesHeatMap &> logLastWeekEarthquakesHeatMap.out &
