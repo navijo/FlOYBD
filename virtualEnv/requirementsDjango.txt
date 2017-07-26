@@ -19,6 +19,7 @@ django-viewflow==1.0.2
 entrypoints==0.2.2
 Flask==0.12.1
 geographiclib==1.48
+geopy==1.11.0
 heatmap==2.2.1
 html5lib==0.999999999
 image==1.5.5
