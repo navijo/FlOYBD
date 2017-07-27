@@ -53,7 +53,7 @@ def getEarthquakesExact(request):
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis,
-                   'showAll': createTourParam})
+                   'createTour': createTourParam})
 
 
 def getEarthquakesApprox(request):
@@ -106,7 +106,7 @@ def getEarthquakesApprox(request):
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
                    'center_lon': center_lon, 'date': date, 'millis': millis,
-                   'showAll': createTourParam})
+                   'createTour': createTourParam})
 
 
 def getHeatMap(request):
@@ -232,7 +232,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
 
     tour = kml.newgxtour(name="EarthquakesTour")
     playlist = tour.newgxplaylist()
-
+    flyToDuration = 3
     balloonDuration = 1
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
@@ -271,25 +271,40 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
                                                     radius=2000 * absMagnitude, number_of_vertices=100)
 
                 pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
-                #pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
                 pol.style.polystyle.color = color
                 pol.style.polystyle.fill = 0
                 pol.style.polystyle.outline = 1
-                #pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
                 pol.style.linestyle.color = color
                 pol.style.linestyle.width = 10
 
-                #pol.tessellate = 1
-
                 if createTour:
-                    pol.visibility = 1
+                    pol.visibility = 0
+                    # Fly To the atmosphere
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
+                                                gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = longitude
+                    flyto.camera.latitude = latitude
+                    flyto.camera.altitude = 15000000
+                    flyto.camera.range = 15000000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
 
-                    flyto = playlist.newgxflyto(gxduration=balloonDuration, gxflytomode=simplekml.GxFlyToMode.smooth)
+                    # Go Back To the point
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
+                                                gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude
                     flyto.camera.latitude = latitude
                     flyto.camera.altitude = 100000
-                    #flyto.camera.tilt = 20
-                    playlist.newgxwait(gxduration=balloonDuration)
+                    flyto.camera.range = 100000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
+
+                    simulateEarthquake(playlist, latitude, longitude, absMagnitude)
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                       '<visibility>1</visibility></Placemark>' \
+                        .format(pol.placemark.id)
 
                     for i in range(1, 11):
                         polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
@@ -325,8 +340,8 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
-
-
+                else:
+                    pol.visibility = 1
             else:
                 earthquake = kml.newpoint(name=place,
                                           description=infowindow,
@@ -360,6 +375,8 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
     playlist = tour.newgxplaylist()
 
     balloonDuration = 1
+    flyToDuration = 3
+
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
 
@@ -408,14 +425,33 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
                 #pol.tessellate = 1
 
                 if createTour:
-                    pol.visibility = 1
+                    pol.visibility = 0
+                    # Fly To the atmosphere
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
+                                                gxflytomode=simplekml.GxFlyToMode.smooth)
+                    flyto.camera.longitude = longitude
+                    flyto.camera.latitude = latitude
+                    flyto.camera.altitude = 15000000
+                    flyto.camera.range = 15000000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
 
-                    flyto = playlist.newgxflyto(gxduration=balloonDuration, gxflytomode=simplekml.GxFlyToMode.smooth)
+                    # Go Back To the point
+                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
+                                                gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude
                     flyto.camera.latitude = latitude
                     flyto.camera.altitude = 100000
-                    #flyto.camera.tilt = 20
-                    playlist.newgxwait(gxduration=balloonDuration)
+                    flyto.camera.range = 100000
+                    flyto.camera.tilt = 0
+                    playlist.newgxwait(gxduration=flyToDuration)
+
+                    simulateEarthquake(playlist, latitude, longitude, absMagnitude)
+
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
+                    animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
+                                                       '<visibility>1</visibility></Placemark>' \
+                        .format(pol.placemark.id)
 
                     for i in range(1, 11):
                         polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
@@ -500,7 +536,18 @@ def sendConcreteValuesToLG(request):
 
     if createTour:
         # Start the tour
-        time.sleep(5)
+
+        currentDir = os.getcwd()
+        dir1 = os.path.join(currentDir, "static/kmls")
+        dirPath2 = os.path.join(dir1, fileName)
+        bytes = os.path.getsize(dirPath2)
+        megas = (bytes/1024)/1000
+
+        print("Size of the KML:" + str(os.path.getsize(dirPath2)))
+        waitTime = megas/10
+        print("Waiting to start the tour..."+str(waitTime)+" seconds")
+        time.sleep(waitTime)
+        print("Starting the tour!")
         playTour("EarthquakesTour")
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
@@ -520,3 +567,15 @@ def demoLastWeekEarthquakes(request):
     time.sleep(10)
     playTour("LastWeekEarthquakesTour")
     return HttpResponse(status=204)
+
+
+def simulateEarthquake(playlist, latitude, longitude, magnitude):
+    for i in range(0, int(10*magnitude)):
+        bounce = 5 if (i % 2 == 0) else 0
+        flyto = playlist.newgxflyto(gxduration=0.01)
+        flyto.camera.longitude = longitude
+        flyto.camera.latitude = latitude
+        flyto.camera.altitude = 150000
+        flyto.camera.range = 150000
+        flyto.camera.tilt = bounce
+        playlist.newgxwait(gxduration=0.01)
