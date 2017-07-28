@@ -1,0 +1,9 @@
+.helpIcon {
+    color: #337ab7 !important;
+    text-decoration: none;
+    outline: none;
+}
+
+.helpIcon > i{
+   padding: 15px;
+}
