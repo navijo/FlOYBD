@@ -86,14 +86,11 @@ urlpatterns = [
 
 
 def sendLogos():
-    #getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'head -n 1 personavars.txt | cut -c17-19'"
-    #leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
-    #leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
-    #print("Left Screen: ", leftScreenClean)
+    millis = int(round(time.time() * 1000))
 
     kml = simplekml.Kml(name="Layout")
     screen = kml.newscreenoverlay(name='FLOYBD')
-    screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png"
+    screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png?a="+str(millis)
     screen.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
                                            yunits=simplekml.Units.fraction)
     screen.screenxy = simplekml.ScreenXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
@@ -106,7 +103,7 @@ def sendLogos():
     screen.size.yunits = simplekml.Units.fraction
 
     screen1 = kml.newscreenoverlay(name='Logos')
-    screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png"
+    screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png?a="+str(millis)
     screen1.overlayxy = simplekml.OverlayXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
                                            yunits=simplekml.Units.fraction)
     screen1.screenxy = simplekml.ScreenXY(x=0.0, y=0.01, xunits=simplekml.Units.fraction,
@@ -128,7 +125,7 @@ def sendLogos():
 
     if db_table_exists("floybd_setting"):
         if checkPing(getLGIp()):
-            millis = int(round(time.time() * 1000))
+
             print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
