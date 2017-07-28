@@ -12,6 +12,9 @@
 <script>
   $( function() {
         markActive("item5");
+        submitAjaxForm("getStatsForm",true);
+        submitAjaxForm("sendStatsForm",true);
+
         $('#datepickerFrom').datetimepicker({
             'format' : "YYYY-MM-DD",
             'maxDate' : new Date()
@@ -55,6 +58,12 @@
 
 </script>
 <div id="content-wrapper">
+     <div class="mui-row">
+        <div class="mui-col-md-3 mui-col-md-offset-3">
+            <div id="spinner-target" style="left:60%;top:40%;"></div>
+        </div>
+
+     </div>
      <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
         <div class="mui-row">
@@ -62,7 +71,7 @@
                 {% if kml == None %}
                  <div class="mui--text-center mui--text-display3">Weather Stats</div>
                  <div class="mui--appbar-height"></div>
-                <form name="form" action="{% url 'floybd:getStats' %}" method="post" class="mui-form">
+                <form name="form" id="getStatsForm" action="{% url 'floybd:getStats' %}" method="post" class="mui-form">
                      {% csrf_token %}
                     <p>
                     <input type="checkbox" id="allTime" onchange="disableDate()" name="allTime" value="1"><label for="allTime">Get
@@ -122,7 +131,7 @@
                         {% endif %}
                     {% endif %}
 
-                    <form name="form" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
+                    <form name="form" id="sendStatsForm" action="{% url 'floybd:sendStatsToLG' %}" method="post" class="form">
                         {% csrf_token %}
                         <input type="hidden" name="allStations" value="{{allStations}}">
                         <input type="hidden" name="allTime" value="{{allTime}}">
