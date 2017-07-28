@@ -11,6 +11,15 @@
 
    * pip3 install -r virtualenv/requirementsDjango.txt
    * Wait (it could take some time compiling the sources)
+2. Activate Virtual Env
+   * virtualenv/bin/activate
+3. Do Django migration
+   * Go to Django/mysite
+   * Execute python manage.py migrate
+4. Run Django
+   * Go to project root
+   * Execute bash startDjango.sh (optionally pass the LG IP)
+   * Go to http://YOUR_IP:8000
    
 ## For Flask Server
 1. Install requirements
