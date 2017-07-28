@@ -1,6 +1,6 @@
 # FlOYBD
 ## Install Guide
-[Install Guide (In Process...)](../blob/master/INSTALL.md)
+[Install Guide (In Process...)](../master/INSTALL.md)
 ## Within this repository
 
 The following tree represents the directory hierarchy in this repository
