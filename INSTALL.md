@@ -10,6 +10,7 @@
 1. Install requirements
 
    * pip3 install -r virtualenv/requirementsDjango.txt
+   * Wait (it could take some time compiling the sources)
    
 ## For Flask Server
 1. Install requirements
