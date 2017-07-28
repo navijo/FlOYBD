@@ -28,4 +28,7 @@ if __name__ == "__main__":
         lgIp, created = Setting.objects.get_or_create(key="lgIp")
         lgIp.value = galaxyIp
         lgIp.save()
+        command = "ssh-keyscan -H "+str(galaxyIp)+" >> ~/.ssh/known_hosts"
+        os.system(command)
+
     execute_from_command_line(sys.argv)
