@@ -23,12 +23,12 @@
    virtualenv/bin/activate
    ```
 3. Do Django migration
-   * Go to Django/mysite
+   * Go to Django/mysite and execute:
    ```
    python manage.py migrate
    ```
 4. Run Django
-   * Go to project root
+   * Go to project root and execute:
    ```
    bash startDjango.sh (optionally pass the LG IP)
    ```
