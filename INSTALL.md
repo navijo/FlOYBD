@@ -2,7 +2,7 @@
 ## Common Steps
 1. Create virtualenv with python3
 
-   * virtualenv -p python3 <VIRTUALENV FOLDER>
+   * virtualenv -p python3 <"VIRTUALENV FOLDER">
 2. Install system requirements with apt
 
    * sudo apt install python-numpy python3-dev
