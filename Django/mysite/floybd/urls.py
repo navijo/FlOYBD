@@ -128,8 +128,9 @@ def sendLogos():
 
     if db_table_exists("floybd_setting"):
         if checkPing(getLGIp()):
+            millis = int(round(time.time() * 1000))
             print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
-            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml" +\
+            command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
             os.system(command)
