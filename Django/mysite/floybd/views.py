@@ -1,10 +1,12 @@
 from django.shortcuts import render
-import os
 import shutil
 from .utils.lgUtils import *
 from .utils.utils import *
 import requests
 from django.http import JsonResponse, HttpResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 
 def index(request):
@@ -25,6 +27,7 @@ def eartquakesHeatMapIndex(request):
 
 def demogtfs(request):
     return render(request, 'floybd/gtfs/demoGTFS.html')
+
 
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
@@ -111,3 +114,11 @@ def relaunchLG(request):
               " './bin/lg-relaunch '"
     os.system(command)
     return HttpResponse(status=204)
+
+
+@csrf_exempt
+@require_POST
+def webhook(request):
+    request_data = json.loads(request.body)
+    action = request_data['result']['action']
+    return JsonResponse("")
