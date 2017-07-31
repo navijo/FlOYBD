@@ -36,6 +36,8 @@ def sendFlyToToLG(lat, lon, altitude, heading, tilt, pRange, duration):
 
 
 def playTour(tourName):
+    stopTour()
+    time.sleep(2)
     command = "echo 'playtour="+tourName+"' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + \
               " 'cat - > /tmp/query.txt'"
     os.system(command)
