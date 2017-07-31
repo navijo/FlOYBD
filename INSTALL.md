@@ -33,6 +33,8 @@
    bash startDjango.sh (optionally pass the LG IP)
    ```
    * Go to http://YOUR_IP:8000
+5. Run Django
+    * TODO
    
 ## For Flask Server
 1. Install requirements
@@ -47,6 +49,7 @@
    ```
    pip3 install -r virtualenv/requirementsDataMining.txt
    ```
-
+2. Run Django
+    * TODO
 
 ##  More Coming Soon...
