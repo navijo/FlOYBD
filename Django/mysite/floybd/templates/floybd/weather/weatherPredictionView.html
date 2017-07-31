@@ -45,6 +45,7 @@
 			map = new google.maps.Map(document.getElementById('map'), {
 			  center: {lat: {{  concreteStation.latitude|coma_point }}, lng: {{ concreteStation.longitude|coma_point }}},
 			  zoom: 16,
+			  minZoom : 3,
 			  mapTypeId: google.maps.MapTypeId.HYBRID
 			});
 

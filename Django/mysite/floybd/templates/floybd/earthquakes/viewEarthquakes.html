@@ -47,6 +47,7 @@
 		  function initMap() {
 			map = new google.maps.Map(document.getElementById('map'), {
 			zoom: 5,
+			minZoom : 3,
 			 mapTypeId: google.maps.MapTypeId.HYBRID,
 		   	center: {lat: {{ center_lat}}, lng:  {{ center_lon}} }
 			});

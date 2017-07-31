@@ -8,7 +8,8 @@ function initMap() {
      map = new google.maps.Map(document.getElementById('map'), {
       zoom: 8,
       center: lleida,
-      mapTypeId: google.maps.MapTypeId.HYBRID
+      mapTypeId: google.maps.MapTypeId.HYBRID,
+      minZoom : 3
     });
 
 
@@ -97,7 +98,6 @@ function initMap() {
         if (e.type != google.maps.drawing.OverlayType.MARKER) {
             // Switch back to non-drawing mode after drawing a shape.
             drawingManager.setDrawingMode(null);
-            // To hide:
             drawingManager.setOptions({
                 drawingControl: false
             });
