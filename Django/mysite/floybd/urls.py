@@ -61,6 +61,8 @@ urlpatterns = [
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
     url('getGraphDataForStats', viewsWeather.getGraphDataForStats, name='getGraphDataForStats'),
 
+    url('launchdemogtfs', viewsGTFS.launchdemogtfs, name='launchdemogtfs'),
+    url('demogtfsindex', views.demogtfs, name='demogtfsindex'),
     url('uploadgtfs', viewsGTFS.uploadgtfs, name='uploadgtfs'),
     url('viewgtfs', viewsGTFS.viewgtfs, name='viewgtfs'),
     url('gtfs', views.gtfs, name='gtfs'),
@@ -86,46 +88,45 @@ urlpatterns = [
 
 
 def sendLogos():
-    millis = int(round(time.time() * 1000))
+    if checkPing(getLGIp()):
+        millis = int(round(time.time() * 1000))
 
-    kml = simplekml.Kml(name="Layout")
-    screen = kml.newscreenoverlay(name='FLOYBD')
-    screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png?a="+str(millis)
-    screen.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
-                                           yunits=simplekml.Units.fraction)
-    screen.screenxy = simplekml.ScreenXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
-                                         yunits=simplekml.Units.fraction)
-    screen.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
-                                         yunits=simplekml.Units.fraction)
-    screen.size.x = 0.25
-    screen.size.y = 0.2
-    screen.size.xunits = simplekml.Units.fraction
-    screen.size.yunits = simplekml.Units.fraction
+        kml = simplekml.Kml(name="Layout")
+        screen = kml.newscreenoverlay(name='FLOYBD')
+        screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png?a="+str(millis)
+        screen.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
+                                               yunits=simplekml.Units.fraction)
+        screen.screenxy = simplekml.ScreenXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
+                                             yunits=simplekml.Units.fraction)
+        screen.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                             yunits=simplekml.Units.fraction)
+        screen.size.x = 0.25
+        screen.size.y = 0.2
+        screen.size.xunits = simplekml.Units.fraction
+        screen.size.yunits = simplekml.Units.fraction
 
-    screen1 = kml.newscreenoverlay(name='Logos')
-    screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png?a="+str(millis)
-    screen1.overlayxy = simplekml.OverlayXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
-                                           yunits=simplekml.Units.fraction)
-    screen1.screenxy = simplekml.ScreenXY(x=0.0, y=0.01, xunits=simplekml.Units.fraction,
-                                         yunits=simplekml.Units.fraction)
-    screen1.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
-                                           yunits=simplekml.Units.fraction)
-    screen1.size.x = 0.5
-    screen1.size.y = 0.45
-    screen1.size.xunits = simplekml.Units.fraction
-    screen1.size.yunits = simplekml.Units.fraction
+        screen1 = kml.newscreenoverlay(name='Logos')
+        screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png?a="+str(millis)
+        screen1.overlayxy = simplekml.OverlayXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                               yunits=simplekml.Units.fraction)
+        screen1.screenxy = simplekml.ScreenXY(x=0.0, y=0.01, xunits=simplekml.Units.fraction,
+                                             yunits=simplekml.Units.fraction)
+        screen1.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                               yunits=simplekml.Units.fraction)
+        screen1.size.x = 0.5
+        screen1.size.y = 0.45
+        screen1.size.xunits = simplekml.Units.fraction
+        screen1.size.yunits = simplekml.Units.fraction
 
-    currentDir = os.getcwd()
-    fileName = "Layout.kml"
-    dir1 = os.path.join(currentDir, "static/logos")
-    dirPath2 = os.path.join(dir1, fileName)
-    print("Saving kml: ", dirPath2)
+        currentDir = os.getcwd()
+        fileName = "Layout.kml"
+        dir1 = os.path.join(currentDir, "static/logos")
+        dirPath2 = os.path.join(dir1, fileName)
+        print("Saving kml: ", dirPath2)
 
-    kml.save(dirPath2)
+        kml.save(dirPath2)
 
-    if db_table_exists("floybd_setting"):
-        if checkPing(getLGIp()):
-
+        if db_table_exists("floybd_setting"):
             print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"

@@ -5,6 +5,7 @@ from ..utils.gtfsUtils import *
 from ..forms import UploadFileForm
 from ..gtfs_models import Agency
 from ..utils.lgUtils import *
+from django.http import HttpResponse
 
 
 import tarfile
@@ -243,6 +244,7 @@ def getAgenciesTrips(maxCars, trips, millis):
         #We get its stops
         stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
         print("\tNew Car #", str(carsCounter))
+
         for index, current in enumerate(stop_times):
             if index + 1 >= len(stop_times):
                 continue
@@ -251,11 +253,23 @@ def getAgenciesTrips(maxCars, trips, millis):
             stop1 = current.stop
             stop2 = nextelem.stop
 
-            doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines,addedLines)
+            if len(stop_times) > 2:
+                '''Trip with more than 2 stops. We get from origin to final destiny'''
+                stopSrc = stop_times[0].stop
+                stopDst = stop_times[len(stop_times) - 1].stop
+                routeName = 'From ' + str(stopSrc.stop_name) + ' to ' + str(stopDst.stop_name)
+                print("\t Found long trip with " + str(len(stop_times)) + " stops. From " + stopSrc.stop_name + " to "
+                      + stopDst.stop_name)
+                isLongTrip = True
+            else:
+                routeName = 'From ' + str(stop1.stop_name) + ' to ' + str(stop2.stop_name)
+                isLongTrip = False
+
+            doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines, addedLines, routeName,
+                           isLongTrip)
 
             if firstPlacemark:
                 firstPlacemark = False
-
         carsCounter += 1
 
     for trip in trips:
@@ -276,12 +290,14 @@ def getAgenciesTrips(maxCars, trips, millis):
     kmlLinesName = "lines_" + str(millis) + ".kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/img")
-    imagePath = os.path.join(dir1, "train.png")
+    imagePath = os.path.join(dir1, "trainYellow.png")
+    imagePath2 = os.path.join(dir1, "trainBlue.png")
     print("Image located in ", imagePath)
     print("Cars to be added: " + str(maxCars))
     print("Cars really added: " + str(carsCounter))
 
     kmlCars.addfile(imagePath)
+    kmlCars.addfile(imagePath2)
     kmlCars.savekmz("static/kmls/" + kmlCarsName, format=False)
     kmlLines.save("static/kmls/" + kmlLinesName)
     return kmlLinesName, kmlCarsName
@@ -321,7 +337,7 @@ def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips):
     linestring.style.linestyle.color = "FF7800F0"
 
 
-def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines):
+def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines, routeName, isLongTrip):
 
     startLatitude = float(stopSrc.stop_lat)
     startLongitude = float(stopSrc.stop_lon)
@@ -355,7 +371,7 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     counter = 0
     firstCarOfTrip = True
     while not latitudeAchieved and not longitudeAchieved:
-        currentPoint = folder.newpoint(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
+        currentPoint = folder.newpoint(name=routeName)
         currentPoint.coords = [(startLongitude, startLatitude, 50000)]
         currentPoint.altitudemode = simplekml.AltitudeMode.relativetoground
 
@@ -373,7 +389,10 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
         if distance < 300:
             timeElapsed = 0.001
 
-        currentPoint.style.iconstyle.icon.href = 'files/train.png'
+        if isLongTrip:
+            currentPoint.style.iconstyle.icon.href = 'files/trainBlue.png'
+        else:
+            currentPoint.style.iconstyle.icon.href = 'files/trainYellow.png'
         currentPoint.style.iconstyle.scale = 1
 
         if firstCarOfTrip:
@@ -428,3 +447,13 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     playlist.newgxwait(gxduration=2)
 
 
+def launchdemogtfs(request):
+    millis = int(round(time.time() * 1000))
+    command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/lines_demo.kml?a="+str(millis) + \
+              "\nhttp://" + getDjangoIp() + ":8000/static/demos/car_demo.kmz?a="+str(millis) +\
+              "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+    time.sleep(5)
+    playTour("GTFSTour")
+
+    return HttpResponse(status=204)

@@ -1,0 +1,54 @@
+{% include "floybd/header.html" %}
+
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+
+{% load coma_point %}
+
+<script>
+  $( function() {
+    markActive("item19");
+    submitAjaxForm("dummyGTFSForm",true);
+   });
+</script>
+<div id="content-wrapper">
+     <div class="mui--appbar-height"></div>
+    <div class="mui--text-center mui--text-display3">Demo GTFS</div>
+     <div class="mui--appbar-height"></div>
+    <div class="mui-container-fluid">
+        	 <div class="mui-row">
+               <div class="col-xs-12">
+                     <div id="spinnerDiv" style="display:none">
+                     <div class="modal"> </div>
+                        <div class="overlay loading-indicator">
+                         <div id="spinner-target"></div>
+                       </div>
+                    </div>
+               </div>
+          </div>
+        <form id="dummyGTFSForm" name="form" action="{% url 'floybd:launchdemogtfs' %}" method="post" class="mui-form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="Play GTFS Demo" class="mui-btn mui-btn--primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form id="stopTour" name="form" action="{% url 'floybd:stopTour' %}" method="post" class="mui-form">
+            {% csrf_token %}
+            <div class="mui-row">
+                <div class="mui--text-center">
+                    <div class="col-xs-12">
+                       <input type="submit" value="Stop Demo" class="mui-btn mui-btn--primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include "floybd/footer.html" %}

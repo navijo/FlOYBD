@@ -23,6 +23,9 @@ def eartquakesHeatMapIndex(request):
     return render(request, 'floybd/earthquakes/earthquakesHeatMap.html')
 
 
+def demogtfs(request):
+    return render(request, 'floybd/gtfs/demoGTFS.html')
+
 def gtfs(request):
     return render(request, 'floybd/indexGTFS.html')
 
