@@ -16,6 +16,9 @@ from django.contrib.contenttypes.models import ContentType
 from math import sin, cos, sqrt, atan2, radians
 from geopy.distance import great_circle
 
+import logging
+logger = logging.getLogger("django")
+
 
 def getDistanceBetweenPoints(point1Lat, point1Lon, point2Lat, point2Lon):
     point1 = (point1Lat, point1Lon)
@@ -40,15 +43,14 @@ def getDistanceBetweenPoints1(point1Lat, point1Lon, point2Lat, point3Lon):
 
     distance = R * c
 
-   # print("Distance:", distance)
     if distance == 0:
-        print("#####", point1Lat, ",", point1Lon, ",", point2Lat, ",", point3Lon)
+        logger.info("#####", point1Lat, ",", point1Lon, ",", point2Lat, ",", point3Lon)
 
     return distance
 
 
 def parseAgency(basePath):
-    print("Processing Agencies")
+    logger.info("Processing Agencies")
     data = pd.read_csv(basePath+'/agency.txt', engine='python')
     for index, row in data.iterrows():
         try:
@@ -58,14 +60,13 @@ def parseAgency(basePath):
             agency.agency_name = row['agency_name']
             agency.agency_timezone = row['agency_timezone']
             agency.save()
-            print(agency)
         except IntegrityError:
-            print("Agency Error: ", row['agency_name'])
+            logger.error("Agency Error: ", row['agency_name'])
             pass
 
 
 def parseCalendar(basePath):
-    print("Processing Calendar")
+    logger.info("Processing Calendar")
     data = pd.read_csv(basePath+'/calendar.txt', engine='python')
     for index, row in data.iterrows():
         calendar = Calendar()
@@ -87,7 +88,7 @@ def parseCalendar(basePath):
 
 
 def parseCalendarDates(basepath):
-    print("Processing Calendar Dates")
+    logger.info("Processing Calendar Dates")
 
     data = pd.read_csv(basepath + '/calendar_dates.txt', engine='python')
     for index, row in data.iterrows():
@@ -103,7 +104,7 @@ def parseCalendarDates(basepath):
 
 
 def parseRoutes(basePath):
-    print("Processing Routes")
+    logger.info("Processing Routes")
     data = pd.read_csv(basePath + '/routes.txt', engine='python')
     for index, row in data.iterrows():
         try:
@@ -117,15 +118,15 @@ def parseRoutes(basePath):
                 route.agency = agency
                 route.save()
             else:
-                print("Agency Id not found")
+                logger.debug("Agency Id not found")
                 continue
         except Agency.DoesNotExist:
-            print("Agency not exist " + str(row['agency_id']))
+            logger.error("Agency not exist " + str(row['agency_id']))
             continue
 
 
 def parseStops(basePath):
-    print("Processing Stops")
+    logger.info("Processing Stops")
     data = pd.read_csv(basePath + '/stops.txt', engine='python')
     for index, row in data.iterrows():
         stop = Stop()
@@ -139,14 +140,14 @@ def parseStops(basePath):
 
 
 def parseStopTimes(basePath):
-    print("Processing Stop Times")
+    logger.info("Processing Stop Times")
     data = pd.read_csv(basePath + '/stop_times.txt', engine='python')
     for index, row in data.iterrows():
         try:
             stop_times = Stop_time()
             trip = Trip.objects.get(trip_id=row['trip_id'])
             if trip is None:
-                print("No Existent Trip" + str(row['trip_id']))
+                logger.error("No Existent Trip" + str(row['trip_id']))
                 continue
             stop_times.trip = trip
 
@@ -158,7 +159,7 @@ def parseStopTimes(basePath):
 
             stop = Stop.objects.get(stop_id=row['stop_id'])
             if stop is None:
-                print("No Existent Stop" + str(row['stop_id']))
+                logger.error("No Existent Stop" + str(row['stop_id']))
                 continue
             stop_times.stop = stop
 
@@ -182,12 +183,12 @@ def parseStopTimes(basePath):
 
             stop_times.save()
         except (ValueError, TypeError) as e:
-            print(index, e)
+            logger.error(index, e)
             traceback.print_exc()
 
 
 def parseTrips(basePath):
-    print("Processing Trips")
+    logger.info("Processing Trips")
     data = pd.read_csv(basePath + '/trips.txt', engine='python')
     for index, row in data.iterrows():
         try:
@@ -204,7 +205,7 @@ def parseTrips(basePath):
             ).save()
 
         except Calendar.DoesNotExist:
-            print("Calendar not exist " + str(row['service_id']))
+            logger.error("Calendar not exist " + str(row['service_id']))
             route = Route.objects.get(route_id=row['route_id'])
 
             calendar_dates = Calendar_date.objects.filter(service_id=row['service_id'])

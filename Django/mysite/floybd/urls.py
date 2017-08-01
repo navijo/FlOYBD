@@ -14,6 +14,9 @@ import simplekml
 import time
 
 
+import logging
+logger = logging.getLogger("django")
+
 app_name = 'floybd'
 
 
@@ -122,12 +125,12 @@ def sendLogos():
         fileName = "Layout.kml"
         dir1 = os.path.join(currentDir, "static/logos")
         dirPath2 = os.path.join(dir1, fileName)
-        print("Saving kml: ", dirPath2)
+        logger.info("Saving kml: " + str(dirPath2))
 
         kml.save(dirPath2)
 
         if db_table_exists("floybd_setting"):
-            print("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
+            logger.info("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
 
@@ -138,31 +141,31 @@ def createDefaultSettingsObjects():
     if db_table_exists("floybd_setting"):
         lgIp, created = Setting.objects.get_or_create(key="lgIp")
         if created:
-            print("Created lgIp setting object\n")
+            logger.info("Created lgIp setting object\n")
         else:
-            print("lgIp setting object existent\n")
+            logger.info("lgIp setting object existent\n")
 
         sparkIp, created = Setting.objects.get_or_create(key="sparkIp", value="130.206.117.178")
         if created:
-            print("Created sparkIp setting object\n")
+            logger.info("Created sparkIp setting object\n")
         else:
-            print("sparkIp setting object existent\n")
+            logger.info("sparkIp setting object existent\n")
 
         LGPassword, created = Setting.objects.get_or_create(key="LGPassword", value="lqgalaxy")
         if created:
-            print("Created LGPassword setting object\n")
+            logger.info("Created LGPassword setting object\n")
         else:
-            print("LGPassword setting object existent\n")
+            logger.info("LGPassword setting object existent\n")
 
 
 def startup_clean():
     if not os.path.exists("static/kmls"):
-        print("Creating kmls folder")
+        logger.info("Creating kmls folder")
         os.makedirs("static/kmls")
 
 
 def db_table_exists(table_name):
-    print("Checking table existence...", table_name)
+    logger.info("Checking table existence..." + str(table_name))
     return table_name in connection.introspection.table_names()
 
 
@@ -170,10 +173,10 @@ def checkPing(host):
     response = os.system("ping -c 1 " + host)
 
     if response == 0:
-        print(host, 'is up!')
+        logger.info(str(host) + ' is up!')
         return True
     else:
-        print(host, 'is down!')
+        logger.info(str(host), ' is down!')
         return False
 
 

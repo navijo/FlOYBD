@@ -7,6 +7,7 @@ from ...gtfs_models import *
 import time
 
 
+
 class Command(BaseCommand):
     help = 'Generate Dummy GTFS KML'
 
@@ -188,13 +189,6 @@ class Command(BaseCommand):
         incrementLatitude = True if latitudeModificator > 0 else False
         incrementLongitude = True if longitudeModificator > 0 else False
 
-        print("Start Latitude: ", str(startLatitude))
-        print("Start Longitude: ", str(startLongitude))
-        print("Objective Latitude: ", str(objectiveLatitude))
-        print("Objective Longitude: ", str(objectiveLongitude))
-        print("Longitude Modificator: ", str(longitudeModificator))
-        print("Latitude Modificator: ", str(latitudeModificator))
-
         latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
             startLatitude <= objectiveLatitude)
         longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
@@ -262,11 +256,9 @@ class Command(BaseCommand):
 
             if not latitudeAchieved:
                 startLatitude += latitudeModificator
-                # print("Modified Start latitude:", str(startLatitude))
 
             if not longitudeAchieved:
                 startLongitude += longitudeModificator
-                # print("Modified Start longitude:", str(startLongitude))
 
             latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
                 startLatitude <= objectiveLatitude)

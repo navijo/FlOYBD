@@ -10,12 +10,15 @@ from ..utils.lgUtils import *
 from django.http import JsonResponse, HttpResponse
 from collections import defaultdict
 
+import logging
+logger = logging.getLogger("django")
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 def getConcreteValues(request):
+    logger.info("Getting Concrete Weather values")
     date = request.POST['date']
     station_id = request.POST.get('station', 0)
     allStations = request.POST.get('allStations', 0)
@@ -120,7 +123,7 @@ def sendConcreteValuesToLG(request):
             return render(request, '500.html')
 
         with open(dirPath2, 'wb') as f:
-            print("Downloading Cylinders KMZ from Flask...")
+            logger.info("Downloading Cylinders KMZ from Flask...")
             for chunk in response.iter_content(chunk_size=1024):
                 print('.', end='')
                 if chunk:  # filter out keep-alive new chunks
@@ -148,7 +151,7 @@ def sendConcreteValuesToLG(request):
     response = requests.get('http://' + sparkIp + ':5000/getMeasurementKml?date='
                             + date + '&station_id=' + station_id, stream=True)
     with open(dirPath2, 'wb') as f:
-        print("Downloading Cylinders KMZ from Flask...")
+        logger.info("Downloading Cylinders KMZ from Flask...")
         for chunk in response.iter_content(chunk_size=1024):
             print('.', end='')
             if chunk:  # filter out keep-alive new chunks
@@ -279,12 +282,12 @@ def getStats(request):
 
     addGraphs = (addGraphs == str("1"))
 
-    print("AllStations:", allStations)
-    print("allTime:", allTime)
-    print("dateFrom:", dateFrom)
-    print("dateTo:", dateTo)
-    print("station_id:", station_id)
-    print("addGraphs:", addGraphs)
+    logger.debug("AllStations:", allStations)
+    logger.debug("allTime:", allTime)
+    logger.debug("dateFrom:", dateFrom)
+    logger.debug("dateTo:", dateTo)
+    logger.debug("station_id:", station_id)
+    logger.debug("addGraphs:", addGraphs)
 
     jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom, "allTime": allTime,
                 "allStations": allStations}
@@ -432,7 +435,7 @@ def getStats(request):
 
 
 def getContentStringWithGraphs(rowData):
-    print("Getting Graphs...")
+    logger.info("Getting Graphs...")
     contentString = '<table width="600px"><tr><td class="balloonTd">'+\
                     '<center><h3><u>Max Temp</u></h3>' + \
                     '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMaxTemp"))) + \
@@ -481,10 +484,10 @@ def getGraphDataForStats(request):
     dateTo = request.GET.get("dateTo")
     allTime = request.GET.get('allTime', 0)
 
-    print("Station: ", station_id)
-    print("Date From: ", dateFrom)
-    print("Date To: ", dateTo)
-    print("allTime: ", allTime)
+    logger.debug("Station: ", station_id)
+    logger.debug("Date From: ", dateFrom)
+    logger.debug("Date To: ", dateTo)
+    logger.debug("allTime: ", allTime)
 
     jsonData = {"station_id": station_id, "dateTo": dateTo, "dateFrom": dateFrom}
     payload = json.dumps(jsonData)
@@ -563,8 +566,8 @@ def viewDashboard(request):
     previousDate = datetime.datetime.today() - timedelta(days=int(daysBefore))
     jsonData = {"station_id": station, "dateTo": today, "dateFrom": previousDate.strftime("%Y-%m-%d")}
 
-    print("From: " + previousDate.strftime("%Y-%m-%d"))
-    print("Today: " + today)
+    logger.debug("From: " + previousDate.strftime("%Y-%m-%d"))
+    logger.debug("Today: " + today)
 
     payload = json.dumps(jsonData)
 
@@ -662,7 +665,7 @@ def getPredictionStats(request):
 
 
 def currentWeather(request):
-    print("Getting current weather... ")
+    logger.info("Getting current weather... ")
     try:
         response = requests.get('http://' + getSparkIp() + ':5000/getKey',
                                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
@@ -670,10 +673,10 @@ def currentWeather(request):
         api_key_resp = response.json()
         api_key = api_key_resp[0]['api_key']
     except requests.exceptions.ConnectionError:
-        print("Server not available. Getting local apiKey")
+        logger.error("Server not available. Getting local apiKey")
         apiKeyObject = ApiKey.objects.all()[0]
         api_key = apiKeyObject.key
-        print("Local ApiKey: ", api_key)
+        logger.info("Local ApiKey: ", api_key)
 
     querystring = {"api_key": api_key}
     headers = {'cache-control': "no-cache"}
@@ -682,7 +685,7 @@ def currentWeather(request):
     currentWeatherData = getData(base_url + "/api/observacion/convencional/todas", headers, querystring)
 
     stationsDict = defaultdict(list)
-    print("Parsing current weather... ")
+    logger.info("Parsing current weather... ")
     kml = simplekml.Kml()
     tourCurrentWeather = kml.newgxtour(name="Tour Current Weather")
     playlistCurrentWeather = tourCurrentWeather.newgxplaylist()
@@ -695,7 +698,7 @@ def currentWeather(request):
     totalStations = len(stationsDict.items())
     stationNumber = 1
 
-    print("Generating current weather kml... ")
+    logger.info("Generating current weather kml... ")
     for key, value in stationsDict.items():
         actualPercentage = (stationNumber/totalStations)*100
         printpercentage(actualPercentage)
@@ -780,23 +783,18 @@ def getData(url, headers, querystring):
                     return 0
             elif jsonResponse.get('estado') == 429:
                 # Sleep until next minute
-                print("####Sleeping")
+                logger.debug("####Sleeping")
                 time.sleep(60)
-                print("####Waked up!!")
+                logger.debug("####Waked up!!")
                 return getData(url)
     except requests.exceptions.ConnectionError:
-        print("####ERROR!! => Sleeping")
+        logger.error("####ERROR!! => Sleeping")
         time.sleep(120)
-        print("####Waked up!!")
+        logger.debug("####Waked up!!")
         return getData(url)
 
 
 def dummyWeather(request):
-    '''stopTour()
-
-    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)'''
 
     sendDemoKmlToLG("dummyWeather.kmz")
     time.sleep(3)

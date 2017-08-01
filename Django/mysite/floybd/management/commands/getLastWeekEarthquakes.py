@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from ...utils.lgUtils import *
+from ...utils.earthquakesUtils import *
 import requests
 import json
 from datetime import timedelta
@@ -49,8 +50,7 @@ class Command(BaseCommand):
         for row in jsonData:
             if earthquakeNumber > 666:
                 break
-            #actualPercentage = (earthquakeNumber / numberObtained) * 100
-            #self.stdout.write(str(actualPercentage))
+
             self.stdout.write(str(earthquakeNumber))
 
             place = row["place"]
@@ -58,7 +58,7 @@ class Command(BaseCommand):
             longitude = row["longitude"]
             magnitude = row["magnitude"]
             try:
-                geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
+                geoJson = replaceJsonString(str(row["geojson"]))
                 infowindow = self.populateInfoWindow(row, geoJson)
             except JSONDecodeError:
                 self.stdout.write(self.style.ERROR('Error decoding json'))
@@ -158,7 +158,7 @@ class Command(BaseCommand):
                         .format(pol.placemark.id)
             except ValueError:
                 kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-                print(absMagnitude)
+                self.stdout.write(absMagnitude)
 
             earthquakeNumber += 1
 
@@ -168,7 +168,7 @@ class Command(BaseCommand):
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/demos")
         dirPath2 = os.path.join(dir1, fileName)
-        print("Saving kml: ", dirPath2)
+        self.stdout.write("Saving kml: ", dirPath2)
         if os.path.exists(dirPath2):
             os.remove(dirPath2)
         kml.savekmz(dirPath2, format=False)

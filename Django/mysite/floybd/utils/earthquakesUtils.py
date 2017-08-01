@@ -1,3 +1,4 @@
+import json
 
 def getYQuadrant(latitude):
     y = 0
@@ -17,17 +18,15 @@ def getYQuadrant(latitude):
         y = 7
     elif -80 <= latitude < -60:
         y = 8
+    elif latitude < -80:
+        y = 8
     elif 80 <= latitude:
         y = 1
-    elif -80 <= latitude:
-        y = 8
-
     return y
 
 
 def getXQuadrant(longitude):
     x = 0
-
     if 0 <= longitude < 30:
         x = 1
     elif 30 <= longitude < 60:
@@ -38,7 +37,7 @@ def getXQuadrant(longitude):
         x = 4
     elif 120 <= longitude < 150:
         x = 5
-    elif 150 <= longitude < 180:
+    elif 150 <= longitude <= 180:
         x = 6
     elif -180 <= longitude < -150:
         x = 7
@@ -55,13 +54,9 @@ def getXQuadrant(longitude):
     return x
 
 
-def getQuadrantsList(maxY, minY, maxX, minX):
-    quadrantsList = []
-    while (minY % 9) <= (maxX % 9):
-        while (minX % 12) <= (maxX % 12):
-            print(minX)
-            quadrantsList.append(str(minX)+","+str(minY))
-            minX += 1
-        minY += 1
-    return quadrantsList
-
+def replaceJsonString(string):
+    replacedString = string.replace("': '", '": "').replace("{'", '{"').replace("', '", '", "')\
+        .replace(", '", ', "').replace("'}", '"}').replace(", '", ', "')\
+        .replace("':", '":').replace("None", '""')
+    jsonString = json.loads(replacedString)
+    return jsonString

@@ -1,6 +1,4 @@
-from django.http import HttpResponseServerError
-import json
-import time
+import logging
 from datetime import timedelta
 import requests
 from django.shortcuts import render
@@ -8,12 +6,15 @@ from ..utils.lgUtils import *
 from ..utils.earthquakesUtils import *
 from ..utils.cylinders.cylindersHeatMap import *
 from django.http import HttpResponse
+from json.decoder import JSONDecodeError
+
+logger = logging.getLogger("django")
 
 
 def getEarthquakesExact(request):
     start_time = time.time()
 
-    print("Getting Earthquakes")
+    logger.info("Getting Earthquakes")
     date = request.POST['date']
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
@@ -35,9 +36,9 @@ def getEarthquakesExact(request):
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
-    print("Obtained " + str(numberObtained) + " earthquakes")
+    logging.info("Obtained " + str(numberObtained) + " earthquakes")
 
-    print("--- %s getting the data---" % (time.time() - start_time))
+    logger.debug("--- %s getting the data---" % (time.time() - start_time))
 
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakes.html',
@@ -48,7 +49,7 @@ def getEarthquakesExact(request):
     millis = int(round(time.time() * 1000))
     fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
 
-    print("--- %s seconds creating KML---" % (time.time() - start_time))
+    logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
@@ -58,7 +59,7 @@ def getEarthquakesExact(request):
 
 def getEarthquakesApprox(request):
     start_time = time.time()
-    print("Getting Earthquakes with quadrants")
+    logger.info("Getting Earthquakes with quadrants")
     date = request.POST['date']
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
@@ -71,15 +72,28 @@ def getEarthquakesApprox(request):
     maxY = getYQuadrant(float(max_lat))
     minY = getYQuadrant(float(min_lat))
 
+    if minY > maxY:
+        tmpAux = minY
+        minY = maxY
+        maxY = tmpAux
+
     max_lon = request.POST['max_lon']
     min_lon = request.POST['min_lon']
 
     maxX = getXQuadrant(float(max_lon))
     minX = getXQuadrant(float(min_lon))
 
+    if minX > maxX:
+        tmpAux = minX
+        minX = maxX
+        maxX = tmpAux
+
     center_lat = (float(max_lat) + float(min_lat)) / 2
     center_lon = (float(max_lon) + float(min_lon)) / 2
-
+    logger.debug("maxY: ", maxY)
+    logger.debug("minY: ", minY)
+    logger.debug("maxX: ", maxX)
+    logger.debug("minX: ", minX)
     try:
         response = requests.get('http://' + sparkIp + ':5000/getEarthquakesWithQuadrants?date=' + date
                                 + '&maxY=' + str(maxY)
@@ -91,8 +105,8 @@ def getEarthquakesApprox(request):
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
-    print("Obtained " + str(numberObtained) + " earthquakes")
-    print("--- %s getting the data---" % (time.time() - start_time))
+    logger.info("Obtained " + str(numberObtained) + " earthquakes")
+    logger.debug("--- %s getting the data---" % (time.time() - start_time))
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                       {'noData': True})
@@ -101,7 +115,7 @@ def getEarthquakesApprox(request):
     millis = int(round(time.time() * 1000))
     fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
 
-    print("--- %s seconds creating KML---" % (time.time() - start_time))
+    logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
@@ -110,7 +124,7 @@ def getEarthquakesApprox(request):
 
 
 def getHeatMap(request):
-    print("Getting Heat Map")
+    logging.info("Getting Heat Map")
     date = request.POST['date']
 
     sparkIp = getSparkIp()
@@ -121,7 +135,7 @@ def getHeatMap(request):
 
     jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
-    print("Obtained " + str(numberObtained) + " earthquakes")
+    logging.info("Obtained " + str(numberObtained) + " earthquakes")
 
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
@@ -146,7 +160,7 @@ def getEartquakesArray(jsonData, includeDescription):
 
 
 def generateHeapMapKml(request):
-    print("Generating HeatMap")
+    logging.info("Generating HeatMap")
     date = request.POST['date']
     millis = int(round(time.time() * 1000))
     try:
@@ -157,7 +171,7 @@ def generateHeapMapKml(request):
     jsonData = json.loads(response.json())
     dataMapsJs = getEartquakesArray(jsonData, False)
     numberObtained = len(jsonData)
-    print("Obtained " + str(numberObtained) + " earthquakes")
+    logging.info("Obtained " + str(numberObtained) + " earthquakes")
 
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
@@ -237,7 +251,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
 
-    print("Default duration: " + str(balloonDuration))
+    logging.info("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
         place = row["place"]
@@ -248,11 +262,14 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
 
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
-        fechaFinStr = fechaFin.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
-        infowindow = populateInfoWindow(row, geoJson)
-
+        try:
+            geoJson = replaceJsonString(str(row["geojson"]))
+            infowindow = populateInfoWindow(row, geoJson)
+        except JSONDecodeError:
+            logging.error('Error decoding json')
+            logging.error(str(row["geojson"]))
+            continue
         try:
             if magnitude is not None:
                 absMagnitude = abs(float(magnitude))
@@ -350,7 +367,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
 
         except ValueError:
             kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-            print(absMagnitude)
+            logging.error(absMagnitude)
 
     if createTour:
         playlist.newgxwait(gxduration=3 * balloonDuration)
@@ -359,7 +376,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
-    print("Saving kml: ", dirPath2)
+    logging.info("Saving kml: ", dirPath2)
     kml.save(dirPath2)
 
     ip = getDjangoIp()
@@ -380,7 +397,7 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
 
-    print("Default duration: " + str(balloonDuration))
+    logging.info("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
         place = row["place"]
@@ -391,10 +408,15 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
 
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
-        fechaFinStr = fechaFin.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        geoJson = json.loads(str(row["geojson"]).replace("'", '"').replace("None", '""'))
-        infowindow = populateInfoWindow(row, geoJson)
+
+        try:
+            geoJson = replaceJsonString(str(row["geojson"]))
+            infowindow = populateInfoWindow(row, geoJson)
+        except JSONDecodeError:
+            logging.error('Error decoding json')
+            logging.error(str(row["geojson"]))
+            continue
 
         try:
             if magnitude is not None:
@@ -488,7 +510,6 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
-
             else:
                 earthquake = kml.newpoint(name=place,
                                           description=infowindow,
@@ -497,7 +518,7 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
 
         except ValueError:
             kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-            print(absMagnitude)
+            logging.error(absMagnitude)
 
     if createTour:
         playlist.newgxwait(gxduration=3 * balloonDuration)
@@ -506,7 +527,7 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
-    print("Saving kmz: ", dirPath2)
+    logging.info("Saving kmz: ", dirPath2)
     kml.savekmz(dirPath2, format=False)
 
     ip = getDjangoIp()
@@ -543,11 +564,11 @@ def sendConcreteValuesToLG(request):
         bytes = os.path.getsize(dirPath2)
         megas = (bytes/1024)/1000
 
-        print("Size of the KML:" + str(os.path.getsize(dirPath2)))
+        logging.info("Size of the KML:" + str(os.path.getsize(dirPath2)))
         waitTime = megas/10
-        print("Waiting to start the tour..."+str(waitTime)+" seconds")
+        logging.info("Waiting to start the tour..."+str(waitTime)+" seconds")
         time.sleep(waitTime)
-        print("Starting the tour!")
+        logging.info("Starting the tour!")
         playTour("EarthquakesTour")
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',

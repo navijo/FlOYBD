@@ -14,6 +14,9 @@ import zipfile
 import simplekml
 import random
 
+import logging
+logger = logging.getLogger("django")
+
 
 def uploadGTFS(request):
     if request.method == 'POST':
@@ -33,27 +36,18 @@ def uploadGTFS(request):
 
 def handle_uploaded_file(f, title, millis):
     if not os.path.exists("static/upload/gtfs"):
-        print("Creating upload/gtfs folder")
+        logger.info("Creating upload/gtfs folder")
         os.makedirs("static/upload/gtfs")
 
     extension = get_extension(f)
-    print("Extension:" + str(extension))
+    logger.info("Extension:" + str(extension))
     if extension not in [".zip", ".tar", ".tgz"]:
-        print("Saving normal File")
+        logger.info("Saving normal File")
         saveNormalFile(f, title, extension)
     else:
         saveNormalFile(f, title, extension)
         decompressFile(f, title, extension)
         parseGTFS(title)
-
-        # kmlwriter.py google_transit.zip googleTest.kml
-        # zipName = title+extension
-        # kmlName = title+"_"+str(millis)+".kml"
-        # kmlPath = "http://"+ip+":8000/static/kmls/" + kmlName
-
-        # command = "python2 static/utils/gtfs/kmlwriter.py static/upload/gtfs/"+zipName+" static/kmls/"+kmlName
-        # os.system(command)
-        # return kmlPath
 
 
 def parseGTFS(title):
@@ -78,15 +72,15 @@ def saveNormalFile(file, title, extension):
 
 
 def decompressFile(file, title, extension):
-    print("Decompressing..." + extension)
+    logger.info("Decompressing..." + extension)
     if str(extension) == str('.zip'):
-        print("Is Zip")
+        logger.info("Is Zip")
         opener, mode = zipfile.ZipFile, 'r'
     elif str(extension) == str('.tar.gz') or str(extension) == str('.tgz'):
-        print("Is GZ")
+        logger.info("Is GZ")
         opener, mode = tarfile.open, 'r:gz'
     elif str(extension) == str('.tar.bz2') or str(extension) == str('.tbz'):
-        print("Is Tar")
+        logger.info("Is Tar")
         opener, mode = tarfile.open, 'r:bz2'
     else:
         raise (ValueError, "Could not extract `%s` as no appropriate extractor is found" % file)
@@ -133,13 +127,13 @@ def sendGTFSToLG(request):
 
 
 def uploadgtfs(request):
-    print("Upload GTFS")
+    logger.info("Upload GTFS")
     form = UploadFileForm()
     return render(request, 'floybd/gtfs/gtfsUpload.html', {'form': form})
 
 
 def viewgtfs(request):
-    print("View GTFS")
+    logger.info("View GTFS")
     agencies = Agency.objects.all()
     return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
 
@@ -173,7 +167,7 @@ def getAgenciesAndGenerateKML(request):
                 for stop_time in stop_times:
                     stop = stop_time.stop
                     if stop.stop_id not in stops_added:
-                        print("Added Stop:" + stop.stop_id)
+                        logger.debug("Added Stop:" + stop.stop_id)
                         stops_added.append(stop.stop_id)
 
         for stop_id in stops_added:
@@ -243,7 +237,7 @@ def getAgenciesTrips(maxCars, trips, millis):
         randomTrip = random.sample(trips, 1)
         #We get its stops
         stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
-        print("\tNew Car #", str(carsCounter))
+        logger.info("\tNew Car #", str(carsCounter))
 
         for index, current in enumerate(stop_times):
             if index + 1 >= len(stop_times):
@@ -258,7 +252,7 @@ def getAgenciesTrips(maxCars, trips, millis):
                 stopSrc = stop_times[0].stop
                 stopDst = stop_times[len(stop_times) - 1].stop
                 routeName = 'From ' + str(stopSrc.stop_name) + ' to ' + str(stopDst.stop_name)
-                print("\t Found long trip with " + str(len(stop_times)) + " stops. From " + stopSrc.stop_name + " to "
+                logger.info("\t Found long trip with " + str(len(stop_times)) + " stops. From " + stopSrc.stop_name + " to "
                       + stopDst.stop_name)
                 isLongTrip = True
             else:
@@ -283,7 +277,7 @@ def getAgenciesTrips(maxCars, trips, millis):
             stop2 = nextelem.stop
             key = (stop1.stop_id, stop2.stop_id)
             if key not in addedLines:
-                print("\t Adding not included line")
+                logger.info("\t Adding not included line")
                 doLinesNotIncluded(stop1, stop2, kmlLines)
 
     kmlCarsName = "car_" + str(millis) + ".kmz"
@@ -292,9 +286,9 @@ def getAgenciesTrips(maxCars, trips, millis):
     dir1 = os.path.join(currentDir, "static/img")
     imagePath = os.path.join(dir1, "trainYellow.png")
     imagePath2 = os.path.join(dir1, "trainBlue.png")
-    print("Image located in ", imagePath)
-    print("Cars to be added: " + str(maxCars))
-    print("Cars really added: " + str(carsCounter))
+    logger.debug("Image located in ", imagePath)
+    logger.info("Cars to be added: " + str(maxCars))
+    logger.info("Cars really added: " + str(carsCounter))
 
     kmlCars.addfile(imagePath)
     kmlCars.addfile(imagePath2)
@@ -356,12 +350,12 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     incrementLatitude = True if latitudeModificator > 0 else False
     incrementLongitude = True if longitudeModificator > 0 else False
 
-    print("Start Latitude: ", str(startLatitude))
-    print("Start Longitude: ", str(startLongitude))
-    print("Objective Latitude: ", str(objectiveLatitude))
-    print("Objective Longitude: ", str(objectiveLongitude))
-    print("Longitude Modificator: ", str(longitudeModificator))
-    print("Latitude Modificator: ", str(latitudeModificator))
+    logger.debug("Start Latitude: ", str(startLatitude))
+    logger.debug("Start Longitude: ", str(startLongitude))
+    logger.debug("Objective Latitude: ", str(objectiveLatitude))
+    logger.debug("Objective Longitude: ", str(objectiveLongitude))
+    logger.debug("Longitude Modificator: ", str(longitudeModificator))
+    logger.debug("Latitude Modificator: ", str(latitudeModificator))
 
     latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
         startLatitude <= objectiveLatitude)
@@ -430,11 +424,9 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
 
         if not latitudeAchieved:
             startLatitude += latitudeModificator
-            # print("Modified Start latitude:", str(startLatitude))
 
         if not longitudeAchieved:
             startLongitude += longitudeModificator
-            # print("Modified Start longitude:", str(startLongitude))
 
         latitudeAchieved = startLatitude >= objectiveLatitude if incrementLatitude else (
             startLatitude <= objectiveLatitude)
