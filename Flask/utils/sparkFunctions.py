@@ -20,6 +20,7 @@ import time
 import pickle
 import json
 import pyspark
+import logging
 
 
 def getWeatherDataInterval(clean_daily, station_id, dateFrom, dateTo):
@@ -37,10 +38,10 @@ def getConcreteWeatherData(daily_measures, station_id, date, allStations):
     datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
 
     if str(allStations) == str("True"):
-        print("All Stations")
+        logging.info("All Stations")
         measurement = daily_measures.filter((daily_measures.measure_date == datetime_object))
     else:
-        print("One Station")
+        logging.info("One Station")
         measurement = daily_measures.filter(
             (daily_measures.measure_date == datetime_object) & (daily_measures.station_id == station_id))
 
@@ -69,7 +70,7 @@ def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_
     datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
     if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None:
-        print("Filtering by lat,lon and date")
+        logging.info("Filtering by lat,lon and date")
         earthquakesResult = earthquakes.filter((earthquakes.fecha >= datetime_object) & (earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon)
                                                & (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
     else:
@@ -162,7 +163,7 @@ def predict(sql, sc, columns, station_id, currentWeather):
     for column in columns:
         modelPath = "models/" + station_id + "__" + column
         if not os.path.exists(modelPath):
-            print("####No Model")
+            logging.info("####No Model")
             break
 
         lrModel = LinearRegressionModel.load(modelPath)
@@ -183,24 +184,16 @@ def predict(sql, sc, columns, station_id, currentWeather):
         assembledTestData = assembler.transform(df_for_predict)
         prediction_data = assembledTestData.withColumn("label", df_for_predict[column]).withColumn("features",
                                                                                                    assembledTestData.features)
-        # prediction_data.show()
         prediction_data1 = clearColumn(prediction_data, "label")
-        # prediction_data1.show()
 
         predictions = lrModel.transform(prediction_data1, params={lrModel.intercept: True}).select("station_id", column,
                                                                                                    "prediction")
         predictions.show()
 
-        # predictions = lrModel.evaluate(prediction_data)
-        # print(predictions.predictions.show())
-
         predictions1 = predictions.withColumn(str("prediction_" + column), predictions.prediction)
-        # predictions = lrModel.transform(prediction_data)
-
 
         returnedPredictions.append(generalFunctions.dataframeToJson(predictions1))
 
-    # resultDataframe = sql.createDataFrame(returnedPredictions)
     return json.dumps(returnedPredictions)
 
 
