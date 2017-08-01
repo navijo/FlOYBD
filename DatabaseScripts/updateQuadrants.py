@@ -7,12 +7,12 @@ def initEnvironment():
     global sc, sql
     try:
         conf = SparkConf()
-        #conf.setMaster("spark://192.168.246.236:7077")
-        conf.setMaster("local[*]")
+        conf.setMaster("spark://192.168.246.236:7077")
+        #conf.setMaster("local[*]")
         conf.setAppName("Earthquakes Quandrants parser")
         conf.set("spark.cassandra.connection.host", "192.168.246.236")
-        #conf.set("spark.executor.memory", "10g")
-        #conf.set("spark.num.executors", "1")
+        conf.set("spark.executor.memory", "10g")
+        conf.set("spark.num.executors", "2")
 
         sc = SparkContext(conf=conf)
         sql = SQLContext(sc)
