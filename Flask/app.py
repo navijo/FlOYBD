@@ -375,7 +375,7 @@ def initEnvironment():
     global sc, sql
     try:
         conf = SparkConf()
-        # conf.setMaster("spark://192.168.246.236:7077")
+        #conf.setMaster("spark://192.168.246.236:7077")
         conf.setMaster("local[*]")
         conf.setAppName("Flask")
         conf.set("spark.cassandra.connection.host", "192.168.246.236")
@@ -383,8 +383,6 @@ def initEnvironment():
         conf.set("spark.num.executors", "1")
 
         sc = SparkContext(conf=conf)
-        # sc = SparkContext("local[*]")
-        # sc.setLogLevel("INFO")
         sql = SQLContext(sc)
         spark = SparkSession(sc)
 

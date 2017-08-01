@@ -56,20 +56,6 @@ def dataFrameToJsonStr(dataFrame):
     return dataFrame.toPandas().reset_index().to_json(path_or_buf=None, orient='records')
 
 
-def generateAllStationsWeatherKML(stations, weatherData, fileName):
-    finalData = []
-    weatherJsonData = dataframeToJson(weatherData)
-    jsonString = ""
-    for data in weatherJsonData:
-        stationData = sparkFunctions.getStationInfo(stations, data.get("station_id"))
-        stationJsonData = dataframeToJson(stationData)
-        jsonString += prepareJson(data, stationJsonData)
-
-    finalData.append(jsonString)
-    cilinders = CylindersKml(fileName, finalData)
-    cilinders.makeKMLWithTourAndRotation()
-
-
 def generateAllStationsKml(weatherData, stations, fileName):
     weatherJsonData = dataFrameToJsonStr(weatherData)
     weatherJsonData = json.loads(weatherJsonData)
