@@ -76,6 +76,7 @@ def getY(latitude):
         y = 8
     elif 80 <= latitude:
         y = 1
+  
     return y
 
 
@@ -100,9 +101,9 @@ def insertIntoDB(data):
     depth = float(str(depth).replace(",", ".")) if not (depth is None) else None
 
     if str(place) and str(time):
-        session.execute("INSERT INTO Earthquake (\"eventId\",\"place\",\"time\",\"fecha\",\"magnitude\",\"depth\",\"longitude\",\"latitude\",\"geojson\",\"quadrant\") \
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s,%s)",
-        [str(eventId), str(place), str(time), fecha, magnitude, depth, longitude, latitude, geoJson,quadrantXY])
+        session.execute("INSERT INTO Earthquake (\"eventId\",\"place\",\"time\",\"fecha\",\"magnitude\",\"depth\",\"longitude\",\"latitude\",\"geojson\",\"quadrant\",\"quadrantX\", \"quadrantY\") \
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s)",
+        [str(eventId), str(place), str(time), fecha, magnitude, depth, longitude, latitude, geoJson,quadrantXY,int(quadrantX),int(quadrantY)])
 
 
 def getEarthQuakesWorld(yearFrom):
