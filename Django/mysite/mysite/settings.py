@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -154,13 +155,13 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
          'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(asctime)s;%(levelname)s %(message)s'
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-
+            'formatter': 'simple',
         },
     },
     'loggers': {
