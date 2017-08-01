@@ -84,6 +84,8 @@ urlpatterns = [
     url('relaunchLG', views.relaunchLG, name='relaunchLG'),
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
+    url('webhook', views.webhook, name='webhook'),
+
 
 
 
