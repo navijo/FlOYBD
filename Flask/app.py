@@ -53,7 +53,7 @@ def timing(func):
         startTime = time.time()
         func(*args, **kwargs)
         elapsedTime = time.time() - startTime
-        print('function [{}] finished in {} ms'.format(
+        logging.info('function [{}] finished in {} ms'.format(
             func.__name__, int(elapsedTime * 1000)))
 
     return newfunc
@@ -147,11 +147,10 @@ def getEarthquakes():
     
     start_time = time.time()
     earthquakesData = sparkFunctions.getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon)
-    print("--- %s seconds getting the data ---" % (time.time() - start_time))
-    
+    logging.info("--- %s seconds getting the data ---" % (time.time() - start_time))
     start_time = time.time()
     earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData) 
-    print("--- %s seconds parsing the data to json---" % (time.time() - start_time))
+    logging.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
     # earthquakesJson = earthquakesData
 
     stopEnvironment(sc)
@@ -171,11 +170,11 @@ def getEarthquakesWithQuadrants():
 
     start_time = time.time()
     earthquakesData = sparkFunctions.getConcreteEarhquakesDataWithQuadrants(earthquakes, date, max_y, min_y, max_x, min_x)
-    print("--- %s seconds getting the data ---" % (time.time() - start_time))
+    logging.info("--- %s seconds getting the data ---" % (time.time() - start_time))
     
     start_time = time.time()
     earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData)
-    print("--- %s seconds parsing the data to json---" % (time.time() - start_time))
+    logging.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
 
     stopEnvironment(sc)
     return jsonify(earthquakesJson)
@@ -195,28 +194,21 @@ def getPrediction():
         station_id = dataDict["station_id"]
         columns = dataDict['columnsToPredict']
 
-        # try:
         stationData = sparkFunctions.getStationInfo(stations, station_id)
-        print(stationData)
         currentWeather = generalFunctions.getCurrentWeather(station_id)
-        print(currentWeather)
         if (currentWeather != 0 and currentWeather):
             weatherPrediction = sparkFunctions.predict(sql, sc, columns, station_id, currentWeather)
             if (weatherPrediction):
                 predictionJson = weatherPrediction
-            # predictionJson = generalFunctions.dataFrameToJsonStr(weatherPrediction)
             else:
                 predictionJson = "No Model"
             stopEnvironment(sc)
-            print(predictionJson)
             return jsonify(predictionJson)
         else:
             return "No Current Weather"
-        # except:
-        #	print("Unexpected error:", sys.exc_info()[0])
         stopEnvironment(sc)
     except KeyError as ke:
-        print(ke)
+        logging.error(ke)
         stopEnvironment(sc)
 
 
@@ -241,10 +233,9 @@ def getPredictionStats():
         else:
             predictionJson = "No Prediction"
         stopEnvironment(sc)
-        print(predictionJson)
         return jsonify(predictionJson)
     except KeyError as ke:
-        print(ke)
+        logging.error(ke)
         stopEnvironment(sc)
 
 
@@ -261,7 +252,7 @@ def getAllStations():
 
 @app.route('/clearKML')
 def clearKMLS():
-    print("Deletings kmls folder")
+    logging.info("Deletings kmls folder")
     shutil.rmtree('kmls')
     os.makedirs("kmls")
     return jsonify("OK")
@@ -307,7 +298,7 @@ def getStats():
                 stopEnvironment(sc)
                 return jsonify(returnJson)
     except:
-        print("Ooops, something went wrong getting the stats")
+        logging.error("Ooops, something went wrong getting the stats")
         stopEnvironment(sc)
 
 
@@ -323,8 +314,8 @@ def getWeatherDataInterval():
 
     dateFrom = dataDict['dateFrom']
     dateTo = dataDict['dateTo']
-    print("From: ",dateFrom)
-    print("To: ",dateTo)
+    logging.info("From: ",dateFrom)
+    logging.info("To: ",dateTo)
     station_id = dataDict['station_id']
 
     try:
@@ -334,7 +325,7 @@ def getWeatherDataInterval():
         stopEnvironment(sc)
         return jsonify(returnJson)
     except:
-        print("Ooops, something went wrong getting the stats")
+        logging.error("Ooops, something went wrong getting the stats")
         stopEnvironment(sc)
 
 
@@ -375,21 +366,20 @@ def initEnvironment():
     global sc, sql
     try:
         conf = SparkConf()
-        # conf.setMaster("spark://192.168.246.236:7077")
+        #conf.setMaster("spark://192.168.246.236:7077")
         conf.setMaster("local[*]")
         conf.setAppName("Flask")
         conf.set("spark.cassandra.connection.host", "192.168.246.236")
         conf.set("spark.executor.memory", "10g")
         conf.set("spark.num.executors", "1")
+        #conf.set("spark.driver.allowMultipleContexts", "true")
 
         sc = SparkContext(conf=conf)
-        # sc = SparkContext("local[*]")
-        # sc.setLogLevel("INFO")
         sql = SQLContext(sc)
         spark = SparkSession(sc)
 
-        print("SparkContext => ", sc)
-        print("SQLContext => ", sql)
+        logging.debug("SparkContext => ", sc)
+        logging.debug("SQLContext => ", sql)
     except:
         sc.stop()
         initEnvironment()
@@ -407,6 +397,6 @@ if __name__ == "__main__":
             sc.stop()
     except Exception as e:
         logging.error(traceback.format_exc())
-        print("Oooops, something went wrong when closing the app")
+        logging.error("Oooops, something went wrong when closing the app")
         if 'sc' in globals():
             sc.stop()

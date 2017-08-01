@@ -9,6 +9,7 @@ import json
 import datetime
 import time
 import requests
+import logging
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -54,20 +55,6 @@ def dataframeToJson(dataFrame):
 
 def dataFrameToJsonStr(dataFrame):
     return dataFrame.toPandas().reset_index().to_json(path_or_buf=None, orient='records')
-
-
-def generateAllStationsWeatherKML(stations, weatherData, fileName):
-    finalData = []
-    weatherJsonData = dataframeToJson(weatherData)
-    jsonString = ""
-    for data in weatherJsonData:
-        stationData = sparkFunctions.getStationInfo(stations, data.get("station_id"))
-        stationJsonData = dataframeToJson(stationData)
-        jsonString += prepareJson(data, stationJsonData)
-
-    finalData.append(jsonString)
-    cilinders = CylindersKml(fileName, finalData)
-    cilinders.makeKMLWithTourAndRotation()
 
 
 def generateAllStationsKml(weatherData, stations, fileName):
@@ -119,7 +106,7 @@ def prepareJson(weatherData, stationData):
 
 
 def getCurrentWeather(station_id):
-    print("Getting current weather for station: " + station_id)
+    logging.info("Getting current weather for station: " + station_id)
     global api_key, querystring, headers, base_url
 
     api_key = getApiKey()
@@ -167,12 +154,12 @@ def getData(url):
                     return 0
             elif jsonResponse.get('estado') == 429:
                 # Sleep until next minute
-                print("####Sleeping")
+                logging.error("####Sleeping")
                 time.sleep(60)
-                print("####Waked up!!")
+                logging.error("####Waked up!!")
                 return getData(url)
     except requests.exceptions.ConnectionError:
-        print("####ERROR!! => Sleeping")
+        logging.error("####ERROR!! => Sleeping")
         time.sleep(120)
-        print("####Waked up!!")
+        logging.error("####Waked up!!")
         return getData(url)

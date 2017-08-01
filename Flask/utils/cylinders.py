@@ -15,7 +15,6 @@ class CylindersKml(object):
         current_milli_time = int(round(time.time()))
         self.parseData()
         self.saveKml(current_milli_time)
-        #self.sendKml(current_milli_time)
 
     def makeKMLWithTourAndRotation(self):
         current_milli_time = int(round(time.time()))
@@ -27,7 +26,6 @@ class CylindersKml(object):
         current_milli_time = int(round(time.time()))
         self.parseData()
         self.saveKmz(current_milli_time)
-        #self.sendKml(current_milli_time)
 
     def parseData(self):
         for element in self.data:
@@ -68,14 +66,6 @@ class CylindersKml(object):
             flyto.lookat.range = 130000
             flyto.lookat.heading = angle
             flyto.lookat.tilt = 77
-
-            #flyto.camera.longitude = float(coordinates['lng'])
-            #flyto.camera.latitude = float(coordinates['lat'])
-            #flyto.camera.altitude = 10000
-            #flyto.camera.heading = angle
-            #flyto.camera.tilt = 45
-            #flyto.camera.range = 20000
-            #flyto.camera.roll = 0
 
     def newPointer(self, name, description, coordinates, extra):
         pointer_max = self.kml_var.newpoint(name=str(description[0])+ u'\u2103')
@@ -133,19 +123,16 @@ class CylindersKml(object):
         multiplier = 2000
         temperature = int(temp)
 
-        # 'Pal' cap a dalt i cercle al final del pal (a dalt de tot)
         for element in latloncircle:
             tup = (element[0], element[1], (temperature * multiplier) + 10,)
             latlonaltcircle.append(tup)
 
-        # Cilindre (interior / exterior)
         for element in latloncircle:
             tup = (element[0], element[1], temperature * multiplier,)
             latlonaltcircle.append(tup)
             tup = (element[0], element[1], 0,)
             latlonaltcircle.append(tup)
 
-        # Un altre cilindre (interior / exterior ?)
         for element in latloncircle:
             tup = (element[0], element[1], 0,)
             latlonaltcircle.append(tup)
@@ -167,7 +154,6 @@ class CylindersKml(object):
 
         latlonaltcircle = []
 
-        # Cyrcle (tapadera del cilindre) de dalt de tot (interior i exterior)
         for element in latloncircle:
             tup = (element[0], element[1], (temperature * multiplier) + 20,)
             latlonaltcircle.append(tup)
@@ -200,13 +186,3 @@ class CylindersKml(object):
     def saveKmz(self,current_milli_time):
         self.kml_var.savekmz("./kmls/" + self.name+".kmz", format=False)
 
-    def sendKml(self,current_milli_time):
-        command = "sshpass -p 'lqgalaxy' echo 'http://130.206.117.178:8000/cylinders_weather.kml' | ssh lg@192.168.88.242 'cat - > /var/www/html/kmls.txt'"
-        call([command])
-        
-
-
-'''
-https://github.com/LiquidGalaxyLAB/ViewYourData/blob/master/VYD_Project/VYD/Utils/PresentationManager/cylinder_generator.py
-https://developers.google.com/maps/documentation/geocoding/intro?hl=es-419
-'''
