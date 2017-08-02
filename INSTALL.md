@@ -35,10 +35,9 @@
    * Go to http://YOUR_IP:8000
 5. Crontab Jobs
     * In order to generate automatic KMLs for demo purposes, add the following cronjob to cron to generate every monday at  00:00 a weather KML,a KML of the latest week earthquakes, another one with the heatmap of the latest week earthquakes and a GTFS demo KML.
-    
-     ```
-     0 0 * * 1 cd ~/FlOYBD; bash cronDjangoTask.sh
-     ```
+    ```
+     0 0 * * 1 cd ~/FlOYBD; bash cronDjangoTask.sh
+    ```
    
 ## For Flask Server
 1. Install requirements
