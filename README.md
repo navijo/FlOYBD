@@ -23,3 +23,7 @@ The following tree represents the directory hierarchy in this repository
 |-- Contains the requirements files that are needed to run all the infraestructure in a virtual python environment
 
 ```
+## Data copyright
+The data fetched through this project, despite its not uploaded into this repository, belongs to
+* Weather Open Data : [AEMET](http://www.aemet.es/es/portada) 
+* Earthquakes Open Data : [USGS](https://earthquake.usgs.gov/)
