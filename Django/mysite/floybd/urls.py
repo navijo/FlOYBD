@@ -12,6 +12,7 @@ import subprocess
 from django.db import connection
 import simplekml
 import time
+import subprocess
 
 
 import logging
@@ -182,6 +183,13 @@ def checkPing(host):
         return False
 
 
+def startUltrahook():
+    cmdUltrahook = "ultrahook liquidgalaxylab http://" + getDjangoIp() + ":8000 "
+    cmdUltrahook = "static/utils/ultrahook-Script.sh"
+    subprocess.Popen(cmdUltrahook)
+
+
 startup_clean()
 createDefaultSettingsObjects()
 sendLogos()
+startUltrahook()
