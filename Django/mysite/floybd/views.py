@@ -83,11 +83,16 @@ def stopTourView(request):
 def launchScreenSaver(request):
     stopTour()
 
+    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+
     command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
               " './bin/screensaver.py \"./bin/tour.sh ./bin/queries.txt\"'"
 
     '''command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " './bin/screensaver.py \"./bin/tour.sh ./bin/queryTour.txt\"'"'''
+              " './bin/screensaver.py \"./bin/tour.sh ./bin/queriesWorldRotation.txt\"'"
+    '''
 
     os.system(command)
 
@@ -145,6 +150,8 @@ def webhook(request):
         os.system(command)
         time.sleep(5)
         playTour("GTFSTour")
+    elif tourType == str("screensaver"):
+        launchScreenSaver(request)
     return JsonResponse(answer)
 
 
