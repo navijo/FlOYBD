@@ -111,8 +111,8 @@ def sendGTFSToLG(request):
     lgIp = getLGIp()
     ip = getDjangoIp()
 
-    command = "echo 'http://" + ip + ":8000/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":8000/static/kmls/" + carKml + \
+    command = "echo 'http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + kmlName + \
+              "\nhttp://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + carKml + \
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -121,7 +121,8 @@ def sendGTFSToLG(request):
     time.sleep(5)
     playTour("GTFSTour")
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + kmlName,
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
+                                                                '/static/kmls/' + kmlName,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
                                                          'carKml': carKml, 'kmlName': kmlName})
 
@@ -196,7 +197,8 @@ def getAgenciesAndGenerateKML(request):
     flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + linesKml,
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
+                                                                '/static/kmls/' + linesKml,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
                                                          'carKml': carKml, 'kmlName': linesKml})
 
@@ -441,8 +443,8 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
 
 def launchdemogtfs(request):
     millis = int(round(time.time() * 1000))
-    command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/lines_demo.kml?a="+str(millis) + \
-              "\nhttp://" + getDjangoIp() + ":8000/static/demos/car_demo.kmz?a="+str(millis) +\
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a="+str(millis) + \
+              "\nhttp://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/car_demo.kmz?a="+str(millis) +\
               "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
     time.sleep(5)

@@ -10,6 +10,10 @@ def getDjangoIp():
     return ip
 
 
+def getDjangoPort(request):
+    return request.META['SERVER_PORT']
+
+
 def getLGIp():
     settingObject = Setting.objects.get(key="lgIp")
     return settingObject.value

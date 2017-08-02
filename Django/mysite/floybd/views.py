@@ -7,7 +7,7 @@ from django.http import JsonResponse, HttpResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-import codecs
+
 
 def index(request):
     return render(request, 'floybd/index.html')
@@ -82,12 +82,13 @@ def stopTourView(request):
 
 def launchScreenSaver(request):
     stopTour()
-    command = "echo '' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
-              " 'cat - > /var/www/html/kmls.txt'"
-    os.system(command)
 
     command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
               " './bin/screensaver.py \"./bin/tour.sh ./bin/queries.txt\"'"
+
+    '''command = "sshpass -p lqgalaxy ssh lg@" + getLGIp() + \
+              " './bin/screensaver.py \"./bin/tour.sh ./bin/queryTour.txt\"'"'''
+
     os.system(command)
 
     return HttpResponse(status=204)
@@ -125,21 +126,21 @@ def webhook(request):
     print(tourType)
     answer = create_webhook_answer("Playing tour " + tourType)
     if tourType == str("weather"):
-        sendDemoKmlToLG("dummyWeather.kmz")
+        sendDemoKmlToLG("dummyWeather.kmz", request)
         time.sleep(3)
         playTour("Tour Current Weather")
     elif tourType == str("latest earthquakes"):
-        sendDemoKmlToLG("lastWeekEarthquakes.kmz")
+        sendDemoKmlToLG("lastWeekEarthquakes.kmz", request)
         time.sleep(10)
         playTour("LastWeekEarthquakesTour")
     elif tourType == str("heatmap"):
-        sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz")
+        sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz", request)
         time.sleep(5)
         sendFlyToToLG(36.778259, -119.417931, 14500000, 0, 0, 14500000, 2)
     elif tourType == str("gtfs") or tourType == str("transit"):
         millis = int(round(time.time() * 1000))
-        command = "echo 'http://" + getDjangoIp() + ":8000/static/demos/lines_demo.kml?a=" + str(millis) + \
-                  "\nhttp://" + getDjangoIp() + ":8000/static/demos/car_demo.kmz?a=" + str(millis) + \
+        command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a=" + str(millis) + \
+                  "\nhttp://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/car_demo.kmz?a=" + str(millis) + \
                   "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
         os.system(command)
         time.sleep(5)

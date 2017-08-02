@@ -47,7 +47,7 @@ def getEarthquakesExact(request):
     start_time = time.time()
 
     millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
+    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained, request)
 
     logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
@@ -113,7 +113,7 @@ def getEarthquakesApprox(request):
 
     start_time = time.time()
     millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained)
+    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained, request)
 
     logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
@@ -186,7 +186,7 @@ def generateHeapMapKml(request):
 
     cylinder = CylindersKmlHeatmap(fileName, data)
     cylinder.makeKMZ(dirPath2)
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName, request)
     time.sleep(2)
     sendFlyToToLG(36.778259, -119.417931, 22000000, 0, 0, 22000000, 2)
 
@@ -241,7 +241,7 @@ def populateInfoWindow(row, jsonData):
     return contentString
 
 
-def createKml(jsonData, date, millis, createTour, numberObtained):
+def createKml(jsonData, date, millis, createTour, numberObtained, request):
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
@@ -381,11 +381,11 @@ def createKml(jsonData, date, millis, createTour, numberObtained):
 
     ip = getDjangoIp()
 
-    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
     return fileUrl
 
 
-def createKmz(jsonData, date, millis, createTour, numberObtained):
+def createKmz(jsonData, date, millis, createTour, numberObtained, request):
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
@@ -532,7 +532,7 @@ def createKmz(jsonData, date, millis, createTour, numberObtained):
 
     ip = getDjangoIp()
 
-    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
     return fileUrl
 
 
@@ -549,9 +549,9 @@ def sendConcreteValuesToLG(request):
     ip = getDjangoIp()
 
     fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
-    fileUrl = "http://" + ip + ":8000/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName,request)
 
     sendFlyToToLG(center_lat, center_lon, 100, 14, 69, 200000, 2)
 
@@ -577,14 +577,14 @@ def sendConcreteValuesToLG(request):
 
 
 def demoLastWeekEarthquakesHeatmap(request):
-    sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz")
+    sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz", request)
     time.sleep(5)
     sendFlyToToLG(36.778259, -119.417931, 14500000, 0, 0, 14500000, 2)
     return HttpResponse(status=204)
 
 
 def demoLastWeekEarthquakes(request):
-    sendDemoKmlToLG("lastWeekEarthquakes.kmz")
+    sendDemoKmlToLG("lastWeekEarthquakes.kmz", request)
     time.sleep(10)
     playTour("LastWeekEarthquakesTour")
     return HttpResponse(status=204)

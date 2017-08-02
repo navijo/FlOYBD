@@ -89,7 +89,7 @@ def getConcreteValues(request):
 
         kml.save(dirPath2)
         return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName, 'date': date})
+                      {'kml': 'http://' + ip + ':'+getDjangoPort(request)+'/static/kmls/' + fileName, 'date': date})
     else:
         concreteStation = Station.objects.get(station_id=station_id)
         contentString = stationsWeather[station_id]["contentString"]
@@ -130,7 +130,7 @@ def sendConcreteValuesToLG(request):
                     f.write(chunk)
             f.close()
 
-        sendKmlToLG(fileName)
+        sendKmlToLG(fileName, request)
 
         sendFlyToToLG("40.416775", "-3.703790", 25000, 0, 69, 130000, 2)
 
@@ -160,7 +160,7 @@ def sendConcreteValuesToLG(request):
     stations = Station.objects.all()
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName,request)
     if concreteStation is not None:
         sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 25000, 0, 69, 130000, 2)
 
@@ -231,7 +231,7 @@ def getPrediction(request):
 
         kml.save(dirPath2)
 
-        kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
+        kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
                       {'fileName': fileName, 'kml': kmlpath,
@@ -243,14 +243,14 @@ def getPrediction(request):
 def sendPredictionsToLG(request):
     fileName = request.POST.get("fileName")
     ip = getDjangoIp()
-    kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
+    kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
     station_id = request.POST.get("station_id")
     stats = request.POST.get("stats", 0)
 
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName, request)
     if concreteStation is not None:
         sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
 
@@ -414,7 +414,6 @@ def getStats(request):
                                                '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 
-
     millis = int(round(time.time() * 1000))
     fileName = "stats_" + str(millis) + ".kml"
     currentDir = os.getcwd()
@@ -424,7 +423,8 @@ def getStats(request):
 
     kml.save(dirPath2)
 
-    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
+    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
+                                                                       '/static/kmls/' + fileName,
                                                                 'stations': stations, 'fileName': fileName,
                                                                 'intervalData': intervalData, "dateTo": dateTo,
                                                                 "dateFrom": dateFrom, "station": station_id,
@@ -512,7 +512,7 @@ def getGraphDataForStats(request):
 
 def sendStatsToLG(request):
     fileName = request.POST.get("fileName")
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName, request)
     stations = Station.objects.all()
 
     allStations = request.POST.get('allStations', 0)
@@ -541,7 +541,8 @@ def sendStatsToLG(request):
 
     ip = getDjangoIp()
 
-    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':8000/static/kmls/' + fileName,
+    return render(request, 'floybd/weather/weatherStats.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
+                                                                       '/static/kmls/' + fileName,
                                                                 'stations': stations, 'fileName': fileName,
                                                                 'intervalData': intervalData, "dateTo": dateTo,
                                                                 "dateFrom": dateFrom, "station": station_id,
@@ -655,7 +656,7 @@ def getPredictionStats(request):
 
         kml.save(dirPath2)
 
-        kmlpath = "http://" + ip + ":8000/static/kmls/" + fileName
+        kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
                       {'fileName': fileName, 'kml': kmlpath,
@@ -760,7 +761,7 @@ def currentWeather(request):
               " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
-    sendKmlToLG(fileName)
+    sendKmlToLG(fileName, request)
     time.sleep(5)
     playTour("Tour Current Weather")
 
@@ -796,7 +797,7 @@ def getData(url, headers, querystring):
 
 def dummyWeather(request):
 
-    sendDemoKmlToLG("dummyWeather.kmz")
+    sendDemoKmlToLG("dummyWeather.kmz", request)
     time.sleep(3)
     playTour("Tour Current Weather")
 
