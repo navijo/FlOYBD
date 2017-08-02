@@ -64,7 +64,22 @@
     
     ```
     0 2 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash clean.sh
-    ```
+    ```
+    * To calculate new stats with the past week weather info:
     
+    ```
+    30 4 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash weatherFunctions.sh
+    ```
+    * To fetch daily the new earthquakes data:
     
+    ```
+    30 5 * * * cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash launchEarthquakes.sh
+    ```
+    * To retrain weekly the Linear Regression models with the new weather data:
+    
+    ```
+    0 6 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash launchPredictions.sh
+    ```
+    
+    
 ##  More Coming Soon...
