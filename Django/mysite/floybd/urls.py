@@ -198,4 +198,4 @@ def startUltrahook():
 startup_clean()
 createDefaultSettingsObjects()
 sendLogos()
-startUltrahook()
+#startUltrahook()
