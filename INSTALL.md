@@ -34,10 +34,22 @@
    * Wait (it could take some time compiling the sources)
 
 3. Do Django migration
-   * Go to Django/mysite and execute:
+   * Edit Django/mysite/floybd/urls.py and comment these lines (the last ones from the file):
+   
    ```
+   startup_clean()
+   createDefaultSettingsObjects()
+   sendLogos()
+   ```  
+   * Go to Django/mysite and execute:
+   
+   ```
+   python manage.py makemigrations
    python manage.py migrate
+   python manage.py migrate --run-syncdb
    ```
+   
+    * Edit Django/mysite/floybd/urls.py and uncomment the previously commented lines
 4. Run Django
    * Go to project root and execute:
    ```
