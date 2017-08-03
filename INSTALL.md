@@ -21,17 +21,18 @@
    sudo apt install python-numpy python3-dev
    ```
 ## For Django Web Application
-1. Install requirements
+1. Activate Virtual Env
+   
+   ``` 
+   source virtualenv/bin/activate
+   ```
+2. Install requirements
 
    ```
    pip3 install -r virtualenv/requirementsDjango.txt
    ```
    * Wait (it could take some time compiling the sources)
-2. Activate Virtual Env
-   
-   ``` 
-   virtualenv/bin/activate
-   ```
+
 3. Do Django migration
    * Go to Django/mysite and execute:
    ```
@@ -50,20 +51,30 @@
     ```
    
 ## For Flask Server
-1. Install requirements
+1. Activate Virtual Env
+   
+   ``` 
+   source virtualenv/bin/activate
+   ```
+2. Install requirements
 
    ```
    pip3 install -r virtualenv/requirementsFlask.txt
    ```
    
 ## For Data Mining Environment
-1. Install requirements
+1. Activate Virtual Env
+   
+   ``` 
+   source virtualenv/bin/activate
+   ```
+2. Install requirements
   
    ```
    pip3 install -r virtualenv/requirementsDataMining.txt
    ```
    
-2. Add Cronjobs to fetch new data automatically
+3. Add Cronjobs to fetch new data automatically
     Add the following cronjobs to crontab
     * To get weekly the past week weather info:
     
