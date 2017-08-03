@@ -13,6 +13,8 @@ from django.db import connection
 import simplekml
 import time
 import subprocess
+import sqlite3.OperationalError
+
 
 
 import logging
@@ -169,7 +171,10 @@ def startup_clean():
 
 def db_table_exists(table_name):
     logger.info("Checking table existence..." + str(table_name))
-    return table_name in connection.introspection.table_names()
+    try:
+        return table_name in connection.introspection.table_names()
+    except sqlite3.OperationalError:
+        return False
 
 
 def checkPing(host):
