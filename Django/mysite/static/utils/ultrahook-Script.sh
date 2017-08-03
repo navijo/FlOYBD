@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function ultrahookF {
-ultrahook liquidgalaxylab http://0.0.0.0:8000
+    ultrahook liquidgalaxylab http://0.0.0.0:8000
 }
 
 until ultrahookF; do

@@ -90,7 +90,8 @@ class Command(BaseCommand):
             doRotation(playlistCurrentWeather, latitude, longitude, 1000, 5000)
 
             animatedupdateshow = playlistCurrentWeather.newgxanimatedupdate(gxduration=0.1)
-            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+            animatedupdateshow.update.change = '<Placemark targetId="' \
+                                               '{0}"><visibility>0</visibility>' \
                                                '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 

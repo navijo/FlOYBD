@@ -184,7 +184,8 @@ def checkPing(host):
 
 
 def startUltrahook():
-    cmdUltrahook = "ultrahook liquidgalaxylab http://" + getDjangoIp() + ":8000 "
+    '''cmdUltrahook = "ultrahook liquidgalaxylab http://" + getDjangoIp() + ":8000 "
+    subprocess.Popen(["ultrahook", "liquidgalaxylab", "http://" + getDjangoIp() + ":8000"])'''
     cmdUltrahook = "static/utils/ultrahook-Script.sh"
     subprocess.Popen(cmdUltrahook)
 
