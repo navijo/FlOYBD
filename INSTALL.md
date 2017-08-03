@@ -24,12 +24,12 @@
 1. Activate Virtual Env
    
    ``` 
-   source virtualenv/bin/activate
+   source <"VIRTUALENV FOLDER">/bin/activate
    ```
 2. Install requirements
 
    ```
-   pip3 install -r virtualenv/requirementsDjango.txt
+   pip3 install -r <"VIRTUALENV FOLDER">/requirementsDjango.txt
    ```
    * Wait (it could take some time compiling the sources)
 
@@ -54,24 +54,24 @@
 1. Activate Virtual Env
    
    ``` 
-   source virtualenv/bin/activate
+   source <"VIRTUALENV FOLDER">/bin/activate
    ```
 2. Install requirements
 
    ```
-   pip3 install -r virtualenv/requirementsFlask.txt
+   pip3 install -r <"VIRTUALENV FOLDER">/requirementsFlask.txt
    ```
    
 ## For Data Mining Environment
 1. Activate Virtual Env
    
    ``` 
-   source virtualenv/bin/activate
+   source <"VIRTUALENV FOLDER">/bin/activate
    ```
 2. Install requirements
   
    ```
-   pip3 install -r virtualenv/requirementsDataMining.txt
+   pip3 install -r <"VIRTUALENV FOLDER">/requirementsDataMining.txt
    ```
    
 3. Add Cronjobs to fetch new data automatically
