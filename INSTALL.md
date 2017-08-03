@@ -1,11 +1,21 @@
 # Install Guide
 ## Common Steps
-1. Create virtualenv with python3
+1. Clone this repository
+    
+   ```
+   git clone https://github.com/navijo/FlOYBD.git
+   ```
+2. Go inside the newly created folder
+   
+   ```
+   cd FlOYBD
+   ```
+3. Create virtualenv with python3
     
    ```
    virtualenv -p python3 <"VIRTUALENV FOLDER">
    ```
-2. Install system requirements with apt
+4. Install system requirements with apt
    
    ```
    sudo apt install python-numpy python3-dev
