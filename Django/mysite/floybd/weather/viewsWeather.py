@@ -9,6 +9,7 @@ from datetime import timedelta
 from ..utils.lgUtils import *
 from django.http import JsonResponse, HttpResponse
 from collections import defaultdict
+from simplejson.scanner import JSONDecodeError
 
 import logging
 logger = logging.getLogger("django")
@@ -37,65 +38,68 @@ def getConcreteValues(request):
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
 
-    jsonData = json.loads(response.json())
+    try:
+        jsonData = json.loads(response.json())
 
-    stationsWeather = {}
-    if len(jsonData) == 0:
-        return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'noData': True, 'date': date})
+        stationsWeather = {}
+        if len(jsonData) == 0:
+            return render(request, 'floybd/weather/weatherConcreteView.html',
+                          {'noData': True, 'date': date})
 
-    for row in jsonData:
-        concreteStation = Station.objects.get(station_id=row.get("station_id"))
-        stationData = {}
+        for row in jsonData:
+            concreteStation = Station.objects.get(station_id=row.get("station_id"))
+            stationData = {}
 
-        timestamp = row.get("measure_date")
-        measureDate = datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).strftime('%d-%m-%Y')
-        contentString = '<div id="content">' + \
-                        '<div id="siteNotice">' + \
-                        '</div>' + \
-                        '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
-                        '<h3>' + measureDate + '</h3>' + \
-                        '<div id="bodyContent">' + \
-                        '<p>' + \
-                        '<br/><b>Max Temp: </b>' + str(row.get("max_temp")) + \
-                        '<br/><b>Med Temp: </b>' + str(row.get("med_temp")) + \
-                        '<br/><b>Min Temp: </b>' + str(row.get("min_temp")) + \
-                        '<br/><b>Max Pressure: </b>' + str(row.get("max_pressure")) + \
-                        '<br/><b>Min Pressure: </b>' + str(row.get("min_pressure")) + \
-                        '<br/><b>Precip: </b>' + str(row.get("precip")) + \
-                        '<br/><b>Insolation: </b>' + str(row.get("insolation")) + \
-                        '</p>' + \
-                        '</div>' + \
-                        '</div>'
-        stationData["timestamp"] = timestamp
-        stationData["measureDate"] = measureDate
-        stationData["contentString"] = contentString
-        stationData["latitude"] = concreteStation.latitude
-        stationData["longitude"] = concreteStation.longitude
-        stationData["name"] = concreteStation.name
-        stationsWeather[row.get("station_id")] = stationData
+            timestamp = row.get("measure_date")
+            measureDate = datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).strftime('%d-%m-%Y')
+            contentString = '<div id="content">' + \
+                            '<div id="siteNotice">' + \
+                            '</div>' + \
+                            '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
+                            '<h3>' + measureDate + '</h3>' + \
+                            '<div id="bodyContent">' + \
+                            '<p>' + \
+                            '<br/><b>Max Temp: </b>' + str(row.get("max_temp")) + \
+                            '<br/><b>Med Temp: </b>' + str(row.get("med_temp")) + \
+                            '<br/><b>Min Temp: </b>' + str(row.get("min_temp")) + \
+                            '<br/><b>Max Pressure: </b>' + str(row.get("max_pressure")) + \
+                            '<br/><b>Min Pressure: </b>' + str(row.get("min_pressure")) + \
+                            '<br/><b>Precip: </b>' + str(row.get("precip")) + \
+                            '<br/><b>Insolation: </b>' + str(row.get("insolation")) + \
+                            '</p>' + \
+                            '</div>' + \
+                            '</div>'
+            stationData["timestamp"] = timestamp
+            stationData["measureDate"] = measureDate
+            stationData["contentString"] = contentString
+            stationData["latitude"] = concreteStation.latitude
+            stationData["longitude"] = concreteStation.longitude
+            stationData["name"] = concreteStation.name
+            stationsWeather[row.get("station_id")] = stationData
 
-    if getAllStations:
-        kml = simplekml.Kml()
-        for key, value in stationsWeather.items():
-            kml.newpoint(name=value["name"], description=value["contentString"],
-                         coords=[(value["longitude"], value["latitude"])])
+        if getAllStations:
+            kml = simplekml.Kml()
+            for key, value in stationsWeather.items():
+                kml.newpoint(name=value["name"], description=value["contentString"],
+                             coords=[(value["longitude"], value["latitude"])])
 
-        millis = int(round(time.time() * 1000))
-        fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
-        currentDir = os.getcwd()
-        dir1 = os.path.join(currentDir, "static/kmls")
-        dirPath2 = os.path.join(dir1, fileName)
+            millis = int(round(time.time() * 1000))
+            fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+            currentDir = os.getcwd()
+            dir1 = os.path.join(currentDir, "static/kmls")
+            dirPath2 = os.path.join(dir1, fileName)
 
-        kml.save(dirPath2)
-        return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'kml': 'http://' + ip + ':'+getDjangoPort(request)+'/static/kmls/' + fileName, 'date': date})
-    else:
-        concreteStation = Station.objects.get(station_id=station_id)
-        contentString = stationsWeather[station_id]["contentString"]
-        return render(request, 'floybd/weather/weatherConcreteView.html',
-                      {'stations': stations, 'concreteStation': concreteStation,
-                       'weatherData': contentString, 'date': date})
+            kml.save(dirPath2)
+            return render(request, 'floybd/weather/weatherConcreteView.html',
+                          {'kml': 'http://' + ip + ':'+getDjangoPort(request)+'/static/kmls/' + fileName, 'date': date})
+        else:
+            concreteStation = Station.objects.get(station_id=station_id)
+            contentString = stationsWeather[station_id]["contentString"]
+            return render(request, 'floybd/weather/weatherConcreteView.html',
+                          {'stations': stations, 'concreteStation': concreteStation,
+                           'weatherData': contentString, 'date': date})
+    except JSONDecodeError:
+        return render(request, '500.html')
 
 
 def sendConcreteValuesToLG(request):
@@ -202,10 +206,18 @@ def getPrediction(request):
         return render(request, '500.html')
 
     if response.json():
-        result = json.loads(response.json())
+        try:
+            result = json.loads(response.json())
+        except JSONDecodeError:
+            return render(request, '500.html')
         concreteStation = Station.objects.get(station_id=station_id)
         predictionStr = ""
         kml = simplekml.Kml()
+        kml = simplekml.Kml()
+
+        tour = kml.newgxtour(name="Show Balloon")
+
+        playlist = tour.newgxplaylist()
         for row in result:
             jsonRow = json.loads(row)
 
@@ -220,8 +232,21 @@ def getPrediction(request):
                         '<p>' + predictionStr + '</p>' + \
                         '</div>' + \
                         '</div>'
-        kml.newpoint(name=concreteStation.name, description=contentString,
+        point = kml.newpoint(name=concreteStation.name, description=contentString,
                      coords=[(concreteStation.longitude, concreteStation.latitude)])
+
+        flyto = playlist.newgxflyto(gxduration=4,
+                                    gxflytomode=simplekml.GxFlyToMode.smooth)
+        flyto.camera.longitude = concreteStation.longitude
+        flyto.camera.latitude = concreteStation.latitude
+        flyto.camera.altitude = 400
+        flyto.camera.range = 400000
+        flyto.camera.tilt = 20
+
+        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.5)
+        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                           '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+            .format(point.placemark.id)
 
         millis = int(round(time.time() * 1000))
         fileName = "prediction_" + str(millis) + ".kml"
@@ -251,8 +276,6 @@ def sendPredictionsToLG(request):
     concreteStation = Station.objects.get(station_id=station_id)
 
     sendKmlToLG(fileName, request)
-    if concreteStation is not None:
-        sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 100, 14, 69, 200000, 2)
 
     time.sleep(1)
     playTour("Show Balloon")
@@ -301,7 +324,10 @@ def getStats(request):
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
 
-    result = json.loads(response.json())
+    try:
+        result = json.loads(response.json())
+    except JSONDecodeError:
+        return render(request, '500.html')
     intervalData = False
     oneStation = (allStations != str("1"))
     if allTime != str(1) and allStations != str(1):
@@ -496,10 +522,12 @@ def getGraphDataForStats(request):
         response = requests.post('http://' + getSparkIp() + ':5000/getWeatherDataInterval',
                                  headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                                  data=payload)
+        result = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
-    result = json.loads(response.json())
     if result:
         data = {
             'stationData': result
@@ -576,10 +604,11 @@ def viewDashboard(request):
         response = requests.post('http://' + sparkIp + ':5000/getWeatherDataInterval',
                                  headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
                                  data=payload)
+        result = json.loads(response.json())
+    except JSONDecodeError:
+        return render(request, '500.html')
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
-
-    result = json.loads(response.json())
     if result:
         data = {
             'stationData': result
@@ -613,7 +642,10 @@ def getPredictionStats(request):
         return render(request, '500.html')
 
     if response.json():
-        result = json.loads(response.json())
+        try:
+            result = json.loads(response.json())
+        except JSONDecodeError:
+            return render(request, '500.html')
         concreteStation = Station.objects.get(station_id=station_id)
         kml = simplekml.Kml()
         if len(result) > 0:
@@ -703,7 +735,12 @@ def currentWeather(request):
     for key, value in stationsDict.items():
         actualPercentage = (stationNumber/totalStations)*100
         printpercentage(actualPercentage)
-        jsonData = json.loads(json.dumps(value[-1]))
+
+        try:
+            jsonData = json.loads(json.dumps(value[-1]))
+        except JSONDecodeError:
+            return render(request, '500.html')
+
         latitude = float(jsonData.get("lat"))
         longitude = float(jsonData.get("lon"))
         altitude = float(jsonData.get("alt"))

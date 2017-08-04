@@ -31,10 +31,12 @@ def getEarthquakesExact(request):
     try:
         response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
                             '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
+        jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
-    jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
     logging.info("Obtained " + str(numberObtained) + " earthquakes")
 
@@ -100,10 +102,12 @@ def getEarthquakesApprox(request):
                                 + '&minY=' + str(minY)
                                 + '&maxX=' + str(maxX)
                                 + '&minX=' + str(minX))
+        jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
-    jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
     logger.info("Obtained " + str(numberObtained) + " earthquakes")
     logger.debug("--- %s getting the data---" % (time.time() - start_time))
@@ -130,10 +134,12 @@ def getHeatMap(request):
     sparkIp = getSparkIp()
     try:
         response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+        jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
-    jsonData = json.loads(response.json())
     numberObtained = len(jsonData)
     logging.info("Obtained " + str(numberObtained) + " earthquakes")
 
@@ -165,10 +171,12 @@ def generateHeapMapKml(request):
     millis = int(round(time.time() * 1000))
     try:
         response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
+        jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
-    jsonData = json.loads(response.json())
     dataMapsJs = getEartquakesArray(jsonData, False)
     numberObtained = len(jsonData)
     logging.info("Obtained " + str(numberObtained) + " earthquakes")
@@ -261,7 +269,6 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
         fecha = row["fecha"]
 
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
 
         try:
             geoJson = replaceJsonString(str(row["geojson"]))
