@@ -10,6 +10,10 @@ import datetime
 import time
 import requests
 import logging
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT,level=logging.INFO)
+logger = logging.getLogger('sparkFunctions')
+
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -106,7 +110,7 @@ def prepareJson(weatherData, stationData):
 
 
 def getCurrentWeather(station_id):
-    logging.info("Getting current weather for station: " + station_id)
+    logger.info("Getting current weather for station: " + station_id)
     global api_key, querystring, headers, base_url
 
     api_key = getApiKey()
@@ -154,12 +158,12 @@ def getData(url):
                     return 0
             elif jsonResponse.get('estado') == 429:
                 # Sleep until next minute
-                logging.error("####Sleeping")
+                logger.error("####Sleeping")
                 time.sleep(60)
-                logging.error("####Waked up!!")
+                logger.error("####Waked up!!")
                 return getData(url)
     except requests.exceptions.ConnectionError:
-        logging.error("####ERROR!! => Sleeping")
+        logger.error("####ERROR!! => Sleeping")
         time.sleep(120)
-        logging.error("####Waked up!!")
+        logger.error("####Waked up!!")
         return getData(url)

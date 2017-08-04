@@ -19,6 +19,9 @@ from flask_cache import Cache
 
 import traceback
 import logging
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT,level=logging.INFO)
+logger = logging.getLogger('sparkFunctions')
 
 app = Flask(__name__, static_url_path='')
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
@@ -53,7 +56,7 @@ def timing(func):
         startTime = time.time()
         func(*args, **kwargs)
         elapsedTime = time.time() - startTime
-        logging.info('function [{}] finished in {} ms'.format(
+        logger.info('function [{}] finished in {} ms'.format(
             func.__name__, int(elapsedTime * 1000)))
 
     return newfunc
@@ -147,10 +150,10 @@ def getEarthquakes():
     
     start_time = time.time()
     earthquakesData = sparkFunctions.getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon)
-    logging.info("--- %s seconds getting the data ---" % (time.time() - start_time))
+    logger.info("--- %s seconds getting the data ---" % (time.time() - start_time))
     start_time = time.time()
     earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData) 
-    logging.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
+    logger.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
     # earthquakesJson = earthquakesData
 
     stopEnvironment(sc)
@@ -170,11 +173,11 @@ def getEarthquakesWithQuadrants():
 
     start_time = time.time()
     earthquakesData = sparkFunctions.getConcreteEarhquakesDataWithQuadrants(earthquakes, date, max_y, min_y, max_x, min_x)
-    logging.info("--- %s seconds getting the data ---" % (time.time() - start_time))
+    logger.info("--- %s seconds getting the data ---" % (time.time() - start_time))
     
     start_time = time.time()
     earthquakesJson = generalFunctions.dataFrameToJsonStr(earthquakesData)
-    logging.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
+    logger.info("--- %s seconds parsing the data to json---" % (time.time() - start_time))
 
     stopEnvironment(sc)
     return jsonify(earthquakesJson)
@@ -208,7 +211,7 @@ def getPrediction():
             return "No Current Weather"
         stopEnvironment(sc)
     except KeyError as ke:
-        logging.error(ke)
+        logger.error(ke)
         stopEnvironment(sc)
 
 
@@ -235,7 +238,7 @@ def getPredictionStats():
         stopEnvironment(sc)
         return jsonify(predictionJson)
     except KeyError as ke:
-        logging.error(ke)
+        logger.error(ke)
         stopEnvironment(sc)
 
 
@@ -252,7 +255,7 @@ def getAllStations():
 
 @app.route('/clearKML')
 def clearKMLS():
-    logging.info("Deletings kmls folder")
+    logger.info("Deletings kmls folder")
     shutil.rmtree('kmls')
     os.makedirs("kmls")
     return jsonify("OK")
@@ -298,7 +301,7 @@ def getStats():
                 stopEnvironment(sc)
                 return jsonify(returnJson)
     except:
-        logging.error("Ooops, something went wrong getting the stats")
+        logger.error("Ooops, something went wrong getting the stats")
         stopEnvironment(sc)
 
 
@@ -314,8 +317,8 @@ def getWeatherDataInterval():
 
     dateFrom = dataDict['dateFrom']
     dateTo = dataDict['dateTo']
-    logging.info("From: ",dateFrom)
-    logging.info("To: ",dateTo)
+    logger.info("From: ",dateFrom)
+    logger.info("To: ",dateTo)
     station_id = dataDict['station_id']
 
     try:
@@ -325,7 +328,7 @@ def getWeatherDataInterval():
         stopEnvironment(sc)
         return jsonify(returnJson)
     except:
-        logging.error("Ooops, something went wrong getting the stats")
+        logger.error("Ooops, something went wrong getting the stats")
         stopEnvironment(sc)
 
 
@@ -378,8 +381,8 @@ def initEnvironment():
         sql = SQLContext(sc)
         spark = SparkSession(sc)
 
-        logging.debug("SparkContext => ", sc)
-        logging.debug("SQLContext => ", sql)
+        logger.debug("SparkContext => ", sc)
+        logger.debug("SQLContext => ", sql)
     except:
         sc.stop()
         initEnvironment()
@@ -396,7 +399,7 @@ if __name__ == "__main__":
         if 'sc' in globals():
             sc.stop()
     except Exception as e:
-        logging.error(traceback.format_exc())
-        logging.error("Oooops, something went wrong when closing the app")
+        logger.error(traceback.format_exc())
+        logger.error("Oooops, something went wrong when closing the app")
         if 'sc' in globals():
             sc.stop()
