@@ -15,15 +15,20 @@
         submitAjaxForm("getStatsForm",true);
         submitAjaxForm("sendStatsForm",true);
 
+        var dateNow = new Date();
+        var firstDayOfTheWeek = (dateNow.getDate() - dateNow.getDay()) + 1;
+        var lastDayOfTheWeek = firstDayOfTheWeek + 6;
+        var lastDayWithData = new Date(dateNow.setDate(firstDayOfTheWeek - 5));
+
         $('#datepickerFrom').datetimepicker({
             'format' : "YYYY-MM-DD",
-            'maxDate' : new Date()
+            'maxDate' : lastDayWithData
         });
 
         $('#datepickerTo').datetimepicker({
             'format' : "YYYY-MM-DD",
             useCurrent: false,
-            'maxDate' : new Date()
+            'maxDate' :lastDayWithData
         });
 
         $("#datepickerFrom").on("dp.change", function (e) {
