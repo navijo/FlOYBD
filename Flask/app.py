@@ -317,8 +317,8 @@ def getWeatherDataInterval():
 
     dateFrom = dataDict['dateFrom']
     dateTo = dataDict['dateTo']
-    logger.info("From: ",dateFrom)
-    logger.info("To: ",dateTo)
+    logger.info("From: " + str(dateFrom))
+    logger.info("To: " + str(dateTo))
     station_id = dataDict['station_id']
 
     try:
