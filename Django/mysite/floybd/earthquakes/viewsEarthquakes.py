@@ -194,9 +194,17 @@ def generateHeapMapKml(request):
 
     cylinder = CylindersKmlHeatmap(fileName, data)
     cylinder.makeKMZ(dirPath2)
-    sendKmlToLG(fileName, request)
+
+    command = "echo 'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+              "/static/demos/lastWeekEarthquakesHeatMap.kmz?a=" + str(millis) + \
+              "\n'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+              "/static/demos/WorldTour.kmz?a=" + str(millis) + " | sshpass -p " + getLGPass() \
+              + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
     time.sleep(2)
-    sendFlyToToLG(36.778259, -119.417931, 22000000, 0, 0, 22000000, 2)
+    sendFlyToToLG(20.21078636181624, -111.3376967642952, 0, 1.372480247294665, 0, 14562650.06788917, 2)
+    time.sleep(2)
+    playTour("WorldTour")
 
     return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': dataMapsJs, 'date': date,
                                                                               'numberObtained': numberObtained})
@@ -233,19 +241,41 @@ def populateInfoWindow(row, jsonData):
     datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
     url = jsonData.get("properties").get("detail")
-    contentString = '<div id="content">' + \
-                    '<div id="siteNotice">' + \
+    contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                    '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                    '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                    '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + str(datetimeStr) + '</h3>' + \
+                    '<div id="bodyContent" style="text-align: center;">' + \
+                    '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Latitude:</p>' + \
                     '</div>' + \
-                    '<h3>Occurred on ' + str(datetimeStr) + '</h3>' + \
-                    '<div id="bodyContent">' + \
-                    '<p>' + \
-                    '<br/><b>Latitude: </b>' + str(latitude) + \
-                    '<br/><b>Longitude: </b>' + str(longitude) + \
-                    '<br/><b>Magnitude: </b>' + str(magnitude) + \
-                    '<br/><a href=' + str(url) + ' target="_blank">More Info</a>' \
-                                                 '</p>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(latitude) + '</p>' + \
                     '</div>' + \
-                    '</div>'
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Longitude:</p>' + \
+                    '</div>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(longitude) + '</p>' + \
+                    '</div>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Magnitude:</p>' + \
+                    '</div>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(magnitude) + '</p>' + \
+                    '</div>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">More Info :</p>' + \
+                    '</div>' + \
+                    '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><a href=' + str(url) + ' target="_blank">More Info</a></p>' + \
+                    '</div>' + \
+                    '</div>' + \
+                    '</div></div>' + \
+                    '</td></tr></table>'
+
     return contentString
 
 
@@ -584,9 +614,18 @@ def sendConcreteValuesToLG(request):
 
 
 def demoLastWeekEarthquakesHeatmap(request):
-    sendDemoKmlToLG("lastWeekEarthquakesHeatMap.kmz", request)
-    time.sleep(5)
-    sendFlyToToLG(36.778259, -119.417931, 14500000, 0, 0, 14500000, 2)
+    millis = int(round(time.time() * 1000))
+
+    command = "echo 'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+              "/static/demos/lastWeekEarthquakesHeatMap.kmz?a=" + str(millis) + \
+              "\n'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+              "/static/demos/WorldTour.kmz?a=" + str(millis)+" | sshpass -p " + getLGPass() \
+              + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
+    os.system(command)
+    time.sleep(2)
+    sendFlyToToLG(20.21078636181624, -111.3376967642952, 0, 1.372480247294665, 0, 14562650.06788917, 2)
+    time.sleep(2)
+    playTour("WorldTour")
     return HttpResponse(status=204)
 
 
@@ -607,3 +646,4 @@ def simulateEarthquake(playlist, latitude, longitude, magnitude):
         flyto.camera.range = 150000
         flyto.camera.tilt = bounce
         playlist.newgxwait(gxduration=0.01)
+

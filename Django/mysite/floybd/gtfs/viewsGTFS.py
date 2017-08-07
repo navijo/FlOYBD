@@ -147,63 +147,6 @@ def getAgenciesAndGenerateKML(request):
 
     millis = int(round(time.time() * 1000))
 
-    flyToLatMax = 0
-    flyToLatMin = 0
-    flyToLonMax = 0
-    flyToLonMin = 0
-
-    for selectedAgency in agencies:
-        agency = Agency.objects.get(agency_id=selectedAgency)
-
-        routes = Route.objects.filter(agency=agency)
-        for route in routes:
-
-            trips = Trip.objects.filter(route_id=route.route_id)
-
-            for trip in trips:
-                if trip.trip_id not in tripsAdded:
-                    tripsAdded.append(trip)
-
-                stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
-                for stop_time in stop_times:
-                    stop = stop_time.stop
-                    if stop.stop_id not in stops_added:
-                        logger.debug("Added Stop:" + stop.stop_id)
-                        stops_added.append(stop.stop_id)
-
-        for stop_id in stops_added:
-            stop = Stop.objects.get(stop_id=stop_id)
-
-            if flyToLatMax == 0:
-                flyToLatMax = stop.stop_lat
-                flyToLatMin = stop.stop_lat
-            elif stop.stop_lat > flyToLatMax:
-                flyToLatMax = stop.stop_lat
-            elif stop.stop_lat < flyToLatMin:
-                flyToLatMin = stop.stop_lat
-
-            if flyToLonMax == 0:
-                flyToLonMax = stop.stop_lon
-                flyToLonMin = stop.stop_lon
-            elif stop.stop_lon > flyToLonMax:
-                flyToLonMax = stop.stop_lon
-            elif stop.stop_lon < flyToLonMin:
-                flyToLonMin = stop.stop_lon
-
-    ip = getDjangoIp()
-
-    linesKml, carKml = getAgenciesTrips(maxCars, tripsAdded, millis)
-
-    flyToLon = (flyToLonMax + flyToLonMin) / 2
-    flyToLat = (flyToLatMax + flyToLatMin) / 2
-
-    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
-                                                                '/static/kmls/' + linesKml,
-                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat,
-                                                         'carKml': carKml, 'kmlName': linesKml})
-
-
-def getAgenciesTrips(maxCars, trips, millis):
     carsCounter = 0
     kmlCars = simplekml.Kml()
     kmlLines = simplekml.Kml()
@@ -215,7 +158,45 @@ def getAgenciesTrips(maxCars, trips, millis):
     firstPlacemark = True
     addedStops = []
     addedLines = {}
-    for trip in trips:
+
+    for selectedAgency in agencies:
+        agency = Agency.objects.get(agency_id=selectedAgency)
+        logger.info("Agency Name : " + str(agency.agency_name))
+        routes = Route.objects.filter(agency=agency)
+        for route in routes:
+            logger.info("Route Name : " + str(route.route_long_name))
+            trips = Trip.objects.filter(route_id=route.route_id)
+
+            for trip in trips:
+                if trip.trip_id not in tripsAdded:
+                    tripsAdded.append(trip)
+                    logger.info("Trip Id : " + str(trip.trip_id))
+                    stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
+                    for index, current in enumerate(stop_times):
+                        if index + 1 >= len(stop_times):
+                            continue
+                        nextelem = stop_times[index + 1]
+
+                        stop1 = current.stop
+                        stop2 = nextelem.stop
+                        if stop1 not in addedStops:
+                            addedStops.append(stop1)
+                            doPlacemarks(stop1, kmlLines)
+                        if stop2 not in addedStops:
+                            addedStops.append(stop2)
+                            doPlacemarks(stop2, kmlLines)
+
+
+    ip = getDjangoIp()
+
+    flyToLatMax = 0
+    flyToLatMin = 0
+    flyToLonMax = 0
+    flyToLonMin = 0
+
+    createCars(maxCars, tripsAdded, folderCars, playlistCars, kmlLines)
+
+    for trip in tripsAdded:
         stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
         for index, current in enumerate(stop_times):
             if index + 1 >= len(stop_times):
@@ -224,22 +205,63 @@ def getAgenciesTrips(maxCars, trips, millis):
 
             stop1 = current.stop
             stop2 = nextelem.stop
-            if stop1 not in addedStops:
-                addedStops.append(stop1)
-                doPlacemarks(stop1, kmlLines)
-            if stop2 not in addedStops:
-                addedStops.append(stop2)
-                doPlacemarks(stop2, kmlLines)
+            key = (stop1.stop_id, stop2.stop_id)
 
-            #doLines(stop1, stop2, kmlLines)
+            if flyToLatMax == 0:
+                flyToLatMax = stop1.stop_lat
+                flyToLatMin = stop1.stop_lat
+            elif stop1.stop_lat > flyToLatMax:
+                flyToLatMax = stop1.stop_lat
+            elif stop1.stop_lat < flyToLatMin:
+                flyToLatMin = stop1.stop_lat
 
+            if flyToLonMax == 0:
+                flyToLonMax = stop1.stop_lon
+                flyToLonMin = stop1.stop_lon
+            elif stop1.stop_lon > flyToLonMax:
+                flyToLonMax = stop1.stop_lon
+            elif stop1.stop_lon < flyToLonMin:
+                flyToLonMin = stop1.stop_lon
+
+            if key not in addedLines:
+                logger.info("\t Adding not included line")
+                doLinesNotIncluded(stop1, stop2, kmlLines)
+
+    flyToLon = (flyToLonMax + flyToLonMin) / 2
+    flyToLat = (flyToLatMax + flyToLatMin) / 2
+
+    carKml = "car_" + str(millis) + ".kmz"
+    linesKml = "lines_" + str(millis) + ".kml"
+    currentDir = os.getcwd()
+    dir1 = os.path.join(currentDir, "static/img")
+    imagePath = os.path.join(dir1, "trainYellow.png")
+    imagePath2 = os.path.join(dir1, "trainBlue.png")
+    logger.debug("Image located in " + imagePath)
+    logger.info("Cars to be added: " + str(maxCars))
+
+    kmlCars.addfile(imagePath)
+    kmlCars.addfile(imagePath2)
+    kmlCars.savekmz("static/kmls/" + carKml, format=False)
+    kmlLines.save("static/kmls/" + linesKml)
+
+    return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
+                                                                '/static/kmls/' + linesKml,
+                                                         'flyToLon': flyToLon, 'flyToLat': flyToLat,
+                                                         'carKml': carKml, 'kmlName': linesKml})
+
+
+def createCars(maxCars, trips, folderCars, playlistCars, kmlLines):
+    carsCounter = 0
+
+    firstPlacemark = True
+    addedLines = {}
 
     while carsCounter < maxCars:
         #We take a random trip
         randomTrip = random.sample(trips, 1)
         #We get its stops
         stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
-        logger.info("\tNew Car #", str(carsCounter))
+        logger.info("\tNew Car #" + str(carsCounter))
 
         for index, current in enumerate(stop_times):
             if index + 1 >= len(stop_times):
@@ -254,8 +276,8 @@ def getAgenciesTrips(maxCars, trips, millis):
                 stopSrc = stop_times[0].stop
                 stopDst = stop_times[len(stop_times) - 1].stop
                 routeName = 'From ' + str(stopSrc.stop_name) + ' to ' + str(stopDst.stop_name)
-                logger.info("\t Found long trip with " + str(len(stop_times)) + " stops. From " + stopSrc.stop_name + " to "
-                      + stopDst.stop_name)
+                logger.info("\t Found long trip with " + str(len(stop_times)) + " stops. From " + stopSrc.stop_name
+                            + " to " + stopDst.stop_name)
                 isLongTrip = True
             else:
                 routeName = 'From ' + str(stop1.stop_name) + ' to ' + str(stop2.stop_name)
@@ -268,35 +290,9 @@ def getAgenciesTrips(maxCars, trips, millis):
                 firstPlacemark = False
         carsCounter += 1
 
-    for trip in trips:
-        stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
-        for index, current in enumerate(stop_times):
-            if index + 1 >= len(stop_times):
-                continue
-            nextelem = stop_times[index + 1]
-
-            stop1 = current.stop
-            stop2 = nextelem.stop
-            key = (stop1.stop_id, stop2.stop_id)
-            if key not in addedLines:
-                logger.info("\t Adding not included line")
-                doLinesNotIncluded(stop1, stop2, kmlLines)
-
-    kmlCarsName = "car_" + str(millis) + ".kmz"
-    kmlLinesName = "lines_" + str(millis) + ".kml"
-    currentDir = os.getcwd()
-    dir1 = os.path.join(currentDir, "static/img")
-    imagePath = os.path.join(dir1, "trainYellow.png")
-    imagePath2 = os.path.join(dir1, "trainBlue.png")
-    logger.debug("Image located in ", imagePath)
-    logger.info("Cars to be added: " + str(maxCars))
     logger.info("Cars really added: " + str(carsCounter))
 
-    kmlCars.addfile(imagePath)
-    kmlCars.addfile(imagePath2)
-    kmlCars.savekmz("static/kmls/" + kmlCarsName, format=False)
-    kmlLines.save("static/kmls/" + kmlLinesName)
-    return kmlLinesName, kmlCarsName
+    return
 
 
 def doPlacemarks(stop, kmlTrips):

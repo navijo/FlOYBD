@@ -28,14 +28,31 @@
 
         $("#gtfsForm").submit(function (e) {
              var agencySelected = false;
+              e.preventDefault();
              $.each($("input[name='agenciesSelected']"), function( index, value ) {
                 if($(value).is(':checked')){
                     agencySelected = true;
                 }
              });
-                debugger;
              if(agencySelected){
-                  submitForm();
+                $('html,body').scrollTop(0);
+                e.preventDefault();
+
+                var options = {
+                'keyboard': true, // teardown when <esc> key is pressed
+                'static': true, // maintain overlay when clicked
+                };
+
+                mui.overlay('on',options);
+                $('#spinnerDiv').show()
+                $('.modal').toggleClass('show');
+                FLEXPAPER.utils.addSpinner({
+                    element     : 'spinner-target',
+                    width       : 666,
+                    height      : 666,
+                    logo        : "{% static 'img/gears.gif' %}"
+                });
+                 submitForm();
              }
              else{
                 e.preventDefault();
@@ -45,50 +62,30 @@
 });
 
 function submitForm(){
-    $("#gtfsForm").submit(function (e) {
-            $('html,body').scrollTop(0);
-            e.preventDefault();
-            var form_data = $(this).serialize();
-            var form_url = $(this).attr("action");
-            var form_method = $(this).attr("method").toUpperCase();
-
-            var options = {
-            'keyboard': true, // teardown when <esc> key is pressed
-            'static': true, // maintain overlay when clicked
-            };
-
-            mui.overlay('on',options);
-            $('#spinnerDiv').show()
-            $('.modal').toggleClass('show');
-            FLEXPAPER.utils.addSpinner({
-                element     : 'spinner-target',
-                width       : 666,
-                height      : 666,
-                logo        : "{% static 'img/gears.gif' %}"
-            });
-
-            $.ajax({
-                url: form_url,
-                type: form_method,
-                data: form_data,
-                cache: false,
-                success: function (returnhtml) {
-                   mui.overlay('off');
-                   $('.modal').toggleClass('hide');
-                   $('#spinnerDiv').hide()
-                   FLEXPAPER.utils.removeSpinner('spinner-target');
-                   $("body").html(returnhtml);
-                },
-                error: function(response){
-                   alert("Ooops, something went wrong. Please try again or contact the administrator");
-                   mui.overlay('off');
-                   $('.modal').toggleClass('hide');
-                   $('#spinnerDiv').hide()
-                   FLEXPAPER.utils.removeSpinner('spinner-target');
-                   $("body").html(response)
-                }
-            });
-        })
+       var form_data =  $("#gtfsForm").serialize();
+       var form_url =  $("#gtfsForm").attr("action");
+       var form_method =  $("#gtfsForm").attr("method").toUpperCase();
+       $.ajax({
+            url: form_url,
+            type: form_method,
+            data: form_data,
+            cache: false,
+            success: function (returnhtml) {
+               mui.overlay('off');
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+               FLEXPAPER.utils.removeSpinner('spinner-target');
+               $("body").html(returnhtml);
+            },
+            error: function(response){
+               alert("Ooops, something went wrong. Please try again or contact the administrator");
+               mui.overlay('off');
+               $('.modal').toggleClass('hide');
+               $('#spinnerDiv').hide()
+               FLEXPAPER.utils.removeSpinner('spinner-target');
+               $("body").html(response)
+            }
+        });
 }
 
 </script>
@@ -105,7 +102,8 @@ function submitForm(){
 
 <div id="content-wrapper">
 <div class="mui-container-fluid">
-      <div class="mui--text-center">
+    <div class="mui-row">
+         <div class="mui--text-center">
              <div id="spinnerDiv" style="display:none">
              <div class="modal"> </div>
                 <div class="overlay loading-indicator">
@@ -113,6 +111,7 @@ function submitForm(){
                </div>
             </div>
          </div>
+    </div>
     <div class="mui-row">
         <div class="mui-col-md-12">
         <div class="mui--appbar-height"></div>

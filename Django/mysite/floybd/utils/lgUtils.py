@@ -12,6 +12,12 @@ def sendDemoKmlToLG(fileName, request):
     os.system(command)
 
 
+def sendKmlToLG1(fileName, request):
+    millis = int(round(time.time() * 1000))
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" + str(millis) + \
+              "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_1.txt'"
+    os.system(command)
+
 def sendKmlToLG(fileName, request):
     millis = int(round(time.time() * 1000))
     command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" + str(millis) + \
@@ -53,6 +59,20 @@ def stopTour():
 def doFlyTo(playList, latitude, longitude, altitude, pRange, duration, tilt=77):
     flyto = playList.newgxflyto(gxduration=duration)
     flyto.gxflytomode = simplekml.GxFlyToMode.bounce
+    flyto.altitudemode = simplekml.AltitudeMode.relativetoground
+
+    flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor
+    flyto.lookat.longitude = float(longitude)
+    flyto.lookat.latitude = float(latitude)
+    flyto.lookat.altitude = altitude
+    flyto.lookat.heading = 0
+    flyto.lookat.tilt = tilt
+    flyto.lookat.range = pRange
+
+
+def doFlyToSmooth(playList, latitude, longitude, altitude, pRange, duration, tilt=77):
+    flyto = playList.newgxflyto(gxduration=duration)
+    flyto.gxflytomode = simplekml.GxFlyToMode.smooth
     flyto.altitudemode = simplekml.AltitudeMode.relativetoground
 
     flyto.lookat.gxaltitudemode = simplekml.GxAltitudeMode.relativetoseafloor

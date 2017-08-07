@@ -213,7 +213,6 @@ def getPrediction(request):
         concreteStation = Station.objects.get(station_id=station_id)
         predictionStr = ""
         kml = simplekml.Kml()
-        kml = simplekml.Kml()
 
         tour = kml.newgxtour(name="Show Balloon")
 
@@ -275,10 +274,10 @@ def sendPredictionsToLG(request):
 
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKmlToLG(fileName, request)
+    sendKmlToLG1(fileName, request)
 
-    time.sleep(1)
-    playTour("Show Balloon")
+    #time.sleep(1)
+    #playTour("Show Balloon")
 
     return render(request, 'floybd/weather/weatherPredictionView.html',
                   {'fileName': fileName, 'kml': kmlpath,
@@ -348,43 +347,164 @@ def getStats(request):
             if addGraphs:
                 contentString = getContentStringWithGraphs(row)
             else:
-                contentString = '<div id="content">' + \
-                                '<div id="siteNotice">' + \
+                contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                                '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                                '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                                '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                                '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + concreteStation.name + '</h1>' + \
+                                '<div id="bodyContent" style="text-align: center;">' + \
+                                '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Max Temp:</p>' + \
                                 '</div>' + \
-                                '<h1 id="firstHeading" class="firstHeading">' + concreteStation.name + '</h1>' + \
-                                '<div id="bodyContent">' + \
-                                '<br/><b>Avg Max Temp: </b>' + str(row.get("avgMaxTemp")) + \
-                                '<br/><b>Avg Med Temp: </b>' + str(row.get("avgMedTemp")) + \
-                                '<br/><b>Avg Min Temp: </b>' + str(row.get("avgMinTemp")) + \
-                                '<br/><b>Avg Max Pressure: </b>' + str(row.get("avgMaxPressure")) + \
-                                '<br/><b>Avg Min Pressure: </b>' + str(row.get("min_pressure")) + \
-                                '<br/><b>Avg Precip: </b>' + str(row.get("avgPrecip")) + \
-                                '<br/><b>Max Max Temp: </b>' + str(row.get("maxMaxTemp")) + \
-                                '<br/><b>Min Max Temp: </b>' + str(row.get("minMaxTemp")) + \
-                                '<br/><b>Max Med Temp: </b>' + str(row.get("maxMedTemp")) + \
-                                '<br/><b>Min Med Temp: </b>' + str(row.get("minMedTemp")) + \
-                                '<br/><b>Max Min Temp: </b>' + str(row.get("maxMinTemp")) + \
-                                '<br/><b>Min Min Temp: </b>' + str(row.get("minMinTemp")) + \
-                                '<br/><b>Max Precip: </b>' + str(row.get("maxPrecip")) + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(row.get("avgMaxTemp")) + ' ºC</p>' + \
                                 '</div>' + \
-                                '</div>'
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;"><b>Average Med Temp</b>:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(row.get("avgMedTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Min Temp:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(row.get("avgMinTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Max Pressure :</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(row.get("avgMaxPressure")) + ' hPa</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Min Pressure:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("avgMinPressure")) + ' hPa</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Precipitation:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("avgPrecip")) + ' mm</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Max Maximum Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("maxMaxTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Min Maximum Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("minMaxTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Max Medium Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("maxMedTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Min Medium Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("minMedTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Max Minimum Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("maxMinTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Min Minimum Temperature:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("minMaxTemp")) + ' ºC</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">Max Precipitation:</p>' + \
+                                '</div>' + \
+                                '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                                '<p style="font-size:1.5em;color:#474747;">' + str(
+                    row.get("maxPrecip")) + ' mm</p>' + \
+                                '</div>' + \
+                                '</div>' + \
+                                '</div></div>' + \
+                                '</td></tr></table>'
+
         else:
-            contentString = '<div id="content">' + \
-                            '<div id="siteNotice">' + \
+            contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                            '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                            '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                            '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + concreteStation.name + '</h1>' + \
+                            '<div id="bodyContent" style="text-align: center;">' + \
+                            '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Max Temp:</p>' + \
                             '</div>' + \
-                            '<h1 id="firstheading" class="firstheading">' + concreteStation.name + '</h1>' + \
-                            '<div id="bodycontent">' + \
-                            '<p>' + \
-                            '<br/><b>Avg max temp: </b>' + str(row.get("avg(max_temp)")) + \
-                            '<br/><b>Avg med temp: </b>' + str(row.get("avg(med_temp)")) + \
-                            '<br/><b>Avg min temp: </b>' + str(row.get("avg(min_temp)")) + \
-                            '<br/><b>Avg max pressure: </b>' + str(row.get("avg(max_pressure)")) + \
-                            '<br/><b>Avg min pressure: </b>' + str(row.get("avg(min_pressure)")) + \
-                            '<br/><b>Avg Precip: </b>' + str(row.get("avg(precip)")) + \
-                            '<br/><b>Avg insolation: </b>' + str(row.get("avg(insolation)")) + \
-                            '</p>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(max_temp)")) + ' ºC</p>' + \
                             '</div>' + \
-                            '</div>'
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Average Med Temp</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(med_temp)")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Min Temp:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(min_temp)")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Max Pressure :</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(max_pressure)")) + ' hPa</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Min Pressure:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(min_pressure)")) + ' hPa</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Precipitation:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(row.get("avg(precip)")) + ' mm</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Insolation:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+                row.get("avg(insolation)")) + '</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '</div></div>' + \
+                            '</td></tr></table>'
+
 
         stationData["contentString"] = contentString
         stationData["latitude"] = concreteStation.latitude
@@ -540,7 +660,8 @@ def getGraphDataForStats(request):
 
 def sendStatsToLG(request):
     fileName = request.POST.get("fileName")
-    sendKmlToLG(fileName, request)
+    #sendKmlToLG(fileName, request)
+    sendKmlToLG1(fileName, request)
     stations = Station.objects.all()
 
     allStations = request.POST.get('allStations', 0)
@@ -649,36 +770,86 @@ def getPredictionStats(request):
         concreteStation = Station.objects.get(station_id=station_id)
         kml = simplekml.Kml()
         if len(result) > 0:
-            contentString = '<div id="content">' + \
-                            '<div id="siteNotice">' + \
+            contentString = '<link href="//cdn.muicss.com/mui-0.9.20/css/mui.min.css" rel="stylesheet" type="text/css" />'+\
+                '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                            '<table class="" width="auto" heigth="auto" style="font-family: Roboto;"><tr><td>' + \
+                            '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                            '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + concreteStation.name + '</h1>' + \
+                            '<div id="bodyContent" style="text-align: center;font-family: Roboto;">' + \
+                            '<div class ="mui-container-fluid" >'+\
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Max Temperature</b>:</p>' + \
                             '</div>' + \
-                            '<h3 id="firstheading" class="firstheading">' + concreteStation.province + '</h3>' + \
-                            '<div id="bodycontent">' + \
-                            '<p>' + \
-                            '<br/><b>Max temp: </b>' + str(result[0].get("max_temp")) + \
-                            '<br/><b>Med temp: </b>' + str(result[0].get("med_temp")) + \
-                            '<br/><b>Min temp: </b>' + str(result[0].get("min_temp")) + \
-                            '<br/><b>Max pressure: </b>' + str(result[0].get("max_pressure")) + \
-                            '<br/><b>Min pressure: </b>' + str(result[0].get("min_pressure")) + \
-                            '<br/><b>Precip: </b>' + str(result[0].get("precip")) + \
-                            '<br/><b>Insolation: </b>' + str(result[0].get("insolation")) + \
-                            '</p>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(result[0].get("max_temp")) + ' ºC</p>' + \
                             '</div>' + \
-                            '</div>'
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Medium Temp</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("med_temp")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Minimum Temp</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("min_temp")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Maximum Pressure</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("max_pressure")) + ' hPa</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Minimum Pressure</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("min_pressure")) + ' hPa</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Precipitation</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("precip")) + ' mm</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '<div class="mui-row">' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;"><b>Insolation</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mui-col-md-6">' + \
+                            '<p style="font-size:1.5em;color:#474747;">' + str(
+                result[0].get("insolation")) + '</p>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '</div>' + \
+                            '</td></tr></table>'
 
-            point = kml.newpoint(name=concreteStation.name, description=contentString,
+
+            point = kml.newpoint(name="", description=contentString,
                          coords=[(concreteStation.longitude, concreteStation.latitude)])
 
             point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
-            point.gxballoonvisibility = 0
-
-            tour = kml.newgxtour(name="Show Balloon")
-            playlist = tour.newgxplaylist()
-
-            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
-            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
-                                               '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
-                .format(point.placemark.id)
+            point.style.balloonstyle.text = "$[description]"
+            point.gxballoonvisibility = 1
 
         millis = int(round(time.time() * 1000))
         fileName = "prediction_" + str(millis) + ".kml"
@@ -743,24 +914,58 @@ def currentWeather(request):
 
         latitude = float(jsonData.get("lat"))
         longitude = float(jsonData.get("lon"))
-        altitude = float(jsonData.get("alt"))
+        datetimeStr = datetime.datetime.strptime(jsonData.get("fint"), "%Y-%m-%dT%H:%M:%S").strftime(
+            '%H:%M:%S %Y-%m-%d')
 
-        contentString = '<div id="content">' + \
-                        '<div id="siteNotice">' + \
+        contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                        '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                        '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                        '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + jsonData.get(
+            "ubi") + '</h1>' + \
+                        '<h2 id="firstHeading" class="secondHeading" style="text-align:center">Station ID: ' + jsonData.get(
+            "idema") + '</h2>' + \
+                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' + datetimeStr + '</h3>' + \
+                        '<div id="bodyContent" style="text-align: center;">' + \
+                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Max Temp:</p>' + \
                         '</div>' + \
-                        '<h1 id="firstheading" class="firstheading">' + jsonData.get("ubi")+'</h1>' + \
-                        '<h2 id="secondheading" class="secondheading">' + jsonData.get("idema") + '</h2>' + \
-                        '<h3 id="thirdheading" class="thirdheading">' + jsonData.get("fint") + '</h3>' + \
-                        '<div id="bodycontent">' + \
-                        '<p>' + \
-                        '<br/><b>Max Temp: </b>' + str(jsonData.get("tamax")) + \
-                        '<br/><b>Actual Temp: </b>' + str(jsonData.get("ta")) + \
-                        '<br/><b>Min temp: </b>' + str(jsonData.get("tamin")) + \
-                        '<br/><b>Relative Humidity: </b>' + str(jsonData.get("hr")) + \
-                        '<br/><b>Precip: </b>' + str(jsonData.get("prec")) + \
-                        '</p>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+            jsonData.get("tamax")) + ' ºC</p>' + \
                         '</div>' + \
-                        '</div>'
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Actual Temp</b>:</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+            jsonData.get("ta")) + ' ºC</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Min Temp:</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+            jsonData.get("tamin")) + ' ºC</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Relative Humidity :</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+            jsonData.get("hr")) + ' %</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Precipitation:</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
+            jsonData.get("precip")).replace("None", "0") + ' mm</p>' + \
+                        '</div>' + \
+                        '</div>' + \
+                        '</div></div>' + \
+                        '</td></tr></table>'
 
         point = kml.newpoint(name=jsonData.get("ubi"), description=contentString,
                              coords=[(longitude, latitude)])

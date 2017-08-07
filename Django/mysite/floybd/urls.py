@@ -108,10 +108,23 @@ def sendLogos():
                                              yunits=simplekml.Units.fraction)
         screen.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
                                              yunits=simplekml.Units.fraction)
-        screen.size.x = 0.25
-        screen.size.y = 0.2
+        screen.size.x = 0.20
+        screen.size.y = 0.15
         screen.size.xunits = simplekml.Units.fraction
         screen.size.yunits = simplekml.Units.fraction
+
+        screenName = kml.newscreenoverlay(name='App name')
+        screenName.icon.href = "http://" + getDjangoIp() + ":8000/static/img/appNameTrans.png?a=" + str(millis)
+        screenName.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
+                                               yunits=simplekml.Units.fraction)
+        screenName.screenxy = simplekml.ScreenXY(x=0.3, y=0.95, xunits=simplekml.Units.fraction,
+                                             yunits=simplekml.Units.fraction)
+        screenName.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
+                                                 yunits=simplekml.Units.fraction)
+        screenName.size.x = 0.50
+        screenName.size.y = 0.07
+        screenName.size.xunits = simplekml.Units.fraction
+        screenName.size.yunits = simplekml.Units.fraction
 
         screen1 = kml.newscreenoverlay(name='Logos')
         screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png?a="+str(millis)
@@ -121,8 +134,8 @@ def sendLogos():
                                              yunits=simplekml.Units.fraction)
         screen1.rotationxy = simplekml.RotationXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
                                                yunits=simplekml.Units.fraction)
-        screen1.size.x = 0.5
-        screen1.size.y = 0.45
+        screen1.size.x = 0.3
+        screen1.size.y = 0.25
         screen1.size.xunits = simplekml.Units.fraction
         screen1.size.yunits = simplekml.Units.fraction
 
