@@ -1,5 +1,6 @@
-# FlOYBD
-## Install Guide
+# FlOYBD -- Fly Over Your Big Data
+The aim of this project is....
+## Installing / Getting started
 [Install Guide (In Process...)](../master/INSTALL.md)
 ## Within this repository
 
@@ -23,6 +24,10 @@ The following tree represents the directory hierarchy in this repository
 |-- Contains the requirements files that are needed to run all the infraestructure in a virtual python environment
 
 ```
+### Built With
+Python3, PySpark, Spark 2.02, Flask, Django, Cassandra
+## [Licensing](../master/LICENSE.md)
+
 ## Data copyright
 The data fetched through this project, despite its not uploaded into this repository, belongs to
 * Weather Open Data : [AEMET](http://www.aemet.es/es/portada) 
