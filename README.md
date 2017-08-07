@@ -1,5 +1,5 @@
 # FlOYBD -- Fly Over Your Big Data
-The aim of this project is....
+The aim of this project is to combine the power of a big data platform such as Spark with a web visualization application, such as Django, throught a Web Services Layer implemented in Flask, with the objective to let the user to visualize with ease and seamlessly weather and earthquakes data
 ## Installing / Getting started
 [Install Guide (In Process...)](../master/INSTALL.md)
 ## Within this repository
