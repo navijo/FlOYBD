@@ -26,7 +26,8 @@ The following tree represents the directory hierarchy in this repository
 ```
 ### Built With
 Python3, PySpark, Spark 2.02, Flask, Django, Cassandra
-## [Licensing](../master/LICENSE.md)
+## Licensing
+[MIT License](../master/LICENSE) - Copyright (c) 2017 Ivan Josa Llovera
 
 ## Data copyright
 The data fetched through this project, despite its not uploaded into this repository, belongs to
