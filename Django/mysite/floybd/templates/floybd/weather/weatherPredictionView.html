@@ -34,10 +34,9 @@
 			{% if stats %}
 				<input type="hidden" name="stats" value="1">
 			{% endif %}
-			 <a href="{% url 'floybd:dayWeather' %}">
-				<input type="button" value="Go Back" onclick="window.history.back();" class="mui-btn mui-btn--primary"/>
-			 </a>
 			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+			<input type="button" value="Go Back" onclick="window.history.back();" class="mui-btn mui-btn--primary"/>
+
 		</form>
 		</div>
 

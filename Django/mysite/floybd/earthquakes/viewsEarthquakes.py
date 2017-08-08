@@ -241,27 +241,33 @@ def populateInfoWindow(row, jsonData):
     datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
     url = jsonData.get("properties").get("detail")
-    contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
-                    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                    '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+    contentString = '<link rel = "stylesheet" href = ' \
+                    '"https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                    'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                    '<table width="560" style="font-family: Roboto;"><tr><td>' + \
                     '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
-                    '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + str(datetimeStr) + '</h3>' + \
+                    '<h1 id="firstHeading" class="thirdHeading" style="text-align:center">' + \
+                    str(row["place"]) + '</h1>' + \
+                    '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + \
+                    str(datetimeStr) + '</h3>' + \
                     '<div id="bodyContent" style="text-align: center;">' + \
-                    '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                    '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
+                    ' mdl-cell--6-col mdl-grid" style="width: 98%">' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Latitude:</p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Latitude</b>:</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(latitude) + '</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Longitude:</p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Longitude</b>:</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(longitude) + '</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Magnitude:</p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Magnitude</b>:</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(magnitude) + '</p>' + \
@@ -270,7 +276,8 @@ def populateInfoWindow(row, jsonData):
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">More Info :</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><a href=' + str(url) + ' target="_blank">More Info</a></p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><a href=' + str(url) + \
+                    ' target="_blank">USGS</a></p>' + \
                     '</div>' + \
                     '</div>' + \
                     '</div></div>' + \
@@ -324,12 +331,14 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                 polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                     radius=2000 * absMagnitude, number_of_vertices=100)
 
-                pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
+                pol = kml.newpolygon(name="", description=infowindow, outerboundaryis=polycircle.to_kml())
                 pol.style.polystyle.color = color
                 pol.style.polystyle.fill = 0
                 pol.style.polystyle.outline = 1
                 pol.style.linestyle.color = color
                 pol.style.linestyle.width = 10
+                pol.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+                pol.style.balloonstyle.text = "$[description]"
 
                 if createTour:
                     pol.visibility = 0
@@ -404,7 +413,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
 
         except ValueError:
             kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-            logging.error(absMagnitude)
+            logging.error(str(absMagnitude))
 
     if createTour:
         playlist.newgxwait(gxduration=3 * balloonDuration)
@@ -472,16 +481,16 @@ def createKmz(jsonData, date, millis, createTour, numberObtained, request):
                 polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                     radius=2000 * absMagnitude, number_of_vertices=100)
 
-                pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
-                #pol.style.polystyle.color = simplekml.Color.changealphaint(200, color)
+                pol = kml.newpolygon(name="", description=infowindow, outerboundaryis=polycircle.to_kml())
+
                 pol.style.polystyle.color = color
                 pol.style.polystyle.fill = 0
                 pol.style.polystyle.outline = 1
-                #pol.style.linestyle.color = simplekml.Color.changealphaint(200, color)
+
                 pol.style.linestyle.color = color
                 pol.style.linestyle.width = 10
-
-                #pol.tessellate = 1
+                pol.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+                pol.style.balloonstyle.text = "$[description]"
 
                 if createTour:
                     pol.visibility = 0

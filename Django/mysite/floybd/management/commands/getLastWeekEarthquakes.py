@@ -81,12 +81,14 @@ class Command(BaseCommand):
                     polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                         radius=2000 * absMagnitude, number_of_vertices=100)
 
-                    pol = kml.newpolygon(name=place, description=infowindow, outerboundaryis=polycircle.to_kml())
+                    pol = kml.newpolygon(name="", description=infowindow, outerboundaryis=polycircle.to_kml())
                     pol.style.polystyle.color = color
                     pol.style.polystyle.fill = 0
                     pol.style.polystyle.outline = 1
                     pol.style.linestyle.color = color
                     pol.style.linestyle.width = 10
+                    pol.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+                    pol.style.balloonstyle.text = "$[description]"
 
                     pol.visibility = 0
 
@@ -158,7 +160,7 @@ class Command(BaseCommand):
                         .format(pol.placemark.id)
             except ValueError:
                 kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-                self.stdout.write(absMagnitude)
+                self.stdout.write(str(absMagnitude))
 
             earthquakeNumber += 1
 
@@ -168,7 +170,7 @@ class Command(BaseCommand):
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/demos")
         dirPath2 = os.path.join(dir1, fileName)
-        self.stdout.write("Saving kml: ", dirPath2)
+        self.stdout.write("Saving kml: " + str(dirPath2))
         if os.path.exists(dirPath2):
             os.remove(dirPath2)
         kml.savekmz(dirPath2, format=False)
@@ -195,17 +197,46 @@ class Command(BaseCommand):
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
         url = jsonData.get("properties").get("detail")
-        contentString = '<div id="content">' + \
-                        '<div id="siteNotice">' + \
+
+        contentString = '<link rel = "stylesheet" href = ' \
+                        '"https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                        'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                        '<table width="560" style="font-family: Roboto;"><tr><td>' + \
+                        '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                        '<h1 id="firstHeading" class="thirdHeading" style="text-align:center">' + \
+                        str(row["place"]) + '</h1>' + \
+                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + \
+                        str(datetimeStr) + '</h3>' + \
+                        '<div id="bodyContent" style="text-align: center;">' + \
+                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
+                        ' mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Latitude</b>:</p>' + \
                         '</div>' + \
-                        '<h3>Occurred on ' + str(datetimeStr) + '</h3>' + \
-                        '<div id="bodyContent">' + \
-                        '<p>' + \
-                        '<br/><b>Latitude: </b>' + str(latitude) + \
-                        '<br/><b>Longitude: </b>' + str(longitude) + \
-                        '<br/><b>Magnitude: </b>' + str(magnitude) + \
-                        '<br/><a href=' + str(url) + ' target="_blank">More Info</a>' +\
-                        '</p>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(latitude) + '</p>' + \
                         '</div>' + \
-                        '</div>'
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Longitude</b>:</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(longitude) + '</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Magnitude</b>:</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(magnitude) + '</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">More Info :</p>' + \
+                        '</div>' + \
+                        '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><a href=' + str(url) + \
+                        ' target="_blank">USGS</a></p>' + \
+                        '</div>' + \
+                        '</div>' + \
+                        '</div></div>' + \
+                        '</td></tr></table>'
         return contentString
