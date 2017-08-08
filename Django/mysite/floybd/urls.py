@@ -114,7 +114,7 @@ def sendLogos():
         screen.size.yunits = simplekml.Units.fraction
 
         screenName = kml.newscreenoverlay(name='App name')
-        screenName.icon.href = "http://" + getDjangoIp() + ":8000/static/img/appNameTrans.png?a=" + str(millis)
+        screenName.icon.href = "http://" + getDjangoIp() + ":8000/static/img/logoFloybd.png?a=" + str(millis)
         screenName.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
                                                yunits=simplekml.Units.fraction)
         screenName.screenxy = simplekml.ScreenXY(x=0.3, y=0.95, xunits=simplekml.Units.fraction,
