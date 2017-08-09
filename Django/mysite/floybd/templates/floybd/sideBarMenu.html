@@ -96,7 +96,6 @@ function openHelpModal(message) {
 
 
 function slideSwitch() {
-    debugger;
     var $active = $('#slideshow IMG.active');
 
     if ( $active.length == 0 ) $active = $('#slideshow IMG:last');
@@ -152,19 +151,6 @@ function activateGreetingsModal(){
 
                 }
      });
-}
-
-function activateGreetingsModal1(){
-    var modalEl = document.createElement('div');
-    modalEl.className = "modal-greetings"
-
-    var img = document.createElement("img");
-    img.src = '{% static 'img/comuns.png' %}'
-
-    modalEl.appendChild(img);
-
-    // show modal
-    mui.overlay('on', modalEl);
 }
 
 function markActive(className){
