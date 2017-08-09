@@ -7,7 +7,8 @@ from django.http import JsonResponse, HttpResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-
+from django.conf import settings
+from django.http import JsonResponse
 
 def index(request):
     return render(request, 'floybd/index.html')
@@ -161,3 +162,14 @@ def create_webhook_answer(answer):
         "displayText": answer,
         "source": "API.AI-test-simple-Quiz"
     }
+
+
+def getSlideImage(request):
+    currentDir = os.getcwd()
+    dirName = "static/img/slides"
+    dir1 = os.path.join(currentDir, dirName)
+    images = []
+    for f in os.listdir(dir1):
+        if f.endswith("jpg") or f.endswith("png") or f.endswith("gif"):
+            images.append("%s%s/%s" % (settings.MEDIA_URL, dirName, f))
+    return JsonResponse({'images': images})

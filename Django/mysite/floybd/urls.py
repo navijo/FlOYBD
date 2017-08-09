@@ -88,7 +88,7 @@ urlpatterns = [
 
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
     url('webhook', views.webhook, name='webhook'),
-
+    url('getSlideImage', views.getSlideImage, name='getSlideImage'),
 
 
 

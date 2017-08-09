@@ -91,9 +91,70 @@ function openHelpModal(message) {
 
     // show modal
     mui.overlay('on', modalEl);
-  }
+ }
+
+
+
+function slideSwitch() {
+    debugger;
+    var $active = $('#slideshow IMG.active');
+
+    if ( $active.length == 0 ) $active = $('#slideshow IMG:last');
+
+    var $next =  $active.next().length ? $active.next()
+        : $('#slideshow IMG:first');
+
+    $active.addClass('last-active');
+
+    $next.css({opacity: 0.0})
+        .addClass('active')
+        .animate({opacity: 1.0}, 1000, function() {
+            $active.removeClass('active last-active');
+        });
+}
+
+
 
 function activateGreetingsModal(){
+     var modalEl = document.createElement('div');
+     modalEl.id = "slideshow"
+     modalEl.className = "modal-greetings"
+
+     var initDiv = "<div id='slideshow'>";
+     var html = "";
+
+     $.ajax({
+                url: "{% url 'floybd:getSlideImage' %}",
+                type: "GET",
+                cache: false,
+                dataType: 'json',
+                success: function (response) {
+                    var images =  response.images;
+                    $(images).each(function( index,value ) {
+                        if(index==0){
+                            html+="<img src='"+value+"' class='active'/>";
+                        }
+                        else{
+                           html+="<img src='"+value+"'/>";
+                        }
+                    });
+                    modalEl.innerHTML = html;
+                    var style="#slideshow {position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);}"+
+                                "#slideshow > img {background-color:white;position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);;z-index:8;display:none;}"+
+                                "#slideshow > img.active { z-index:10;display:block;}"+
+                                "#slideshow > img.last-active {z-index:9;display:none;}";
+                    $("<style>").text(style).appendTo("head");
+                    // show modal
+                    mui.overlay('on', modalEl);
+                    setInterval( "slideSwitch()", 5000 );
+                },
+                error: function(response){
+
+                }
+     });
+}
+
+function activateGreetingsModal1(){
     var modalEl = document.createElement('div');
     modalEl.className = "modal-greetings"
 
