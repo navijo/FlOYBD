@@ -13,12 +13,6 @@ min_stations = 2
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-
-# api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYXZpam9AZ21haWwuY29tIiwianRpIjoiNjc2NzMzYzYtYTkyZS00ODdmLTg2MGYtNTEyNDMzYjAyM2EwIiwiZXhwIjoxNDk0OTM1NDk3LCJpc3MiOiJBRU1FVCIsImlhdCI6MTQ4NzE1OTQ5NywidXNlcklkIjoiNjc2NzMzYzYtYTkyZS00ODdmLTg2MGYtNTEyNDMzYjAyM2EwIiwicm9sZSI6IiJ9.Vku7JZCAbUtBbf3KKx1lV7v_PRgKVT7iHaT2G97ZcYY"
-# api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpdmFuam9zYWxsb3ZlcmFAZ21haWwuY29tIiwianRpIjoiNThiY2YwZDktNWVjYy00YjQ5LTlmZDMtNGQ1MTM1NDQ0ZmM2IiwiZXhwIjoxNDk2NDgxMzMyLCJpc3MiOiJBRU1FVCIsImlhdCI6MTQ4ODcwNTMzMiwidXNlcklkIjoiNThiY2YwZDktNWVjYy00YjQ5LTlmZDMtNGQ1MTM1NDQ0ZmM2Iiwicm9sZSI6IiJ9.i-suJDCQaimiMsoqwx3R0dH3aClTAThcfTcnq2hm4R4"
-# api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpam9zYUBhbHVtbmVzLnVkbC5jYXQiLCJqdGkiOiI2ZjRkNWE4Yi00NzViLTRlMTctOGZlYS1jODVmZDI0NGQ3ZTgiLCJleHAiOjE0OTY0ODIxNDIsImlzcyI6IkFFTUVUIiwiaWF0IjoxNDg4NzA2MTQyLCJ1c2VySWQiOiI2ZjRkNWE4Yi00NzViLTRlMTctOGZlYS1jODVmZDI0NGQ3ZTgiLCJyb2xlIjoiIn0.p48pjK_6d7Abyp5tPtWgCHxSP0uw0C1V68KAzWNzXkg"
-
-
 def dms2dd(degrees, minutes, seconds, direction):
     dd = float(degrees) + float(minutes) / 60 + float(seconds) / (60 * 60)
     if direction == 'S' or direction == 'W':
@@ -380,6 +374,5 @@ if __name__ == "__main__":
     cluster = Cluster(['192.168.246.236'])
     session = cluster.connect("dev")
 
-    # api_key = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpdmFuam9zYWxsb3ZlcmFAZ21haWwuY29tIiwianRpIjoiNThiY2YwZDktNWVjYy00YjQ5LTlmZDMtNGQ1MTM1NDQ0ZmM2IiwiZXhwIjoxNDk2NDgxMzMyLCJpc3MiOiJBRU1FVCIsImlhdCI6MTQ4ODcwNTMzMiwidXNlcklkIjoiNThiY2YwZDktNWVjYy00YjQ5LTlmZDMtNGQ1MTM1NDQ0ZmM2Iiwicm9sZSI6IiJ9.i-suJDCQaimiMsoqwx3R0dH3aClTAThcfTcnq2hm4R4"
     main(sys.argv[1:])
     printLog("END => " + str(time.time() - start_time))
