@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import shutil
 
 
 
@@ -17,11 +18,12 @@ def initEnvironment():
     global sc, sql, cluster, session
 
     conf = SparkConf()
-    conf.setMaster("spark://192.168.246.236:7077")
+    #conf.setMaster("spark://192.168.246.236:7077")
+    conf.setMaster("local[*]")
     conf.setAppName("Spark Graphs Generation")
     conf.set("spark.cassandra.connection.host", "192.168.246.236")
     conf.set("spark.executor.memory", "10g")
-    conf.set("spark.num.executors", "2")
+    conf.set("spark.num.executors", "1")
 
     sc = SparkContext(conf=conf)
     sql = SQLContext(sc)
@@ -59,14 +61,15 @@ def generateGraphs():
 
             numregs = dataframe[column].count()
 
-            plot = dataframe.plot(kind='bar', y=column, x='measure_date', figsize=(20, 15))
+          
+            plot = dataframe.plot(y=column, x=dataframe['measure_date'], figsize=(20, 15))
 
             n = int(0.034*numregs)
 
-            ticks = plot.xaxis.get_ticklocs()
-            ticklabels = [l.get_text() for l in plot.xaxis.get_ticklabels()]
-            plot.xaxis.set_ticks(ticks[::n])
-            plot.xaxis.set_ticklabels(ticklabels[::n])
+            #ticks = plot.xaxis.get_ticklocs()
+            #ticklabels = [l.get_text() for l in plot.xaxis.get_ticklabels()]
+            #plot.xaxis.set_ticks(ticks[::n])
+            #plot.xaxis.set_ticklabels(ticklabels[::n])
 
             fig = plot.get_figure()
             fig.savefig(stationpath + "/" + row.station_id + "_" + column + ".png")
@@ -80,4 +83,5 @@ if __name__ == "__main__":
 
     initEnvironment()
     loadData()
+    shutil.rmtree("/home/ubuntu/GSOC17/FlOYBD/Flask/graphs/")
     generateGraphs()
