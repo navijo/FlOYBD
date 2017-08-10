@@ -38,29 +38,6 @@ def loadData():
     daily = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="dev", table="clean_daily_measurement")
 
 
-def printMaxTemp():
-    # Daily Measurement max and average temperature
-    maxs = daily.groupBy('station_id').agg(max('max_temp'), avg('max_temp'))
-    new_df = maxs.join(stations, on=['station_id'], how='left_outer')
-    new_df.orderBy("max(max_temp)", ascending=False).select("station_id", "name", "province", "max(max_temp)",
-                                                            "avg(max_temp)").show()
-    new_df.orderBy("avg(max_temp)", ascending=False).select("station_id", "name", "province", "max(max_temp)",
-                                                            "avg(max_temp)").show()
-
-
-def printConcreteStationData(pStationId):
-    start_time = time.time()
-    print("Values for station: ", pStationId)
-    stationTemps = daily[daily.station_id == pStationId].groupBy('station_id').agg(max('max_temp'), avg('max_temp'),
-                                                                                   count("*"))
-    new_df = stationTemps.join(stations, on=['station_id'], how='left_outer')
-    new_df.select("station_id", "name", "province", "max(max_temp)", "avg(max_temp)", "count(1)").withColumnRenamed(
-        "count(1)", "numberRegs").withColumnRenamed("max(max_temp)", "Max Temp").withColumnRenamed("avg(max_temp)",
-                                                                                                   "Average Max Temp").show()
-    print("--- %s seconds ---" % (time.time() - start_time))
-    return new_df.select("avg(max_temp)").withColumnRenamed("avg(max_temp)", "value")
-
-
 def getStationValueDate(pStationId, date):
     startDate = datetime.strptime(date, '%Y-%M-%d')
     stationData = daily[(daily.station_id == pStationId) & (daily.measure_date == date)]
