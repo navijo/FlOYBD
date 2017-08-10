@@ -15,7 +15,7 @@ class Api_key(Model):
 #Station Model
 class Station(Model):
     station_id		= columns.Text(primary_key=True)
-    name			= columns.Text(index=True)
+    name		= columns.Text(index=True)
     latitude		= columns.Text(required=True)
     longitude		= columns.Text(required=True)
     altitude		= columns.Integer(required=True)
@@ -24,7 +24,6 @@ class Station(Model):
 
 #Measurement Model for monthly values
 class Monthly_Measurement(Model):
-#    measurement_id			= columns.Text(primary_key=True)
     station_id				= columns.Text(primary_key=True,required=True) #indicativo
     measure_date			= columns.DateTime(primary_key=True,required=True) #fecha
     steam_press				= columns.Decimal(required=False) #e
@@ -160,54 +159,36 @@ class Station_NaiveBayes_Prediction(Model):
     province			= columns.Text(required=False,index=True)
 
 
-#Reservoir
-class Reservoir(Model):
-    reservoir_name      = columns.Text(primary_key=True,required=True) #
-    measure_date        = columns.Text(primary_key=True,required=True) #
-    reservoir_type      = columns.Integer(primary_key=True,required=True) # 0:Water, 1:Energy
-    latitude            = columns.Text(required=True)
-    longitude           = columns.Text(required=True)
-    capacity            = columns.Decimal(required=False) #
-    actual_reservoir    = columns.Decimal(required=False) #
-    last_year_reservoir = columns.Decimal(required=False) #
-    five_years_med      = columns.Decimal(required=False) #
-    ten_years_med       = columns.Decimal(required=False) #
-
-
 #Earthquake
 class Earthquake(Model):
     eventId             = columns.Text(primary_key=True,required=True)
-    place               = columns.Text(required=True,index=True) #
-    time                = columns.Text(required=True,index=True) #
-    fecha               = columns.DateTime(required=True,index=True) #
+    place               = columns.Text(required=True,index=True) 
+    time                = columns.Text(required=True,index=True) 
+    fecha               = columns.DateTime(required=True,index=True) 
     magnitude           = columns.Decimal(required=True)
     depth               = columns.Decimal(required=True)
     longitude           = columns.Decimal(required=True,index=True)
     latitude            = columns.Decimal(required=True,index=True)
-    geojson             = columns.Text(required=True) #
-    quadrant            = columns.Text(index=True) #
-    quadrantX           = columns.Decimal(index=True) #
-    quadrantY           = columns.Decimal(index=True) #
+    geojson             = columns.Text(required=True) 
+    quadrant            = columns.Text(index=True) 
+    quadrantX           = columns.Decimal(index=True) 
+    quadrantY           = columns.Decimal(index=True) 
 
 #LinearModel
 class LinearModel(Model):
-    #uid             = columns.UUID(primary_key=True,required=True)
-    name            = columns.Text(primary_key=True,required=True) #
-    model           = columns.Blob(required=True) #
+    name            = columns.Text(primary_key=True,required=True) 
+    model           = columns.Blob(required=True) 
 
 
-# next, setup the connection to your cassandra server(s)...
-# see http://datastax.github.io/python-driver/api/cassandra/cluster.html for options
-# the list of hosts will be passed to create a Cluster() instance
 connection.setup(['127.0.0.1','192.168.246.236'], "dev", protocol_version=3)
 
 #Create CQL tables
-#sync_table(Station)
-#sync_table(Monthly_Measurement)
-#sync_table(Daily_Measurement)
+sync_table(Station)
+sync_table(Monthly_Measurement)
+sync_table(Daily_Measurement)
 sync_table(Earthquake)
-#sync_table(Station_limits)
-#sync_table(Clean_Daily_Measurement)
-#sync_table(Station_Regression_Prediction)
-#sync_table(Station_NaiveBayes_Prediction)
-#sync_table(LinearModel)
+sync_table(Station_limits)
+sync_table(Clean_Daily_Measurement)
+sync_table(Station_Regression_Prediction)
+sync_table(Station_NaiveBayes_Prediction)
+sync_table(LinearModel)
