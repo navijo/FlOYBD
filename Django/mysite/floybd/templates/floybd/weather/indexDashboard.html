@@ -15,6 +15,15 @@
         var selectedStation = $("#combobox").val()
         var daysBefore = $("#daysBefore").val()
 
+         var options = {
+            'keyboard': true, // teardown when <esc> key is pressed
+            'static': true, // maintain overlay when clicked
+            };
+
+         mui.overlay('on',options);
+         $('#spinnerDiv').show()
+         $('.modal').toggleClass('show');
+
         FLEXPAPER.utils.addSpinner({
             element     : 'spinner-target',
             width       : 500,
@@ -22,7 +31,6 @@
             logo        : "{% static 'img/gear.gif' %}"
         });
 
-        mui.overlay('on');
 
         $.ajax({
             url: 'viewDashboard/',

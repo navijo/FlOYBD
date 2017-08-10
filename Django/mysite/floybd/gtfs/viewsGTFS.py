@@ -142,12 +142,10 @@ def viewgtfs(request):
 def getAgenciesAndGenerateKML(request):
     agencies = request.POST.getlist('agenciesSelected')
     maxCars = int(request.POST.get('maxCars'))
-    stops_added = []
     tripsAdded = []
 
     millis = int(round(time.time() * 1000))
 
-    carsCounter = 0
     kmlCars = simplekml.Kml()
     kmlLines = simplekml.Kml()
     tourCars = kmlCars.newgxtour(name="GTFSTour")
@@ -155,9 +153,14 @@ def getAgenciesAndGenerateKML(request):
     folderCars = kmlCars.newfolder(name="Cars")
     folderCars.visibility = 1
 
-    firstPlacemark = True
     addedStops = []
     addedLines = {}
+
+    isHyperloop = False
+    for selectedAgency in agencies:
+        agency = Agency.objects.get(agency_id=selectedAgency)
+        isHyperloop = (agency.agency_name == "US Agency" or agency.agency_name == "Europe Agency")
+        break
 
     for selectedAgency in agencies:
         agency = Agency.objects.get(agency_id=selectedAgency)
@@ -166,7 +169,10 @@ def getAgenciesAndGenerateKML(request):
         for route in routes:
             logger.info("Route Name : " + str(route.route_long_name))
             trips = Trip.objects.filter(route_id=route.route_id)
-
+            numberOfTrips = len(trips)
+            logger.info("Total trips : " + str(numberOfTrips))
+            if numberOfTrips > 10*maxCars:
+                trips = random.sample(list(trips), 10*maxCars)
             for trip in trips:
                 if trip.trip_id not in tripsAdded:
                     tripsAdded.append(trip)
@@ -179,13 +185,14 @@ def getAgenciesAndGenerateKML(request):
 
                         stop1 = current.stop
                         stop2 = nextelem.stop
+                        distance = getDistanceBetweenPoints(stop1.stop_lat, stop1.stop_lon,
+                                                            stop2.stop_lat, stop2.stop_lon)
                         if stop1 not in addedStops:
                             addedStops.append(stop1)
-                            doPlacemarks(stop1, kmlLines)
+                            doPlacemarks(stop1, kmlLines, distance, isHyperloop)
                         if stop2 not in addedStops:
                             addedStops.append(stop2)
-                            doPlacemarks(stop2, kmlLines)
-
+                            doPlacemarks(stop2, kmlLines, distance, isHyperloop)
 
     ip = getDjangoIp()
 
@@ -194,7 +201,7 @@ def getAgenciesAndGenerateKML(request):
     flyToLonMax = 0
     flyToLonMin = 0
 
-    createCars(maxCars, tripsAdded, folderCars, playlistCars, kmlLines)
+    createCars(maxCars, tripsAdded, folderCars, playlistCars, kmlLines, addedLines, isHyperloop)
 
     for trip in tripsAdded:
         stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
@@ -225,7 +232,7 @@ def getAgenciesAndGenerateKML(request):
 
             if key not in addedLines:
                 logger.info("\t Adding not included line")
-                doLinesNotIncluded(stop1, stop2, kmlLines)
+                doLinesNotIncluded(stop1, stop2, kmlLines, isHyperloop)
 
     flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
@@ -241,7 +248,9 @@ def getAgenciesAndGenerateKML(request):
 
     kmlCars.addfile(imagePath)
     kmlCars.addfile(imagePath2)
+    logger.info("Saving Car KMZ")
     kmlCars.savekmz("static/kmls/" + carKml, format=False)
+    logger.info("Saving Lines KMZ")
     kmlLines.save("static/kmls/" + linesKml)
 
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
@@ -250,11 +259,10 @@ def getAgenciesAndGenerateKML(request):
                                                          'carKml': carKml, 'kmlName': linesKml})
 
 
-def createCars(maxCars, trips, folderCars, playlistCars, kmlLines):
+def createCars(maxCars, trips, folderCars, playlistCars, kmlLines, addedLines, isHyperloop):
     carsCounter = 0
 
     firstPlacemark = True
-    addedLines = {}
 
     while carsCounter < maxCars:
         #We take a random trip
@@ -284,7 +292,7 @@ def createCars(maxCars, trips, folderCars, playlistCars, kmlLines):
                 isLongTrip = False
 
             doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines, addedLines, routeName,
-                           isLongTrip)
+                           isLongTrip, isHyperloop)
 
             if firstPlacemark:
                 firstPlacemark = False
@@ -295,11 +303,20 @@ def createCars(maxCars, trips, folderCars, playlistCars, kmlLines):
     return
 
 
-def doPlacemarks(stop, kmlTrips):
+def doPlacemarks(stop, kmlTrips, distance, isHyperloop):
     point = kmlTrips.newpoint(name=stop.stop_name + " HUB")
-    point.coords = [(stop.stop_lon, stop.stop_lat, 50000)]
+
+    if isHyperloop:
+        altitude = 50000
+    elif distance <= 200:
+        altitude = 5000
+    else:
+        altitude = 50000
+
+    point.coords = [(stop.stop_lon, stop.stop_lat, altitude)]
     point.altitudemode = simplekml.AltitudeMode.relativetoground
-    point.extrude = 1
+    if isHyperloop:
+        point.extrude = 1
     point.linestyle.width = 20
     point.style.labelstyle.scale = 1.5
     point.style.labelstyle.color = simplekml.Color.blue
@@ -307,10 +324,36 @@ def doPlacemarks(stop, kmlTrips):
     point.style.iconstyle.icon.href = "http://maps.google.com/mapfiles/kml/shapes/subway.png"
 
 
-def doLinesNotIncluded(stopSrc, stopDst, kmlTrips):
+def doLinesNotIncluded(stopSrc, stopDst, kmlTrips, isHyperloop):
+    distance = getDistanceBetweenPoints(stopSrc.stop_lat, stopSrc.stop_lon, stopDst.stop_lat, stopDst.stop_lon)
+
+    if isHyperloop:
+        altitude = 50000
+    elif distance <= 200:
+        altitude = 5000
+    else:
+        altitude = 50000
 
     linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
-    linestring.coords = [(stopSrc.stop_lon, stopSrc.stop_lat, 50000), (stopDst.stop_lon, stopDst.stop_lat, 50000)]
+    linestring.coords = [(stopSrc.stop_lon, stopSrc.stop_lat, altitude), (stopDst.stop_lon, stopDst.stop_lat, altitude)]
+    linestring.altitudemode = simplekml.AltitudeMode.relativetoground
+    linestring.tesellate = 1
+    linestring.style.linestyle.width = 15
+    linestring.style.linestyle.color = "FF7800F0"
+
+
+def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips, isHyperloop):
+    distance = getDistanceBetweenPoints(stopSrc.stop_lat, stopSrc.stop_lon, stopDst.stop_lat, stopDst.stop_lon)
+
+    if isHyperloop:
+        altitude = 50000
+    elif distance <= 200:
+        altitude = 5000
+    else:
+        altitude = 50000
+
+    linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
+    linestring.coords = [(startLon, startLat, altitude), (dstLon, dstLat, altitude)]
     linestring.altitudemode = simplekml.AltitudeMode.relativetoground
     #linestring.extrude = 1
     linestring.tesellate = 1
@@ -318,18 +361,8 @@ def doLinesNotIncluded(stopSrc, stopDst, kmlTrips):
     linestring.style.linestyle.color = "FF7800F0"
 
 
-def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips):
-
-    linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
-    linestring.coords = [(startLon, startLat, 50000), (dstLon, dstLat, 50000)]
-    linestring.altitudemode = simplekml.AltitudeMode.relativetoground
-    #linestring.extrude = 1
-    linestring.tesellate = 1
-    linestring.style.linestyle.width = 15
-    linestring.style.linestyle.color = "FF7800F0"
-
-
-def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines, routeName, isLongTrip):
+def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines, routeName, isLongTrip,
+                   isHyperloop):
 
     startLatitude = float(stopSrc.stop_lat)
     startLongitude = float(stopSrc.stop_lon)
@@ -337,10 +370,32 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     objectiveLongitude = float(stopDst.stop_lon)
     addedLines[(stopSrc.stop_id, stopDst.stop_id)] = True
 
+    distance = getDistanceBetweenPoints(startLatitude, startLongitude, objectiveLatitude, objectiveLongitude)
+
     zoomFactor = 1500000
     cameraRange = 1500000
     movementFactor = 100
     camera = 0.01
+
+    if not isHyperloop:
+        if distance < 200:
+            zoomFactor = 50000
+            cameraRange = 50000
+        elif 200 < distance <= 500:
+            zoomFactor = 100000
+            cameraRange = 100000
+        elif 500 < distance < 1000:
+            print("Distance between 500 and 1000")
+            zoomFactor = 1500000
+            cameraRange = 1500000
+        elif 1000 < distance < 2000:
+            print("Distance between 1000 and 2000")
+            zoomFactor = 1500000
+            cameraRange = 1500000
+        elif distance > 2000:
+            print("Distance over 2000")
+            zoomFactor = 1500000
+            cameraRange = 1500000
 
     latitudeModificator = (objectiveLatitude - startLatitude) / float(movementFactor)
     longitudeModificator = (objectiveLongitude - startLongitude) / float(movementFactor)
@@ -360,11 +415,19 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     longitudeAchieved = startLongitude >= objectiveLongitude if incrementLongitude else (
         startLongitude <= objectiveLongitude)
 
+    if isHyperloop:
+        altitude = 50000
+    elif distance <= 200:
+        altitude = 5000
+    else:
+        altitude = 50000
+
+
     counter = 0
     firstCarOfTrip = True
     while not latitudeAchieved and not longitudeAchieved:
         currentPoint = folder.newpoint(name=routeName)
-        currentPoint.coords = [(startLongitude, startLatitude, 50000)]
+        currentPoint.coords = [(startLongitude, startLatitude, altitude)]
         currentPoint.altitudemode = simplekml.AltitudeMode.relativetoground
 
         if firstPlacemark:
@@ -418,7 +481,7 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
         doLines(stopSrc, stopDst, startLatitude, startLongitude,
                 startLatitude+latitudeModificator,
                 startLongitude+longitudeModificator,
-                kmlLines)
+                kmlLines, isHyperloop)
 
         if not latitudeAchieved:
             startLatitude += latitudeModificator

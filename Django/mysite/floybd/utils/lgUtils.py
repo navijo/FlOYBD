@@ -7,20 +7,24 @@ import time
 def sendDemoKmlToLG(fileName, request):
 
     millis = int(round(time.time() * 1000))
-    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/" + fileName + "?a=" + str(millis) + \
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/" + fileName + "?a=" +\
+              str(millis) + \
               "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
 
 def sendKmlToLG1(fileName, request):
     millis = int(round(time.time() * 1000))
-    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" + str(millis) + \
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" +\
+              str(millis) + \
               "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_1.txt'"
     os.system(command)
 
+
 def sendKmlToLG(fileName, request):
     millis = int(round(time.time() * 1000))
-    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" + str(millis) + \
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/kmls/" + fileName + "?a=" +\
+              str(millis) + \
               "' | sshpass -p "+getLGPass()+" ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 

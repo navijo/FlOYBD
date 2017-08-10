@@ -10,6 +10,7 @@ from ..utils.lgUtils import *
 from django.http import JsonResponse, HttpResponse
 from collections import defaultdict
 from simplejson.scanner import JSONDecodeError
+from django.core.urlresolvers import resolve
 
 import logging
 logger = logging.getLogger("django")
@@ -211,44 +212,66 @@ def getPrediction(request):
         except JSONDecodeError:
             return render(request, '500.html')
         concreteStation = Station.objects.get(station_id=station_id)
-        predictionStr = ""
+
         kml = simplekml.Kml()
-
         tour = kml.newgxtour(name="Show Balloon")
-
         playlist = tour.newgxplaylist()
+
+        contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/' \
+                        'material.blue_grey-red.min.css" / > ' + \
+                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                        'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                        '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                        '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                        '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + \
+                        concreteStation.name + '</h1>' + \
+                        '<div id="bodyContent" style="text-align: center;">' + \
+                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
+                        ' mdl-cell--6-col mdl-grid" style="width: 98%">'
+
         for row in result:
             jsonRow = json.loads(row)
 
             for column in columnsToPredict:
                 if jsonRow.get("prediction_" + column) is not None:
-                    predictionStr += '<br/><b>' + column + ': </b>' + str(jsonRow.get("prediction_" + column))
+                    contentString += '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
+                                    '<p style="font-size:1.5em;color:#474747;">' \
+                                     '<b>' + column + '</b>'\
+                                     ':</p></div><div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
+                                     '<p style="font-size:1.5em;color:#474747;">' + \
+                                     str("%.2f" % round(jsonRow.get("prediction_" + column), 2)) + '</p></div>'
+        contentString += '</div></div></div></td></tr></table>'
 
-        contentString = '<div id="content">' + \
-                        '<div id="siteNotice">' + \
-                        '</div>' + \
-                        '<div id="bodyContent">' + \
-                        '<p>' + predictionStr + '</p>' + \
-                        '</div>' + \
-                        '</div>'
-        point = kml.newpoint(name=concreteStation.name, description=contentString,
+        point = kml.newpoint(name="", description=contentString,
                      coords=[(concreteStation.longitude, concreteStation.latitude)])
         point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
-        flyto = playlist.newgxflyto(gxduration=4,
-                                    gxflytomode=simplekml.GxFlyToMode.smooth)
-        flyto.camera.longitude = concreteStation.longitude
-        flyto.camera.latitude = concreteStation.latitude
-        flyto.camera.altitude = 400
-        flyto.camera.range = 400000
-        flyto.camera.tilt = 20
+        point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+        point.style.balloonstyle.text = "$[description]"
+        point.gxballoonvisibility = 0
 
-        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.5)
+
+        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 0, 4855570, 3.0, 0)
+        playlist.newgxwait(gxduration=3.0)
+        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 5.0, 0)
+        playlist.newgxwait(gxduration=5.0)
+        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 1)
+        playlist.newgxwait(gxduration=1)
+
+        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=5.0)
         animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                            '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
             .format(point.placemark.id)
 
-        millis = int(round(time.time() * 1000))
-        fileName = "prediction_" + str(millis) + ".kml"
+        doRotation(playlist, float(concreteStation.latitude), float(concreteStation.longitude), 1000, 5000)
+
+        playlist.newgxwait(gxduration=5.0)
+
+        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+                                           '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+            .format(point.placemark.id)
+
+        fileName = "prediction.kml"
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
@@ -258,7 +281,7 @@ def getPrediction(request):
         kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
-                      {'fileName': fileName, 'kml': kmlpath,
+                      {'fileName': fileName, 'kml': kmlpath, 'backUrl': resolve("/predictWeather").url_name,
                        'concreteStation': concreteStation})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')
@@ -266,21 +289,19 @@ def getPrediction(request):
 
 def sendPredictionsToLG(request):
     fileName = request.POST.get("fileName")
+    backUrl = request.POST.get("backUrl")
     ip = getDjangoIp()
     kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
-
     station_id = request.POST.get("station_id")
     stats = request.POST.get("stats", 0)
 
     concreteStation = Station.objects.get(station_id=station_id)
 
     sendKmlToLG(fileName, request)
-
-    time.sleep(1)
     playTour("Show Balloon")
 
     return render(request, 'floybd/weather/weatherPredictionView.html',
-                  {'fileName': fileName, 'kml': kmlpath,
+                  {'fileName': fileName, 'kml': kmlpath, 'backUrl': backUrl,
                    'concreteStation': concreteStation, 'stats': stats == str("1")})
 
 
@@ -528,7 +549,7 @@ def getStats(request):
                      coords=[(stationData["longitude"], stationData["latitude"])])
         point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
         point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
-        point.style.balloonstyle.text = stationData["contentString"]
+        point.style.balloonstyle.text = "$[description]"
         #point.gxballoonvisibility = 0
 
         if allStationsBool:
@@ -580,8 +601,7 @@ def getStats(request):
                                                '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 
-    millis = int(round(time.time() * 1000))
-    fileName = "stats_" + str(millis) + ".kml"
+    fileName = "stats.kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
@@ -883,8 +903,7 @@ def getPredictionStats(request):
                                                '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 
-        millis = int(round(time.time() * 1000))
-        fileName = "prediction_" + str(millis) + ".kml"
+        fileName = "prediction.kml"
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
@@ -894,7 +913,7 @@ def getPredictionStats(request):
         kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
-                      {'fileName': fileName, 'kml': kmlpath,
+                      {'fileName': fileName, 'kml': kmlpath,'backUrl': resolve("/predictWeatherStats").url_name,
                        'concreteStation': concreteStation, 'stats': True})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')

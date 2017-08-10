@@ -31,12 +31,14 @@
 			{% csrf_token %}
 			<input type="hidden" name="station_id" value="{{ concreteStation.station_id }}">
 			<input type="hidden" name="fileName" value="{{ fileName }}">
+			<input type="hidden" name="backUrl" value="{{ backUrl }}">
 			{% if stats %}
 				<input type="hidden" name="stats" value="1">
 			{% endif %}
 			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
-			<input type="button" value="Go Back" onclick="window.history.back();" class="mui-btn mui-btn--primary"/>
-
+			<a href="/{{ backUrl }}">
+				<input type="button" value="Go Back" class="mui-btn mui-btn--primary"/>
+			</a>
 		</form>
 		</div>
 
