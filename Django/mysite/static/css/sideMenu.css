@@ -18,6 +18,7 @@ buttons {
 }
 
 
+
 /**
  * Layout CSS
  */
@@ -42,6 +43,35 @@ buttons {
   background-color : #7887AB;
   transition: transform 0.2s;
 }
+
+
+#sidedrawer::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+	border-radius: 10px;
+}
+
+#sidedrawer::-webkit-scrollbar,
+html::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: #F5F5F5;
+}
+
+#sidedrawer::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-image: -webkit-gradient(linear,
+									   left bottom,
+									   left top,
+									   color-stop(0.44, rgb(122,153,217)),
+									   color-stop(0.72, rgb(73,125,189)),
+									   color-stop(0.86, rgb(28,58,148)));
+}
+
 
 #content-wrapper {
   min-height: 100%;
@@ -186,6 +216,10 @@ buttons {
     text-decoration: none;
 }
 
+#sidedrawer .menu a:hover {
+ color: beige !important;
+}
+
 #sidedrawer #sidedrawer-brand span {
  /*  padding:15%;*/
 }
@@ -193,5 +227,3 @@ buttons {
 #header .mui-container-fluid {
   padding-top: 2%;
 }
-
-
