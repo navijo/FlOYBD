@@ -33,43 +33,16 @@ function activateAboutModal(){
     $("#mui-overlay").css('background-color','rgba(0,0,0,.8)');
 }
 
-function activateHelpModal() {
-    // initialize modal element
-    var modalEl = document.createElement('div');
-    modalEl.style.width = '400px';
-    modalEl.style.height = '300px';
-    modalEl.style.margin = '100px auto';
-    modalEl.style.backgroundColor = '#fff';
-
-    var center = document.createElement("center");
-    var div = document.createElement("div");
-    div.className = "modal-about";
-
-     div.innerHTML = '<div class="mui-container-fluid">'+
-        '<div class="mui-row">'+
-        '<div class="mui-col-md-12">'+
-           '<div class="mui--text-center">'+
-                '<div class="mui--text-display1">Help</div>'+
-            '</div>'+
-        '</div>'+
-        '</div>'+
-    '</div>'
-
-    center.appendChild(div)
-
-    modalEl.appendChild(center);
-
-    // show modal
-    mui.overlay('on', modalEl);
-  }
 
 function openHelpModal(message) {
     // initialize modal element
     var modalEl = document.createElement('div');
-    modalEl.style.width = '400px';
-    modalEl.style.height = '300px';
+    modalEl.className = "modal-about";
+    modalEl.style.width = '75%';
+    modalEl.style.height = 'auto';
     modalEl.style.margin = '100px auto';
-    modalEl.style.backgroundColor = '#fff';
+    modalEl.style.backgroundColor = '#7986cb';
+
 
     var center = document.createElement("center");
     var div = document.createElement("div");
@@ -163,9 +136,8 @@ function openHelp(){
         url: '{% url 'floybd:openHelp' %}',
         type: 'GET',
         success: function (returnValue) {
-           alert(returnValue.currentPage);
            if(returnValue){
-                openHelpModal(returnValue.currentPage);
+                openHelpModal(returnValue.helpContent);
            }
         }
     });
@@ -224,12 +196,21 @@ function openHelp(){
         <strong><img style="vertical-align: middle;" src="{% static 'img/more.png' %}" width="20%"/>More</strong>
         <ul>
             <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}"><b>Settings</b></a></li>
-            <li class="menu item9"><a href="#" onclick="activateHelpModal()"><b>Help</b></a></li>
             <li class="menu item10"><a href="#" onclick="activateAboutModal()"><b>About</b></a></li>
             <li class="menu item15"><a href="#" onclick="activateGreetingsModal()"><b>Special Thanks</b></a></li>
         </ul>
     </li>
 </ul>
+
+<div class="mui-container-fluid">
+   <div id="footerSlideshow" class="">
+       <img style="max-width:100%; max-height=100%;" src="static/img/slides/eps.jpg" class="active">
+       <img style="max-width:100%; max-height=100%;" src="static/img/slides/gsoc.jpg">
+       <img style="max-width:100%; max-height=100%;" src="static/img/slides/logo-liquidgalaxylab.png">
+       <img style="max-width:100%; max-height=100%;" src="static/img/slides/pcital.jpg">
+   </div>
+</div>
+
 </div>
 <header id="header">
   <div class="mui-appbar mui--appbar-line-height">

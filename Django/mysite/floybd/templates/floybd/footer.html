@@ -1,3 +1,25 @@
+<script>
+    $(function() {
+        setInterval( "slideSwitchFooter()", 6000 );
+    });
+
+    function slideSwitchFooter() {
+        var $active = $('#footerSlideshow IMG.active');
+
+        if ( $active.length == 0 ) $active = $('#footerSlideshow IMG:last');
+
+        var $next =  $active.next().length ? $active.next()
+            : $('#footerSlideshow IMG:first');
+
+        $next.css({opacity: 0.0})
+            .addClass('active')
+            .animate({opacity: 1.0}, 500, function() {
+                $active.removeClass('active');
+            });
+}
+
+
+</script>
 <footer id="footer">
   <div class="mui-container-fluid">
       Fly Over Your Big Data - GSOC 2017 - Ivan Josa<br/>

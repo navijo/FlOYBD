@@ -1,0 +1,25 @@
+#footerSlideshow {
+    position:relative;
+    height:10%;
+}
+
+#footerSlideshow IMG {
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:8;
+    opacity:0.0;
+    display:none;
+}
+
+#footerSlideshow IMG.active {
+    z-index:10;
+    opacity:1.0;
+    display:block;
+}
+
+#footerSlideshow IMG.last-active {
+    z-index:9;
+    display:none;
+}
+

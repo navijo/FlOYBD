@@ -15,10 +15,10 @@
 }
 
 .modal-about{
-    width : 50%;
+   /* width : auto;
     height : auto;
-    margin : 25% auto;
-    background-color : #fff;
+    margin : 25% auto;*/
+    background-color : #7986cb;
     -webkit-border-radius: 35px !important;
     -moz-border-radius: 35px !important;
     border-radius: 35px !important;
