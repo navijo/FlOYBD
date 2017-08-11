@@ -50,13 +50,21 @@
    ```
    
     * Edit Django/mysite/floybd/urls.py and uncomment the previously commented lines
-4. Run Django
+4. Create Django superuser
+    ```
+    python manage.py createsuperuser
+    ```
+5. Run Django
    * Go to project root and execute:
    ```
    bash startDjango.sh (optionally pass the LG IP)
    ```
    * Go to http://YOUR_IP:8000
-5. Crontab Jobs
+6. Import Meteorological Stations
+    * Go to the left menu "More" and click "Settings"
+    * Enter your previously created credentials
+    * Go to Stations on the left menu and click the top button "Import Stations"
+7. Crontab Jobs
     * In order to generate automatic KMLs for demo purposes, add the following cronjob to cron to generate every monday at  00:00 a weather KML,a KML of the latest week earthquakes, another one with the heatmap of the latest week earthquakes and a GTFS demo KML.
     ```
      0 0 * * 1 cd ~/FlOYBD; bash cronDjangoTask.sh
