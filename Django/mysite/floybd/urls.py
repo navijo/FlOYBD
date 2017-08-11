@@ -149,8 +149,18 @@ def sendLogos():
 
         if db_table_exists("floybd_setting"):
             logger.info("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
+
+            getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + \
+                                   " 'head -n 1 personavars.txt | cut -c17-19'"
+            leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
+            leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
+            leftScreenNumber = leftScreenClean[-1:]
+            print("Left Screen: ", leftScreenClean)
+            print("Left Screen Number: ", leftScreenNumber)
+
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
-                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_4.txt'"
+                      "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_" + \
+                      leftScreenNumber+".txt'"
 
             os.system(command)
 
