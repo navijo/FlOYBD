@@ -96,9 +96,7 @@ def predictDataForStation(stationData, columnName, station_id):
     print("Test data: " + str(test_data.count()) + " , Train data: " + str(train_data.count()))
 
     # BestModel
-    # lr = LinearRegression(maxIter=10)
     lr = LinearRegression()
-    # lr.setSolver("l-bfgs")
 
     paramGrid = ParamGridBuilder() \
         .addGrid(lr.regParam, [0.1, 0.01, 0.001, 0.0001, 0.0001]) \
@@ -112,7 +110,6 @@ def predictDataForStation(stationData, columnName, station_id):
                                    trainRatio=0.8)
         # Fit the model
         lrModel = tvs.fit(train_data)
-        # saveModelToDatabase(lrModel.bestModel,station_id,columnName)
         saveModel(lrModel.bestModel, station_id, columnName)
 
 
@@ -120,13 +117,6 @@ def predictDataForStation(stationData, columnName, station_id):
     # predictions = lrModel.transform(test_data).select("measure_date","station_id",columnName,"prediction")
     # groupedPredictions = predictions.groupBy("station_id").agg(avg(columnName),avg("prediction"))
     # insertDataIntoDatabase(groupedPredictions,columnName,station_id)
-
-
-    # Amb valors nous, es prediu la nova columna. Es podria fer que amb valors de pressio, predis les temperatures
-    # df_for_predict = sql.createDataFrame([(station_id,0,5,0,950,900,0,0)], ["station_id","max_temp","med_temp","min_temp","max_pressure","min_pressure","precip","insolation"])
-    # assembledTestData = assembler.transform(df_for_predict)
-    # predictions = lrModel.transform(assembledTestData).select("station_id",columnName,"prediction")
-    # predictions.show()
 
     except IllegalArgumentException as error:
         print("#####IllegalArgumentException on :\t " + str(station_id) + " on " + str(columnName) + "#####")
