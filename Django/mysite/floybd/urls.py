@@ -39,7 +39,6 @@ urlpatterns = [
     url('stopTour', views.stopTourView, name='stopTour'),
     url('demoEarthquakes', views.demoEarthquakes, name='demoEarthquakes'),
 
-
     url('getConcreteDateValues', viewsWeather.getConcreteValues, name='getConcreteDateValues'),
     url('sendConcreteValuesToLG', viewsWeather.sendConcreteValuesToLG, name='sendConcreteValuesToLG'),
     url('getPredictionStats', viewsWeather.getPredictionStats, name='getPredictionStats'),
@@ -56,12 +55,9 @@ urlpatterns = [
         name='demoLastWeekEarthquakesHeatmap'),
     url('demoLastWeekEarthquakes', viewsEarthquakes.demoLastWeekEarthquakes, name='demoLastWeekEarthquakes'),
 
-
     url('heatMapEarthquakes', views.eartquakesHeatMapIndex, name='heatMapEarthquakes'),
     url('getHeatMapEarthquakesKML', viewsEarthquakes.generateHeapMapKml, name='getHeatMapEarthquakesKML'),
     url('getHeatMapEarthquakes', viewsEarthquakes.getHeatMap, name='getHeatMapEarthquakes'),
-
-
 
     url('getStats', viewsWeather.getStats, name='getStats'),
     url('sendStatsToLG', viewsWeather.sendStatsToLG, name='sendStatsToLG'),
@@ -89,9 +85,6 @@ urlpatterns = [
     url('settings', lambda x: HttpResponseRedirect('/admin/floybd/setting/'), name='settings'),
     url('webhook', views.webhook, name='webhook'),
     url('getSlideImage', views.getSlideImage, name='getSlideImage'),
-
-
-
 ]
 
 
@@ -197,7 +190,6 @@ def db_table_exists(table_name):
     return table_name in connection.introspection.table_names()
 
 
-
 def checkPing(host):
     response = os.system("ping -c 1 " + host)
 
@@ -219,4 +211,4 @@ def startUltrahook():
 startup_clean()
 createDefaultSettingsObjects()
 sendLogos()
-#startUltrahook()
+startUltrahook()
