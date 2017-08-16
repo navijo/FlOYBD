@@ -14,11 +14,18 @@
     background-color:#FFE3AA;
 }
 
-.modal-about{
-   /* width : auto;
-    height : auto;
-    margin : 25% auto;*/
+.modal-help{
     background-color : #7986cb;
+    -webkit-border-radius: 35px !important;
+    -moz-border-radius: 35px !important;
+    border-radius: 35px !important;
+}
+
+.modal-about{
+    width : auto;
+    height : auto;
+    margin : 10% auto;
+    background-color : white;
     -webkit-border-radius: 35px !important;
     -moz-border-radius: 35px !important;
     border-radius: 35px !important;
