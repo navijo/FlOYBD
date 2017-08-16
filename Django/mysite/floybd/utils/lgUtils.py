@@ -101,3 +101,5 @@ def doRotation(playList, latitude, longitude, altitude, pRange):
         flyto.lookat.heading = angle
         flyto.lookat.tilt = 77
         flyto.lookat.range = pRange
+
+

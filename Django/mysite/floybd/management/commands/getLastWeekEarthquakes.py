@@ -131,6 +131,7 @@ class Command(BaseCommand):
                         polAux.style.linestyle.color = color
                         polAux.style.linestyle.width = 1
                         polAux.visibility = 0
+                        polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
 
                         animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
                         animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
@@ -148,6 +149,8 @@ class Command(BaseCommand):
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                                        '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
+
+                    playlist.newgxwait(gxduration=10)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration * 2)
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \

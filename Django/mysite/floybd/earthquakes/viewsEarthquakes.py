@@ -29,7 +29,7 @@ def getEarthquakesExact(request):
     center_lon = (float(max_lon) + float(min_lon)) / 2
     try:
         response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
-                            '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
+                                '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
         jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
@@ -379,6 +379,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                         polAux.style.linestyle.color = color
                         polAux.style.linestyle.width = 1
                         polAux.visibility = 0
+                        polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
 
                         animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
                         animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
@@ -396,6 +397,8 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                                        '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
+
+                    playlist.newgxwait(gxduration=10)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
@@ -521,13 +524,14 @@ def createKmz(jsonData, date, millis, createTour, numberObtained, request):
                         polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                                radius=(200 * i) * absMagnitude, number_of_vertices=100)
 
-                        polAux = kml.newpolygon(name=place, outerboundaryis=polycircleAux.to_kml())
+                        polAux = kml.newpolygon(name="", outerboundaryis=polycircleAux.to_kml())
                         polAux.style.polystyle.color = color
                         polAux.style.polystyle.fill = 1
                         polAux.style.polystyle.outline = 1
                         polAux.style.linestyle.color = color
                         polAux.style.linestyle.width = 1
                         polAux.visibility = 0
+                        polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
 
                         animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
                         animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
@@ -545,6 +549,8 @@ def createKmz(jsonData, date, millis, createTour, numberObtained, request):
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                                        '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
+
+                    playlist.newgxwait(gxduration=10)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
