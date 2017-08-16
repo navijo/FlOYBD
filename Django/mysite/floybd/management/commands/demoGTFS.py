@@ -7,7 +7,6 @@ from ...gtfs_models import *
 import time
 
 
-
 class Command(BaseCommand):
     help = 'Generate Dummy GTFS KML'
 
@@ -71,12 +70,10 @@ class Command(BaseCommand):
                     addedStops.append(stop2)
                     self.doPlacemarks(stop2, kmlLines)
 
-                    # doLines(stop1, stop2, kmlLines)
-
         while carsCounter < maxCars:
-            # We take a random trip
+            ''' We take a random trip '''
             randomTrip = random.sample(trips, 1)
-            # We get its stops
+            ''' We get its stops '''
             stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
             self.stdout.write("\tNew Car #" + str(carsCounter))
 
@@ -101,8 +98,8 @@ class Command(BaseCommand):
                     routeName = 'From ' + str(stop1.stop_name) + ' to ' + str(stop2.stop_name)
                     isLongTrip = False
 
-                self.doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines, addedLines, routeName,
-                               isLongTrip)
+                self.doCarsMovement(stop1, stop2, folderCars, playlistCars, firstPlacemark, kmlLines, addedLines,
+                                    routeName, isLongTrip)
 
                 if firstPlacemark:
                     firstPlacemark = False
@@ -139,7 +136,8 @@ class Command(BaseCommand):
         kmlLines.save("static/demos/" + kmlLinesName)
         return kmlLinesName, kmlCarsName
 
-    def doPlacemarks(self, stop, kmlTrips):
+    @staticmethod
+    def doPlacemarks(stop, kmlTrips):
         point = kmlTrips.newpoint(name=stop.stop_name + " HUB")
         point.coords = [(stop.stop_lon, stop.stop_lat, 50000)]
         point.altitudemode = simplekml.AltitudeMode.relativetoground
@@ -170,7 +168,8 @@ class Command(BaseCommand):
         linestring.style.linestyle.width = 15
         linestring.style.linestyle.color = "FF7800F0"
 
-    def doCarsMovement(self, stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines, routeName, isLongTrip):
+    def doCarsMovement(self, stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines,
+                       routeName, isLongTrip):
 
         startLatitude = float(stopSrc.stop_lat)
         startLongitude = float(stopSrc.stop_lon)
@@ -249,10 +248,8 @@ class Command(BaseCommand):
 
             playlist.newgxwait(gxduration=timeElapsed)
 
-            self.doLines(stopSrc, stopDst, startLatitude, startLongitude,
-                    startLatitude + latitudeModificator,
-                    startLongitude + longitudeModificator,
-                    kmlLines)
+            self.doLines(stopSrc, stopDst, startLatitude, startLongitude, startLatitude + latitudeModificator,
+                         startLongitude + longitudeModificator, kmlLines)
 
             if not latitudeAchieved:
                 startLatitude += latitudeModificator

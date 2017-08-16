@@ -7,7 +7,6 @@ from ..gtfs_models import Agency
 from ..utils.lgUtils import *
 from django.http import HttpResponse
 
-
 import tarfile
 import time
 import zipfile
@@ -23,9 +22,8 @@ def uploadGTFS(request):
         title = request.POST['title']
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            millis = int(round(time.time() * 1000))
             form.title = title
-            handle_uploaded_file(request.FILES['file'], form.title, millis)
+            handle_uploaded_file(request.FILES['file'], form.title)
 
             agencies = Agency.objects.all()
             return render(request, 'floybd/gtfs/viewGTFSAgencies.html', {'agencies': agencies})
@@ -34,7 +32,7 @@ def uploadGTFS(request):
         return render(request, 'floybd/indexGTFS.html', {'form': form})
 
 
-def handle_uploaded_file(f, title, millis):
+def handle_uploaded_file(f, title):
     if not os.path.exists("static/upload/gtfs"):
         logger.info("Creating upload/gtfs folder")
         os.makedirs("static/upload/gtfs")
@@ -104,7 +102,6 @@ def decompressFile(file, title, extension):
 
 def sendGTFSToLG(request):
     kmlName = request.POST["kmlName"]
-    kmlPath = request.POST["kmlPath"]
     carKml = request.POST["carKml"]
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
@@ -265,9 +262,9 @@ def createCars(maxCars, trips, folderCars, playlistCars, kmlLines, addedLines, i
     firstPlacemark = True
 
     while carsCounter < maxCars:
-        #We take a random trip
+        ''' We take a random trip '''
         randomTrip = random.sample(trips, 1)
-        #We get its stops
+        ''' We get its stops '''
         stop_times = Stop_time.objects.filter(trip_id=randomTrip[0].trip_id)
         logger.info("\tNew Car #" + str(carsCounter))
 
@@ -355,7 +352,6 @@ def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips, isHy
     linestring = kmlTrips.newlinestring(name='From '+str(stopSrc.stop_name)+' to '+str(stopDst.stop_name))
     linestring.coords = [(startLon, startLat, altitude), (dstLon, dstLat, altitude)]
     linestring.altitudemode = simplekml.AltitudeMode.relativetoground
-    #linestring.extrude = 1
     linestring.tesellate = 1
     linestring.style.linestyle.width = 15
     linestring.style.linestyle.color = "FF7800F0"
@@ -421,7 +417,6 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
         altitude = 5000
     else:
         altitude = 50000
-
 
     counter = 0
     firstCarOfTrip = True
@@ -502,7 +497,8 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
 
 def launchdemogtfs(request):
     millis = int(round(time.time() * 1000))
-    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a="+str(millis) + \
+    command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a=" + \
+              str(millis) + \
               "\nhttp://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/car_demo.kmz?a="+str(millis) +\
               "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)

@@ -4,7 +4,6 @@ import requests
 from collections import defaultdict
 import json
 import time
-import random
 import datetime
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -57,54 +56,64 @@ class Command(BaseCommand):
             jsonData = json.loads(json.dumps(value[-1]))
             latitude = float(jsonData.get("lat"))
             longitude = float(jsonData.get("lon"))
-            datetimeStr = datetime.datetime.strptime(jsonData.get("fint"), "%Y-%m-%dT%H:%M:%S").strftime('%H:%M:%S %Y-%m-%d')
+            datetimeStr = datetime.datetime.strptime(jsonData.get("fint"), "%Y-%m-%dT%H:%M:%S").\
+                strftime('%H:%M:%S %Y-%m-%d')
 
-            contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' +\
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' +\
-            '<table width="470" style="font-family: Roboto;"><tr><td>' +\
-            '<div id="content">' + '<div id="siteNotice">' + '</div>' +\
-            '<h1 id="firstHeading" class="firstHeading" style="text-align:center">'+ jsonData.get("ubi")+'</h1>' + \
-            '<h2 id="firstHeading" class="secondHeading" style="text-align:center">Station ID: ' + jsonData.get("idema") + '</h2>' +\
-            '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' + datetimeStr + '</h3>' +\
-            '<div id="bodyContent" style="text-align: center;">' +\
-            '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' +\
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' +\
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Max Temp:</p>' +\
-            '</div>' +\
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' +\
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(jsonData.get("tamax"))+ ' ºC</p>' +\
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Actual Temp</b>:</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(jsonData.get("ta")) + ' ºC</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Min Temp:</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(jsonData.get("tamin")) + ' ºC</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Relative Humidity :</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(jsonData.get("hr")) + ' %</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Precipitation:</p>' + \
-            '</div>' + \
-            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(jsonData.get("precip")).replace("None", "0") + ' mm</p>' + \
-            '</div>' + \
-            '</div>' +\
-            '</div></div>' +\
-            '</td></tr></table>'
+            contentString = '<link rel = "stylesheet" href = "' \
+                            'https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' \
+                            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                            'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' +\
+                            '<table width="470" style="font-family: Roboto;"><tr><td>' +\
+                            '<div id="content">' + '<div id="siteNotice">' + '</div>' +\
+                            '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
+                            jsonData.get("ubi") + '</h1>' + \
+                            '<h2 id="firstHeading" class="secondHeading" style="text-align:center">Station ID: ' +\
+                            jsonData.get("idema") + '</h2>' +\
+                            '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' +\
+                            datetimeStr + '</h3>' +\
+                            '<div id="bodyContent" style="text-align: center;">' +\
+                            '<div class="demo-charts mdl-color--white mdl-shadow--2dp ' \
+                            'mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' +\
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' +\
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Max Temp:</p>' +\
+                            '</div>' +\
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' +\
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(jsonData.get("tamax")) + ' ºC</p>' +\
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Actual Temp</b>:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(jsonData.get("ta")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Min Temp:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(jsonData.get("tamin")) + ' ºC</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Relative Humidity :</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(jsonData.get("hr")) + ' %</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Precipitation:</p>' + \
+                            '</div>' + \
+                            '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(jsonData.get("precip")).replace("None", "0") + ' mm</p>' + \
+                            '</div>' + \
+                            '</div>' +\
+                            '</div></div>' +\
+                            '</td></tr></table>'
 
-
-            point = kml.newpoint(name=jsonData.get("ubi"), description=contentString,
-                                 coords=[(longitude, latitude)])
+            point = kml.newpoint(name=jsonData.get("ubi"), description=contentString,coords=[(longitude, latitude)])
 
             point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
             point.style.balloonstyle.text = contentString

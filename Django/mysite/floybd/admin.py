@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-# Register your models here.
+
 from django.forms import ModelForm
 from django import forms
 
@@ -69,12 +69,14 @@ class ApiKeyAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Descriptive', {'fields': ['creation_date', 'key', 'valid_date']}),
     ]
+
     def get_urls(self):
         urls = super(ApiKeyAdmin, self).get_urls()
         my_urls = [url(r"^getApiKey/$", getApiKey)]
         return my_urls + urls
 
 admin.site.register(ApiKey, ApiKeyAdmin)
+
 
 @staff_member_required
 def getApiKey(request):
@@ -83,7 +85,7 @@ def getApiKey(request):
 
     for record in response.json():
         creationDate = datetime.datetime.strptime(record.get("creation_date"), '%Y-%m-%d %H:%M:%S')
-        #validDate = datetime.datetime.strptime(record.get("valid_until"), '%Y-%m-%d %H:%M:%S')
+        # validDate = datetime.datetime.strptime(record.get("valid_until"), '%Y-%m-%d %H:%M:%S')
         api_key = ApiKey(creation_date=creationDate,
                          key=record.get("api_key"))
         api_key.save()
@@ -138,9 +140,6 @@ class RouteAdmin(admin.ModelAdmin):
 admin.site.register(Route, RouteAdmin)
 
 
-
-
-
 class StopAdmin(admin.ModelAdmin):
     class Meta:
         model = Stop
@@ -171,7 +170,6 @@ class TripForm(ModelForm):
                   'direction_id', 'block_id', 'wheelchair_accessible', 'bikes_allowed']
 
 
-
 class TripAdmin(admin.ModelAdmin):
     form = TripForm
 
@@ -184,9 +182,8 @@ class SettingsForm(ModelForm):
         model = Setting
         fields = ['key', 'value']
 
+
 class SettingsAdmin(admin.ModelAdmin):
     form = SettingsForm
 
 admin.site.register(Setting, SettingsAdmin)
-
-

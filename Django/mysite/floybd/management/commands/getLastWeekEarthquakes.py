@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
                     pol.visibility = 0
 
-                    #Fly To the atmosphere
+                    ''' Fly To the atmosphere '''
                     flyto = playlist.newgxflyto(gxduration=flyToDuration,
                                                 gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude
@@ -102,7 +102,7 @@ class Command(BaseCommand):
                     flyto.camera.tilt = 0
                     playlist.newgxwait(gxduration=flyToDuration)
 
-                    #Go Back To the point
+                    ''' Go Back To the point '''
                     flyto = playlist.newgxflyto(gxduration=flyToDuration,
                                                 gxflytomode=simplekml.GxFlyToMode.smooth)
                     flyto.camera.longitude = longitude

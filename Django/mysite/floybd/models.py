@@ -1,7 +1,5 @@
-from django.db import models
 import requests
 import datetime
-# Create your models here.
 from django.utils.encoding import python_2_unicode_compatible
 from .gtfs_models import *
 
@@ -19,7 +17,7 @@ class Station(models.Model):
         return self.name + " ( " +self.province + " ) "
 
     class Meta:
-        #order_with_respect_to = 'name'
+        # order_with_respect_to = 'name'
         ordering = ['name', 'province']
 
 
@@ -32,7 +30,7 @@ class ApiKey(models.Model):
         return str(self.creation_date)
 
     def save(self, *args, **kwargs):
-        call = requests.get('http://130.206.117.178:5000/saveAPIKeyGet?key='+str(self.key))
+        requests.get('http://130.206.117.178:5000/saveAPIKeyGet?key='+str(self.key))
         valid_date = self.creation_date + datetime.timedelta(days=90)
         self.valid_date = valid_date
         super(ApiKey, self).save()
@@ -44,4 +42,3 @@ class Setting(models.Model):
 
     def __str__(self):
         return self.key
-

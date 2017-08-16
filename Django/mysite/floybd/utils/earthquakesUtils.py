@@ -1,5 +1,6 @@
 import json
 
+
 def getYQuadrant(latitude):
     y = 0
     if 60 <= latitude < 80:

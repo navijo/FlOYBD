@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 import requests
 from django.shortcuts import render
 from ..utils.lgUtils import *
@@ -399,7 +398,6 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                         .format(pol.placemark.id)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
-                    #animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
@@ -453,8 +451,6 @@ def createKmz(jsonData, date, millis, createTour, numberObtained, request):
         fecha = row["fecha"]
 
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        fechaFin = datetime.datetime.fromtimestamp(int(fecha) / 1000) + timedelta(hours=9)
-
 
         try:
             geoJson = replaceJsonString(str(row["geojson"]))
@@ -551,7 +547,6 @@ def createKmz(jsonData, date, millis, createTour, numberObtained, request):
                         .format(pol.placemark.id)
 
                     animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
-                    #animatedupdatehide.update.change = '<Placemark targetId="{0}"><visibility>0</visibility><gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
@@ -597,18 +592,16 @@ def sendConcreteValuesToLG(request):
     fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
     fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
-    sendKmlToLG(fileName,request)
+    sendKmlToLG(fileName, request)
 
     sendFlyToToLG(center_lat, center_lon, 100, 14, 69, 200000, 2)
 
     if createTour:
-        # Start the tour
-
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
-        bytes = os.path.getsize(dirPath2)
-        megas = (bytes/1024)/1000
+        fileBytes = os.path.getsize(dirPath2)
+        megas = (fileBytes/1024)/1000
 
         logging.info("Size of the KML:" + str(os.path.getsize(dirPath2)))
         waitTime = megas/10

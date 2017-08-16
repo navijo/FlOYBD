@@ -196,7 +196,7 @@ def parseTrips(basePath):
             calendar_type = ContentType.objects.get(app_label='floybd', model='calendar')
             calendar = calendar_type.get_object_for_this_type(service_id=row['service_id'])
 
-            trip = Trip(
+            Trip(
                 route=route,
                 trip_id=row['trip_id'],
                 trip_headsign=row['trip_headsign'],
@@ -210,7 +210,7 @@ def parseTrips(basePath):
 
             calendar_dates = Calendar_date.objects.filter(service_id=row['service_id'])
             calendar_date = calendar_dates.first()
-            trip = Trip(
+            Trip(
                 route=route,
                 trip_id=row['trip_id'],
                 trip_headsign=row['trip_headsign'],

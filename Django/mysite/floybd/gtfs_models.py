@@ -39,7 +39,7 @@ class Calendar_date(models.Model):
         (1, 'Added'),
         (2, 'Removed')
     )
-    #auto_increment_id = models.AutoField(primary_key=True,default=0)
+    # auto_increment_id = models.AutoField(primary_key=True,default=0)
     service_id = models.CharField(max_length=200)
     date = models.DateField(null=False, blank=False)
     exception_type = models.IntegerField(choices=exception_types, null=False, blank=False)
@@ -126,7 +126,6 @@ class Trip(models.Model):
     trip_short_name = models.CharField(null=True, blank=True, max_length=200)
     direction_id = models.IntegerField(choices=direction_choices, null=True, blank=True)
     block_id = models.CharField(null=False, blank=False, max_length=200)
-    #shape_id = models. TODO!!!!!!!!
 
     wheelchair_accessible = models.IntegerField(choices=choices, default=0)
     bikes_allowed = models.IntegerField(choices=choices, default=0)

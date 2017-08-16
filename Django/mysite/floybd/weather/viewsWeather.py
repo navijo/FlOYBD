@@ -1,9 +1,9 @@
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from django.shortcuts import render
 from ..models import Station
 from ..models import ApiKey
 import requests
 import json
-import time
 import datetime
 from datetime import timedelta
 from ..utils.lgUtils import *
@@ -15,7 +15,7 @@ from django.core.urlresolvers import resolve
 import logging
 logger = logging.getLogger("django")
 
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
@@ -34,8 +34,8 @@ def getConcreteValues(request):
 
     try:
         response = requests.get(
-            'http://' + sparkIp + ':5000/getMeasurement?date=' + date + '&station_id=' + station_id + '&allStations=' + str(
-                getAllStations), stream=True)
+            'http://' + sparkIp + ':5000/getMeasurement?date=' + date + '&station_id=' + station_id +
+            '&allStations=' + str(getAllStations), stream=True)
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
 
@@ -165,7 +165,7 @@ def sendConcreteValuesToLG(request):
     stations = Station.objects.all()
     concreteStation = Station.objects.get(station_id=station_id)
 
-    sendKmlToLG(fileName,request)
+    sendKmlToLG(fileName, request)
     if concreteStation is not None:
         sendFlyToToLG(concreteStation.latitude, concreteStation.longitude, 25000, 0, 69, 130000, 2)
 
@@ -243,12 +243,11 @@ def getPrediction(request):
         contentString += '</div></div></div></td></tr></table>'
 
         point = kml.newpoint(name="", description=contentString,
-                     coords=[(concreteStation.longitude, concreteStation.latitude)])
+                             coords=[(concreteStation.longitude, concreteStation.latitude)])
         point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
         point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
         point.style.balloonstyle.text = "$[description]"
         point.gxballoonvisibility = 0
-
 
         doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 0, 4855570, 3.0, 0)
         playlist.newgxwait(gxduration=3.0)
@@ -387,7 +386,7 @@ def getStats(request):
                                 str("%.2f" % round(row.get("avgMaxTemp"), 2)) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;"><b>Average Med Temp</b>:</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">Average Med Temp:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">' +\
@@ -411,8 +410,8 @@ def getStats(request):
                                 '<p style="font-size:1.5em;color:#474747;">Average Min Pressure:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("avgMinPressure")) + ' hPa</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("avgMinPressure")) + ' hPa</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Average Precipitation:</p>' + \
@@ -425,50 +424,50 @@ def getStats(request):
                                 '<p style="font-size:1.5em;color:#474747;">Max Maximum Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("maxMaxTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("maxMaxTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Min Maximum Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("minMaxTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("minMaxTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Max Medium Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("maxMedTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("maxMedTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Min Medium Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("minMedTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("minMedTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Max Minimum Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("maxMinTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("maxMinTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Min Minimum Temperature:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("minMaxTemp")) + ' ºC</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("minMaxTemp")) + ' ºC</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                                 '<p style="font-size:1.5em;color:#474747;">Max Precipitation:</p>' + \
                                 '</div>' + \
                                 '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                                '<p style="font-size:1.5em;color:#474747;">' + str(
-                    row.get("maxPrecip")) + ' mm</p>' + \
+                                '<p style="font-size:1.5em;color:#474747;">' +\
+                                str(row.get("maxPrecip")) + ' mm</p>' + \
                                 '</div>' + \
                                 '</div>' + \
                                 '</div></div>' + \
@@ -491,7 +490,7 @@ def getStats(request):
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
-                            str("%.2f" % round(row.get("avg(max_temp)"), 2))+ ' ºC</p>' + \
+                            str("%.2f" % round(row.get("avg(max_temp)"), 2)) + ' ºC</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Average Med Temp</b>:</p>' + \
@@ -511,15 +510,15 @@ def getStats(request):
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Max Pressure :</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-                row.get("avg(max_pressure)")) + ' hPa</p>' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(row.get("avg(max_pressure)")) + ' hPa</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Min Pressure:</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-                row.get("avg(min_pressure)")) + ' hPa</p>' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(row.get("avg(min_pressure)")) + ' hPa</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Average Precipitation:</p>' + \
@@ -532,8 +531,8 @@ def getStats(request):
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Insolation:</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-                row.get("avg(insolation)")) + '</p>' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(row.get("avg(insolation)")) + '</p>' + \
                             '</div>' + \
                             '</div>' + \
                             '</div></div>' + \
@@ -546,11 +545,11 @@ def getStats(request):
         stationsWeather[row.get("station_id")] = stationData
 
         point = kml.newpoint(name=stationData["name"], description=stationData["contentString"],
-                     coords=[(stationData["longitude"], stationData["latitude"])])
+                             coords=[(stationData["longitude"], stationData["latitude"])])
         point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
         point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
         point.style.balloonstyle.text = "$[description]"
-        #point.gxballoonvisibility = 0
+        # point.gxballoonvisibility = 0
 
         if allStationsBool:
             doFlyToSmooth(playlistAllStations,  float(stationData["latitude"]), float(stationData["longitude"]),
@@ -591,7 +590,7 @@ def getStats(request):
 
             animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
             animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
-                                           '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                                               '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                 .format(point.placemark.id)
 
             doRotation(playlist, float(stationData["latitude"]), float(stationData["longitude"]), 1000, 5000)
@@ -622,7 +621,7 @@ def getStats(request):
 
 def getContentStringWithGraphs(rowData):
     logger.info("Getting Graphs...")
-    contentString = '<table width="600px"><tr><td class="balloonTd">'+\
+    contentString = '<table width="600px"><tr><td class="balloonTd">' + \
                     '<center><h3><u>Max Temp</u></h3>' + \
                     '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMaxTemp"))) + \
                     '<br/><b>Max Max Temp: </b>' + str("{0:.2f}".format(rowData.get("maxMaxTemp"))) + \
@@ -701,7 +700,7 @@ def getGraphDataForStats(request):
 def sendStatsToLG(request):
     fileName = request.POST.get("fileName")
     sendKmlToLG(fileName, request)
-    #sendKmlToLG1(fileName, request)
+    # sendKmlToLG1(fileName, request)
     stations = Station.objects.all()
 
     allStations = request.POST.get('allStations', 0)
@@ -867,8 +866,8 @@ def getPredictionStats(request):
                             '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Insolation:</p>' + \
                             '</div>' + \
                             '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-                result[0].get("insolation")) + '</p>' + \
+                            '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                            str(result[0].get("insolation")) + '</p>' + \
                             '</div>' + \
                             '</div>' + \
                             '</div></div>' + \
@@ -913,7 +912,7 @@ def getPredictionStats(request):
         kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
         return render(request, 'floybd/weather/weatherPredictionView.html',
-                      {'fileName': fileName, 'kml': kmlpath,'backUrl': resolve("/predictWeatherStats").url_name,
+                      {'fileName': fileName, 'kml': kmlpath, 'backUrl': resolve("/predictWeatherStats").url_name,
                        'concreteStation': concreteStation, 'stats': True})
     else:
         return render(request, 'floybd/weather/weatherPredictionView.html')
@@ -968,51 +967,55 @@ def currentWeather(request):
         datetimeStr = datetime.datetime.strptime(jsonData.get("fint"), "%Y-%m-%dT%H:%M:%S").strftime(
             '%H:%M:%S %Y-%m-%d')
 
-        contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
-                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+        contentString = '<link rel = "stylesheet" href = "' \
+                        'https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
+                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                        'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
                         '<table width="470" style="font-family: Roboto;"><tr><td>' + \
                         '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
-                        '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + jsonData.get(
-            "ubi") + '</h1>' + \
-                        '<h2 id="firstHeading" class="secondHeading" style="text-align:center">Station ID: ' + jsonData.get(
-            "idema") + '</h2>' + \
-                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' + datetimeStr + '</h3>' + \
+                        '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
+                        jsonData.get("ubi") + '</h1>' + \
+                        '<h2 id="firstHeading" class="secondHeading" style="text-align:center">Station ID: ' +\
+                        jsonData.get("idema") + '</h2>' + \
+                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' +\
+                        datetimeStr + '</h3>' + \
                         '<div id="bodyContent" style="text-align: center;">' + \
-                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
+                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp' \
+                        ' mdl-cell mdl-cell--6-col mdl-grid" style="width: 98%">' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Max Temp:</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-            jsonData.get("tamax")) + ' ºC</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                        str(jsonData.get("tamax")) + ' ºC</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Actual Temp</b>:</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-            jsonData.get("ta")) + ' ºC</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                        str(jsonData.get("ta")) + ' ºC</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Min Temp:</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-            jsonData.get("tamin")) + ' ºC</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                        str(jsonData.get("tamin")) + ' ºC</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Relative Humidity :</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-            jsonData.get("hr")) + ' %</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                        str(jsonData.get("hr")) + ' %</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">Precipitation:</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(
-            jsonData.get("precip")).replace("None", "0") + ' mm</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' +\
+                        str(jsonData.get("precip")).replace("None", "0") + ' mm</p>' + \
                         '</div>' + \
                         '</div>' + \
                         '</div></div>' + \
@@ -1095,4 +1098,3 @@ def dummyWeather(request):
     playTour("Tour Current Weather")
 
     return HttpResponse(status=204)
-

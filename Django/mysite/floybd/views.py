@@ -8,7 +8,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from django.http import JsonResponse
+
 
 def index(request):
     return render(request, 'floybd/index.html')
@@ -146,8 +146,10 @@ def webhook(request):
         sendFlyToToLG(36.778259, -119.417931, 14500000, 0, 0, 14500000, 2)
     elif tourType == str("gtfs") or tourType == str("transit"):
         millis = int(round(time.time() * 1000))
-        command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a=" + str(millis) + \
-                  "\nhttp://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/car_demo.kmz?a=" + str(millis) + \
+        command = "echo 'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+                  "/static/demos/lines_demo.kml?a=" + str(millis) + \
+                  "\nhttp://" + getDjangoIp() + ":" + getDjangoPort(request) + \
+                  "/static/demos/car_demo.kmz?a=" + str(millis) + \
                   "' | sshpass -p lqgalaxy ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
         os.system(command)
         time.sleep(5)
@@ -240,13 +242,15 @@ def getHelpContent(refererUrl):
                   "your square.</br></br>" \
                   "If you want, you can create a tour (it will only be visible in Liquid Galaxy) through all the " \
                   "earthquakes by selecting the \"Create a tour through all earthquakes\" checkbox.</br></br>" \
-                  " By selecting the \"Approximate with Lat/Lon Quadrants \" checkbox, the system will use cached data" \
+                  " By selecting the \"Approximate with Lat/Lon Quadrants \" checkbox," \
+                  " the system will use cached data" \
                   "in order to speed up the query.</br></br>" \
                   " Once you have configured your desired parameter, you must press the \"Get Earthquakes\" button" \
                   " Take into account that, depending on your parameters, the process could take some time." \
                   "<p>If there are results of your query, they are displayed inside the map.</br>" \
                   "Click on any circle to open the information window related to each earthquakes </br>" \
-                  " The circles are colored depending on its maginitude. Green for lower magnitude and red for higher." \
+                  " The circles are colored depending on its magnitude." \
+                  " Green for lower magnitude and red for higher." \
                   "</br> Click the  \"Send values to LG\" to display them in Liquid Galaxy." \
                   "</br> If you want to go back, press the \"Back\" button</p>"
     elif refererUrl == "heatMapEarthquakes":
@@ -266,7 +270,7 @@ def getHelpContent(refererUrl):
                   "specifications.</br></br>" \
                   "You only have to select it from your system, name it and press the \"Upload\" button"
     elif refererUrl == "viewgtfs":
-        content = "<p>Through this screen you can configure a GTFS demo visualitzation </br></br>" \
+        content = "<p>Through this screen you can configure a GTFS demo visualization </br></br>" \
                   "You only have to select the agency from which you want to simulate its trips data and set a number" \
                   " of simulated trips.</br><i>You can use the search field to filter the table</i></br>" \
                   " Once you have done it, you can press the \"Get Values\" button to generate" \
