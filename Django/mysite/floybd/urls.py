@@ -89,7 +89,7 @@ def sendLogos():
 
         kml = simplekml.Kml(name="Layout")
         screen = kml.newscreenoverlay(name='FLOYBD')
-        screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/propis.png?a="+str(millis)
+        screen.icon.href = "http://"+getDjangoIp()+":8000/static/img/ownLogos.png?a="+str(millis)
         screen.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
                                                yunits=simplekml.Units.fraction)
         screen.screenxy = simplekml.ScreenXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
@@ -102,7 +102,7 @@ def sendLogos():
         screen.size.yunits = simplekml.Units.fraction
 
         screenName = kml.newscreenoverlay(name='App name')
-        screenName.icon.href = "http://" + getDjangoIp() + ":8000/static/img/logoFloybd.png?a=" + str(millis)
+        screenName.icon.href = "http://" + getDjangoIp() + ":8000/static/img/FlOYBDLogo.png?a=" + str(millis)
         screenName.overlayxy = simplekml.OverlayXY(x=0.0, y=1.0, xunits=simplekml.Units.fraction,
                                                    yunits=simplekml.Units.fraction)
         screenName.screenxy = simplekml.ScreenXY(x=0.3, y=0.95, xunits=simplekml.Units.fraction,
@@ -115,7 +115,7 @@ def sendLogos():
         screenName.size.yunits = simplekml.Units.fraction
 
         screen1 = kml.newscreenoverlay(name='Logos')
-        screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/comuns.png?a="+str(millis)
+        screen1.icon.href = "http://" + getDjangoIp() + ":8000/static/img/sharedLogos.png?a="+str(millis)
         screen1.overlayxy = simplekml.OverlayXY(x=0.0, y=0.0, xunits=simplekml.Units.fraction,
                                                 yunits=simplekml.Units.fraction)
         screen1.screenxy = simplekml.ScreenXY(x=0.0, y=0.01, xunits=simplekml.Units.fraction,

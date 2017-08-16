@@ -654,4 +654,3 @@ def simulateEarthquake(playlist, latitude, longitude, magnitude):
         flyto.camera.range = 150000
         flyto.camera.tilt = bounce
         playlist.newgxwait(gxduration=0.01)
-
