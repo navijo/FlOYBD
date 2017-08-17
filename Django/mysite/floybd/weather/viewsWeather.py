@@ -84,8 +84,7 @@ def getConcreteValues(request):
                 kml.newpoint(name=value["name"], description=value["contentString"],
                              coords=[(value["longitude"], value["latitude"])])
 
-            millis = int(round(time.time() * 1000))
-            fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+            fileName = "measurement_" + str(date) + ".kml"
             currentDir = os.getcwd()
             dir1 = os.path.join(currentDir, "static/kmls")
             dirPath2 = os.path.join(dir1, fileName)
@@ -105,7 +104,6 @@ def getConcreteValues(request):
 
 def sendConcreteValuesToLG(request):
     date = request.POST['date']
-    millis = int(round(time.time() * 1000))
 
     allStations = request.POST.get('allStations', 0)
 
@@ -113,9 +111,7 @@ def sendConcreteValuesToLG(request):
 
     if str(allStations) == str(1):
         fileurl = request.POST['fileUrl']
-        millis = int(round(time.time() * 1000))
-
-        fileName = "measurement_" + str(date) + "_" + str(millis) + ".kmz"
+        fileName = "measurement_" + str(date) + ".kmz"
         currentDir = os.getcwd()
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
@@ -148,7 +144,7 @@ def sendConcreteValuesToLG(request):
         station_id = request.POST['station']
         weatherData = request.POST['weatherData']
 
-    fileName = "measurement_" + str(date) + "_" + str(millis) + ".kml"
+    fileName = "measurement_" + str(date) + ".kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
@@ -1046,8 +1042,7 @@ def currentWeather(request):
 
         stationNumber += 1
 
-    millis = int(round(time.time() * 1000))
-    fileName = "currentWeather" + str(millis) + ".kmz"
+    fileName = "currentWeather.kmz"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
