@@ -54,7 +54,6 @@ def getConcreteWeatherData(daily_measures, station_id, date, allStations):
 
 def getConcreteEarhquakesDataWithQuadrants(earthquakes, date, maxY, minY, maxX, minX):
     datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
-    datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
     if maxY is not None and minY is not None and maxX is not None and minX is not None:
            
@@ -71,7 +70,6 @@ def getConcreteEarhquakesDataWithQuadrants(earthquakes, date, maxY, minY, maxX, 
 
 def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_lon):
     datetime_object = datetime.strptime(date, '%Y-%m-%d').date()
-    datetimeStr = datetime_object.strftime("%Y-%m-%d")
 
     if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None:
         logger.info("Filtering by lat,lon and date")
@@ -79,6 +77,37 @@ def getConcreteEarhquakesData(earthquakes, date, max_lat, min_lat, max_lon, min_
                                                & (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
     else:
         earthquakesResult = earthquakes.filter(earthquakes.fecha >= datetime_object)
+
+    earthquakesReturn = earthquakesResult.sort(asc("fecha"))
+    return earthquakesReturn.na.fill(0)
+
+
+def getConcreteEarhquakesIntervalData(earthquakes, dateFrom, dateTo, max_lat, min_lat, max_lon, min_lon):
+    dateFromtime_object = datetime.strptime(dateFrom, '%Y-%m-%d').date()
+    dateTotime_object = datetime.strptime(dateTo, '%Y-%m-%d').date()
+
+    if max_lon is not None and min_lon is not None and max_lat is not None and min_lat is not None:
+        logger.info("Filtering by lat,lon and date")
+        earthquakesByDate = earthquakes.filter((earthquakes.fecha >= dateFromtime_object) & (earthquakes.fecha <= dateTotime_object))
+        earthquakesResult = earthquakesByDate.filter((earthquakes.longitude <= max_lon) & (earthquakes.longitude >= min_lon) & (earthquakes.latitude <= max_lat) & (earthquakes.latitude >= min_lat))
+    else:
+        earthquakesResult = earthquakes.filter((earthquakes.fecha >= dateFromtime_object) & (earthquakes.fecha <= dateTotime_object))
+
+    earthquakesReturn = earthquakesResult.sort(asc("fecha"))
+    return earthquakesReturn.na.fill(0)
+
+def getConcreteEarhquakesIntervalDataWithQuadrants(earthquakes, dateFrom, dateTo, maxY, minY, maxX, minX):
+    dateFromtime_object = datetime.strptime(dateFrom, '%Y-%m-%d').date()
+    dateTotime_object = datetime.strptime(dateTo, '%Y-%m-%d').date()
+
+    if maxY is not None and minY is not None and maxX is not None and minX is not None:
+           
+        earthquakesResult = earthquakes.filter((earthquakes.quadrantX <= maxX) & (earthquakes.quadrantX >= minX)
+                                               & (earthquakes.quadrantY <= maxY) & (earthquakes.quadrantY >= minY) 
+                                               & (earthquakes.fecha >= dateFromtime_object) & (earthquakes.fecha <= dateTotime_object))
+     
+    else:
+        earthquakesResult = earthquakes.filter((earthquakes.fecha >= dateFromtime_object) & (earthquakes.fecha <= dateTotime_object))
 
     earthquakesReturn = earthquakesResult.sort(asc("fecha"))
     return earthquakesReturn.na.fill(0)
