@@ -101,6 +101,7 @@ def decompressFile(file, title, extension):
 
 
 def sendGTFSToLG(request):
+    millis = int(round(time.time() * 1000))
     kmlName = request.POST["kmlName"]
     carKml = request.POST["carKml"]
     flyToLat = request.POST["flyToLat"]
@@ -108,8 +109,8 @@ def sendGTFSToLG(request):
     lgIp = getLGIp()
     ip = getDjangoIp()
 
-    command = "echo 'http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + kmlName + \
-              "\nhttp://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + carKml + \
+    command = "echo 'http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + kmlName + "?a=" + str(millis) + \
+              "\nhttp://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + carKml + "?a=" + str(millis) + \
               "' | sshpass -p lqgalaxy ssh lg@" + lgIp + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
 
@@ -141,8 +142,6 @@ def getAgenciesAndGenerateKML(request):
     maxCars = int(request.POST.get('maxCars'))
     tripsAdded = []
 
-    millis = int(round(time.time() * 1000))
-
     kmlCars = simplekml.Kml()
     kmlLines = simplekml.Kml()
     tourCars = kmlCars.newgxtour(name="GTFSTour")
@@ -173,7 +172,7 @@ def getAgenciesAndGenerateKML(request):
             for trip in trips:
                 if trip.trip_id not in tripsAdded:
                     tripsAdded.append(trip)
-                    logger.info("Trip Id : " + str(trip.trip_id))
+                    logger.debug("Trip Id : " + str(trip.trip_id))
                     stop_times = Stop_time.objects.filter(trip_id=trip.trip_id)
                     for index, current in enumerate(stop_times):
                         if index + 1 >= len(stop_times):
@@ -228,14 +227,14 @@ def getAgenciesAndGenerateKML(request):
                 flyToLonMin = stop1.stop_lon
 
             if key not in addedLines:
-                logger.info("\t Adding not included line")
+                logger.debug("\t Adding not included line")
                 doLinesNotIncluded(stop1, stop2, kmlLines, isHyperloop)
 
     flyToLon = (flyToLonMax + flyToLonMin) / 2
     flyToLat = (flyToLatMax + flyToLatMin) / 2
 
-    carKml = "car_" + str(millis) + ".kmz"
-    linesKml = "lines_" + str(millis) + ".kml"
+    carKml = "car.kmz"
+    linesKml = "lines.kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/img")
     imagePath = os.path.join(dir1, "trainYellow.png")
@@ -314,11 +313,12 @@ def doPlacemarks(stop, kmlTrips, distance, isHyperloop):
     point.altitudemode = simplekml.AltitudeMode.relativetoground
     if isHyperloop:
         point.extrude = 1
-    point.linestyle.width = 20
-    point.style.labelstyle.scale = 1.5
+        point.style.labelstyle.scale = 1.5
+        point.style.iconstyle.icon.href = "http://maps.google.com/mapfiles/kml/shapes/subway.png"
+        point.linestyle.width = 20
+
     point.style.labelstyle.color = simplekml.Color.blue
     point.style.linestyle.color = simplekml.Color.blue
-    point.style.iconstyle.icon.href = "http://maps.google.com/mapfiles/kml/shapes/subway.png"
 
 
 def doLinesNotIncluded(stopSrc, stopDst, kmlTrips, isHyperloop):
@@ -335,8 +335,11 @@ def doLinesNotIncluded(stopSrc, stopDst, kmlTrips, isHyperloop):
     linestring.coords = [(stopSrc.stop_lon, stopSrc.stop_lat, altitude), (stopDst.stop_lon, stopDst.stop_lat, altitude)]
     linestring.altitudemode = simplekml.AltitudeMode.relativetoground
     linestring.tesellate = 1
-    linestring.style.linestyle.width = 15
-    linestring.style.linestyle.color = "FF7800F0"
+    if isHyperloop:
+        linestring.style.linestyle.width = 15
+        linestring.style.linestyle.color = "FF7800F0"
+    else:
+        linestring.style.linestyle.width = 10
 
 
 def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips, isHyperloop):
@@ -353,8 +356,12 @@ def doLines(stopSrc, stopDst, startLat, startLon, dstLat, dstLon, kmlTrips, isHy
     linestring.coords = [(startLon, startLat, altitude), (dstLon, dstLat, altitude)]
     linestring.altitudemode = simplekml.AltitudeMode.relativetoground
     linestring.tesellate = 1
-    linestring.style.linestyle.width = 15
-    linestring.style.linestyle.color = "FF7800F0"
+
+    if isHyperloop:
+        linestring.style.linestyle.width = 15
+        linestring.style.linestyle.color = "FF7800F0"
+    else:
+        linestring.style.linestyle.width = 10
 
 
 def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines, addedLines, routeName, isLongTrip,
@@ -374,6 +381,7 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     camera = 0.01
 
     if not isHyperloop:
+        logger.debug("Distance: " + str(distance) + "Hyperloop? " + str(isHyperloop))
         if distance < 200:
             zoomFactor = 50000
             cameraRange = 50000
@@ -381,15 +389,12 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
             zoomFactor = 100000
             cameraRange = 100000
         elif 500 < distance < 1000:
-            print("Distance between 500 and 1000")
             zoomFactor = 1500000
             cameraRange = 1500000
         elif 1000 < distance < 2000:
-            print("Distance between 1000 and 2000")
             zoomFactor = 1500000
             cameraRange = 1500000
         elif distance > 2000:
-            print("Distance over 2000")
             zoomFactor = 1500000
             cameraRange = 1500000
 
@@ -431,12 +436,12 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
         else:
             currentPoint.visibility = 0
 
-        distance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude + latitudeModificator,
+        innerDistance = getDistanceBetweenPoints(startLatitude, startLongitude, startLatitude + latitudeModificator,
                                             startLongitude + longitudeModificator)
 
-        timeElapsed = distance / 800
+        timeElapsed = innerDistance / 800
 
-        if distance < 300:
+        if innerDistance < 300:
             timeElapsed = 0.001
 
         if isLongTrip:
@@ -447,7 +452,8 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
 
         if firstCarOfTrip:
             firstCarOfTrip = False
-            doFlyTo(playlist, startLatitude, startLongitude, 750000, 750000, 3, 0)
+            #doFlyTo(playlist, startLatitude, startLongitude, 750000, 750000, 3, 0)
+            doFlyTo(playlist, startLatitude, startLongitude, zoomFactor/2, zoomFactor/2, 3, 0)
             animatedupdateshow = playlist.newgxanimatedupdate(gxduration=3.0)
             animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility></Placemark>' \
                 .format(currentPoint.placemark.id)
