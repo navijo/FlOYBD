@@ -23,7 +23,6 @@ class CylindersKmlHeatmap(object):
     def parseData(self):
         counter = 1
         for element in self.data:
-            #print("Parsing #"+str(counter)+":\t"+str(element))
             if float(abs(element[2])) <= 0:
                 continue
             self.newCylinder(element[3], element[4], (element[0], element[1]), element[2])
@@ -35,13 +34,15 @@ class CylindersKmlHeatmap(object):
     def generateCylinder(self, name, description, coordinates, magnitude):
         fechaStr = datetime.datetime.fromtimestamp(int(description) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         polycircle = polycircles.Polycircle(latitude=float(coordinates[0]),
-        longitude=float(coordinates[1]), radius=float(abs(magnitude))*20000, number_of_vertices=36)
+                                            longitude=float(coordinates[1]),
+                                            radius=float(abs(magnitude))*20000, number_of_vertices=36)
 
         pol = self.kml_var.newpolygon(name=name, description=str(fechaStr),
                                       outerboundaryis=polycircle.to_kml())
 
         pol.altitudemode = simplekml.AltitudeMode.relativetoground
         pol.extrude = 1
+        pol.style.polystyle.fill = 1
         self.addColor(pol, magnitude)
 
         pol.style.linestyle.width = 5000
@@ -63,4 +64,3 @@ class CylindersKmlHeatmap(object):
 
     def saveKmz(self, path):
         self.kml_var.savekmz(path, format=False)
-

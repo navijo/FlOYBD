@@ -7,12 +7,34 @@
     markActive("earthquakesHeatMap");
     submitAjaxForm("earthquakesForm",true);
 
-    $('#date').datetimepicker({
+    $('#dateFrom').datetimepicker({
         'format' : "YYYY-MM-DD",
         useCurrent: false,
         'maxDate' : new Date()
     });
+
+      $('#dateTo').datetimepicker({
+            'format' : "YYYY-MM-DD",
+            useCurrent: false,
+            'maxDate' : new Date()
+        });
+
+     $("#dateFrom").on("dp.change", function (e) {
+            $('#dateTo').data("DateTimePicker").minDate(e.date);
+        });
+
+        $("#dateTo").on("dp.change", function (e) {
+            $('#dateFrom').data("DateTimePicker").maxDate(e.date);
+        });
   })
+
+   function disableDateTo(){
+		if($("#dateToNow").prop("checked")){
+			$("#dateTo").prop('disabled', true);
+		}else{
+		    $("#dateTo").prop('disabled', false);
+		}
+    }
 </script>
 
 <div id="content-wrapper">
@@ -39,11 +61,22 @@
                     {% csrf_token %}
                         <div class="mui-row">
                             <div class="mui-panel">
-                            <div class="mui-col-md-6 mui-col-md-offset-3">
+                            <div class="mui-col-md-6">
                                 <div class="mui-textfield mui-textfield--float-label">
-                                    <input required type="text" name="date" id="date" class="form-control" />
-                                     <label for="date">Date From</label>
+                                    <input required type="text" name="dateFrom" id="dateFrom" class="form-control" />
+                                     <label for="dateFrom">Date From</label>
                                  </div>
+                            </div>
+                                <div class="mui-col-md-6">
+                                <div class="mui-textfield mui-textfield--float-label">
+                                    <input required type="text" name="dateTo" id="dateTo" class="form-control" />
+                                     <label for="dateTo">Date To</label>
+                                 </div>
+                                      <div class="mui-checkbox">
+                                        <input type="checkbox" id="dateToNow" onclick="disableDateTo()"
+                                               name="dateToNow" value="1">
+                                        <label for="dateToNow">Until today</label>
+                                    </div>
                             </div>
                             </div>
                         </div>

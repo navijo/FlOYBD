@@ -139,11 +139,17 @@ def getEarthquakesApprox(request):
 
 def getHeatMap(request):
     logger.info("Getting Heat Map")
-    date = request.POST['date']
+    dateFrom = request.POST['dateFrom']
+    dateToNowParam = request.POST.get('dateToNow', 0)
+    if dateToNowParam == str(1):
+        dateTo = time.strftime("%Y-%m-%d")
+    else:
+        dateTo = request.POST['dateTo']
 
     sparkIp = getSparkIp()
     try:
-        response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date)
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakesInterval?dateFrom=' + dateFrom +
+                                '&dateTo=' + dateTo)
         jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
@@ -159,7 +165,8 @@ def getHeatMap(request):
 
     data = getEartquakesArray(jsonData, False)
 
-    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'date': date,
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': data, 'dateFrom': dateFrom,
+                                                                              'dateTo': dateTo,
                                                                               'numberObtained': numberObtained})
 
 
@@ -177,10 +184,15 @@ def getEartquakesArray(jsonData, includeDescription):
 
 def generateHeapMapKml(request):
     logger.info("Generating HeatMap")
-    date = request.POST['date']
-    millis = int(round(time.time() * 1000))
+    dateFrom = request.POST['dateFrom']
+    dateToNowParam = request.POST.get('dateToNow', 0)
+    if dateToNowParam == str(1):
+        dateTo = time.strftime("%Y-%m-%d")
+    else:
+        dateTo = request.POST['dateTo']
     try:
-        response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakes?date=' + date)
+        response = requests.get('http://' + getSparkIp() + ':5000/getEarthquakesInterval?dateFrom=' + dateFrom +
+                                '&dateTo=' + dateTo)
         jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
@@ -197,10 +209,11 @@ def generateHeapMapKml(request):
 
     data = getEartquakesArray(jsonData, True)
 
-    fileName = "earthquakesHeatMap_" + str(date) + "_" + str(millis) + ".kmz"
+    fileName = "earthquakesHeatMap.kmz"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
+    millis = int(round(time.time() * 1000))
 
     cylinder = CylindersKmlHeatmap(fileName, data)
     cylinder.makeKMZ(dirPath2)
@@ -216,30 +229,9 @@ def generateHeapMapKml(request):
     time.sleep(2)
     playTour("WorldTour")
 
-    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': dataMapsJs, 'date': date,
+    return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html', {'data': dataMapsJs, 'dateFrom': dateFrom,
+                                                                              'dateTo': dateTo,
                                                                               'numberObtained': numberObtained})
-
-
-def createJSFile(jsonData, millis):
-    data = {"type": "FeatureCollection", "features": []}
-
-    for row in jsonData:
-        geoJson = json.dumps(row.get("geojson"))
-        replacedCommas = json.loads(geoJson).replace("'", '"').replace("None", '""')
-        data["features"].append(replacedCommas)
-
-    strJson = json.dumps(data)
-
-    saveString = "eqfeed_callback(" + strJson + ");"
-    jsFile = "earthquakes_"+str(millis)+".js"
-    currentDir = os.getcwd()
-    dir1 = os.path.join(currentDir, "static/js")
-    dirPath2 = os.path.join(dir1, jsFile)
-    file = open(dirPath2, "w")
-    file.write(saveString)
-    file.close()
-
-    return jsFile
 
 
 def populateInfoWindow(row, jsonData):
