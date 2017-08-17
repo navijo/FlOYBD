@@ -27,13 +27,14 @@
                 </div>
                 {% else %}
 		<div class="mui--text-center">
-			<div class="mui--text-display2">Viewing earthquakes since <b>{{  date }}</b> </div>
+			<div class="mui--text-display2">Viewing earthquakes from <b>{{  dateFrom }}</b> to <b>{{  dateTo }}</b>
+			</div>
 
 		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
 			{% csrf_token %}
-			<input type="hidden" name="date" value="{{  date }}">
+			<input type="hidden" name="dateFrom" value="{{  dateFrom }}">
+			<input type="hidden" name="dateTo" value="{{  dateTo }}">
 			<input type="hidden" name="createTour" value="{{  createTour }}">
-			<input type="hidden" name="millis" value="{{  millis }}">
 			<input type="hidden" name="center_lat" value="{{ center_lat }}">
 			<input type="hidden" name="center_lon" value="{{ center_lon }}">
 			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>

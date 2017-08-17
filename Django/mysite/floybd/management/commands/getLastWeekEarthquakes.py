@@ -195,11 +195,12 @@ class Command(BaseCommand):
         latitude = row["latitude"]
         longitude = row["longitude"]
         magnitude = row["magnitude"]
+        depth = row["depth"]
         fecha = row["fecha"]
 
         datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
-        url = jsonData.get("properties").get("detail")
+        url = jsonData.get("properties").get("url")
 
         contentString = '<link rel = "stylesheet" href = ' \
                         '"https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
@@ -209,8 +210,10 @@ class Command(BaseCommand):
                         '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                         '<h1 id="firstHeading" class="thirdHeading" style="text-align:center">' + \
                         str(row["place"]) + '</h1>' + \
-                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + \
-                        str(datetimeStr) + '</h3>' + \
+                        '<h2 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' + \
+                        str(datetimeStr) + '</h2>' + \
+                        '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Magnitude: ' + \
+                        str(magnitude) + '</h3>' + \
                         '<div id="bodyContent" style="text-align: center;">' + \
                         '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
                         ' mdl-cell--6-col mdl-grid" style="width: 98%">' + \
@@ -227,10 +230,10 @@ class Command(BaseCommand):
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(longitude) + '</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Magnitude</b>:</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Depth</b>:</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(magnitude) + '</p>' + \
+                        '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(depth) + ' km</p>' + \
                         '</div>' + \
                         '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                         '<p style="font-size:1.5em;color:#474747;line-height:0.5;">More Info :</p>' + \

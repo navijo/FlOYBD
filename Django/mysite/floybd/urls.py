@@ -65,8 +65,7 @@ urlpatterns = [
     url('gtfs', views.gtfs, name='gtfs'),
     url('uploadGTFS', viewsGTFS.uploadGTFS, name='uploadGTFS'),
     url('sendGTFSToLG', viewsGTFS.sendGTFSToLG, name='sendGTFSToLG'),
-    url('getAgenciesAndGenerateKML', viewsGTFS.getAgenciesAndGenerateKML,
-        name='getAgenciesAndGenerateKML'),
+    url('getAgenciesAndGenerateKML', viewsGTFS.getAgenciesAndGenerateKML, name='getAgenciesAndGenerateKML'),
 
     url('citydashboard', viewsWeather.citydashboard, name='citydashboard'),
     url('viewDashboard', viewsWeather.viewDashboard, name='viewDashboard'),

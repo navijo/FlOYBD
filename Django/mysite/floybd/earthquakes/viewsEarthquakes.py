@@ -14,7 +14,13 @@ def getEarthquakesExact(request):
     start_time = time.time()
 
     logger.info("Getting Earthquakes")
-    date = request.POST['date']
+    dateFrom = request.POST['dateFrom']
+    dateToNowParam = request.POST.get('dateToNow', 0)
+    if dateToNowParam == str(1):
+        dateTo = time.strftime("%Y-%m-%d")
+    else:
+        dateTo = request.POST['dateTo']
+
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
 
@@ -28,7 +34,8 @@ def getEarthquakesExact(request):
     center_lat = (float(max_lat) + float(min_lat)) / 2
     center_lon = (float(max_lon) + float(min_lon)) / 2
     try:
-        response = requests.get('http://' + sparkIp + ':5000/getEarthquakes?date=' + date + '&max_lat=' + max_lat +
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakesInterval?dateFrom=' + dateFrom +
+                                '&dateTo=' + dateTo + '&max_lat=' + max_lat +
                                 '&min_lat=' + min_lat + '&max_lon=' + max_lon + '&min_lon=' + min_lon)
         jsonData = json.loads(response.json())
     except requests.exceptions.ConnectionError:
@@ -37,7 +44,7 @@ def getEarthquakesExact(request):
         return render(request, '500.html')
 
     numberObtained = len(jsonData)
-    logging.info("Obtained " + str(numberObtained) + " earthquakes")
+    logger.info("Obtained " + str(numberObtained) + " earthquakes")
 
     logger.debug("--- %s getting the data---" % (time.time() - start_time))
 
@@ -47,21 +54,25 @@ def getEarthquakesExact(request):
 
     start_time = time.time()
 
-    millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained, request)
+    fileUrl = createKml(jsonData, createTour, numberObtained, request)
 
     logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
-                   'center_lon': center_lon, 'date': date, 'millis': millis,
+                   'center_lon': center_lon, 'dateFrom': dateFrom, 'dateTo': dateTo,
                    'createTour': createTourParam})
 
 
 def getEarthquakesApprox(request):
     start_time = time.time()
     logger.info("Getting Earthquakes with quadrants")
-    date = request.POST['date']
+    dateFrom = request.POST['dateFrom']
+    dateToNowParam = request.POST.get('dateToNow', 0)
+    if dateToNowParam == str(1):
+        dateTo = time.strftime("%Y-%m-%d")
+    else:
+        dateTo = request.POST['dateTo']
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
 
@@ -91,12 +102,13 @@ def getEarthquakesApprox(request):
 
     center_lat = (float(max_lat) + float(min_lat)) / 2
     center_lon = (float(max_lon) + float(min_lon)) / 2
-    logger.debug("maxY: ", maxY)
-    logger.debug("minY: ", minY)
-    logger.debug("maxX: ", maxX)
-    logger.debug("minX: ", minX)
+    logger.debug("maxY: " + str(maxY))
+    logger.debug("minY: " + str(minY))
+    logger.debug("maxX: " + str(maxX))
+    logger.debug("minX: " + str(minX))
     try:
-        response = requests.get('http://' + sparkIp + ':5000/getEarthquakesWithQuadrants?date=' + date
+        response = requests.get('http://' + sparkIp + ':5000/getEarthquakesIntervalWithQuadrants?dateFrom=' + dateFrom
+                                + '&dateTo=' + dateTo
                                 + '&maxY=' + str(maxY)
                                 + '&minY=' + str(minY)
                                 + '&maxX=' + str(maxX)
@@ -115,19 +127,18 @@ def getEarthquakesApprox(request):
                       {'noData': True})
 
     start_time = time.time()
-    millis = int(round(time.time() * 1000))
-    fileUrl = createKml(jsonData, date, millis, createTour, numberObtained, request)
+    fileUrl = createKml(jsonData, createTour, numberObtained, request)
 
     logger.debug("--- %s seconds creating KML---" % (time.time() - start_time))
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
-                   'center_lon': center_lon, 'date': date, 'millis': millis,
+                   'center_lon': center_lon, 'dateFrom': dateFrom, 'dateTo': dateTo,
                    'createTour': createTourParam})
 
 
 def getHeatMap(request):
-    logging.info("Getting Heat Map")
+    logger.info("Getting Heat Map")
     date = request.POST['date']
 
     sparkIp = getSparkIp()
@@ -140,7 +151,7 @@ def getHeatMap(request):
         return render(request, '500.html')
 
     numberObtained = len(jsonData)
-    logging.info("Obtained " + str(numberObtained) + " earthquakes")
+    logger.info("Obtained " + str(numberObtained) + " earthquakes")
 
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
@@ -165,7 +176,7 @@ def getEartquakesArray(jsonData, includeDescription):
 
 
 def generateHeapMapKml(request):
-    logging.info("Generating HeatMap")
+    logger.info("Generating HeatMap")
     date = request.POST['date']
     millis = int(round(time.time() * 1000))
     try:
@@ -178,7 +189,7 @@ def generateHeapMapKml(request):
 
     dataMapsJs = getEartquakesArray(jsonData, False)
     numberObtained = len(jsonData)
-    logging.info("Obtained " + str(numberObtained) + " earthquakes")
+    logger.info("Obtained " + str(numberObtained) + " earthquakes")
 
     if numberObtained == 0:
         return render(request, 'floybd/earthquakes/viewEarthquakesHeatMap.html',
@@ -234,12 +245,13 @@ def createJSFile(jsonData, millis):
 def populateInfoWindow(row, jsonData):
     latitude = row["latitude"]
     longitude = row["longitude"]
+    depth = row["depth"]
     magnitude = row["magnitude"]
     fecha = row["fecha"]
 
     datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
-    url = jsonData.get("properties").get("detail")
+    url = jsonData.get("properties").get("url")
     contentString = '<link rel = "stylesheet" href = ' \
                     '"https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
                     '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
@@ -248,8 +260,10 @@ def populateInfoWindow(row, jsonData):
                     '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                     '<h1 id="firstHeading" class="thirdHeading" style="text-align:center">' + \
                     str(row["place"]) + '</h1>' + \
-                    '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Ocurred on: ' + \
-                    str(datetimeStr) + '</h3>' + \
+                    '<h2 id="firstHeading" class="thirdHeading" style="text-align:center">Date: ' + \
+                    str(datetimeStr) + '</h2>' + \
+                    '<h3 id="firstHeading" class="thirdHeading" style="text-align:center">Magnitude: ' + \
+                    str(magnitude) + '</h3>' + \
                     '<div id="bodyContent" style="text-align: center;">' + \
                     '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
                     ' mdl-cell--6-col mdl-grid" style="width: 98%">' + \
@@ -266,10 +280,10 @@ def populateInfoWindow(row, jsonData):
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(longitude) + '</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Magnitude</b>:</p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;"><b>Depth</b>:</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
-                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(magnitude) + '</p>' + \
+                    '<p style="font-size:1.5em;color:#474747;line-height:0.5;">' + str(depth) + ' km</p>' + \
                     '</div>' + \
                     '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' + \
                     '<p style="font-size:1.5em;color:#474747;line-height:0.5;">More Info :</p>' + \
@@ -285,7 +299,7 @@ def populateInfoWindow(row, jsonData):
     return contentString
 
 
-def createKml(jsonData, date, millis, createTour, numberObtained, request):
+def createKml(jsonData, createTour, numberObtained, request):
     kml = simplekml.Kml()
 
     tour = kml.newgxtour(name="EarthquakesTour")
@@ -295,7 +309,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
     if numberObtained > 1000:
         balloonDuration = numberObtained/1000
 
-    logging.info("Default duration: " + str(balloonDuration))
+    logger.info("Default duration: " + str(balloonDuration))
     for row in jsonData:
 
         place = row["place"]
@@ -310,8 +324,8 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
             geoJson = replaceJsonString(str(row["geojson"]))
             infowindow = populateInfoWindow(row, geoJson)
         except JSONDecodeError:
-            logging.error('Error decoding json')
-            logging.error(str(row["geojson"]))
+            logger.error('Error decoding json')
+            logger.error(str(row["geojson"]))
             continue
         try:
             if magnitude is not None:
@@ -372,7 +386,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                         polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
                                                                radius=(200 * i) * absMagnitude, number_of_vertices=100)
 
-                        polAux = kml.newpolygon(name=place, outerboundaryis=polycircleAux.to_kml())
+                        polAux = kml.newpolygon(name="", description="", outerboundaryis=polycircleAux.to_kml())
                         polAux.style.polystyle.color = color
                         polAux.style.polystyle.fill = 1
                         polAux.style.polystyle.outline = 1
@@ -380,6 +394,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
                         polAux.style.linestyle.width = 1
                         polAux.visibility = 0
                         polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
+                        polAux.style.balloonstyle.text = "$[description]"
 
                         animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
                         animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
@@ -414,16 +429,16 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
 
         except ValueError:
             kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-            logging.error(str(absMagnitude))
+            logger.error(str(absMagnitude))
 
     if createTour:
         playlist.newgxwait(gxduration=3 * balloonDuration)
 
-    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
+    fileName = "earthquakes.kml"
     currentDir = os.getcwd()
     dir1 = os.path.join(currentDir, "static/kmls")
     dirPath2 = os.path.join(dir1, fileName)
-    logging.info("Saving kml: ", dirPath2)
+    logger.info("Saving kml: " + str(dirPath2))
     kml.save(dirPath2)
 
     ip = getDjangoIp()
@@ -432,160 +447,7 @@ def createKml(jsonData, date, millis, createTour, numberObtained, request):
     return fileUrl
 
 
-def createKmz(jsonData, date, millis, createTour, numberObtained, request):
-    kml = simplekml.Kml()
-
-    tour = kml.newgxtour(name="EarthquakesTour")
-    playlist = tour.newgxplaylist()
-
-    balloonDuration = 1
-    flyToDuration = 3
-
-    if numberObtained > 1000:
-        balloonDuration = numberObtained/1000
-
-    logging.info("Default duration: " + str(balloonDuration))
-    for row in jsonData:
-
-        place = row["place"]
-        latitude = row["latitude"]
-        longitude = row["longitude"]
-        magnitude = row["magnitude"]
-        fecha = row["fecha"]
-
-        datetimeStr = datetime.datetime.fromtimestamp(int(fecha) / 1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
-        try:
-            geoJson = replaceJsonString(str(row["geojson"]))
-            infowindow = populateInfoWindow(row, geoJson)
-        except JSONDecodeError:
-            logging.error('Error decoding json')
-            logging.error(str(row["geojson"]))
-            continue
-
-        try:
-            if magnitude is not None:
-                absMagnitude = abs(float(magnitude))
-                color = simplekml.Color.grey
-                if absMagnitude <= 2:
-                    color = simplekml.Color.green
-                elif 2 < absMagnitude <= 5:
-                    color = simplekml.Color.orange
-                elif absMagnitude > 5:
-                    color = simplekml.Color.red
-
-                if createTour:
-                    playlist.newgxwait(gxduration=3 * balloonDuration)
-
-                polycircle = polycircles.Polycircle(latitude=latitude, longitude=longitude,
-                                                    radius=2000 * absMagnitude, number_of_vertices=100)
-
-                pol = kml.newpolygon(name="", description=infowindow, outerboundaryis=polycircle.to_kml())
-
-                pol.style.polystyle.color = color
-                pol.style.polystyle.fill = 0
-                pol.style.polystyle.outline = 1
-
-                pol.style.linestyle.color = color
-                pol.style.linestyle.width = 10
-                pol.style.balloonstyle.bgcolor = simplekml.Color.lightblue
-                pol.style.balloonstyle.text = "$[description]"
-
-                if createTour:
-                    pol.visibility = 0
-                    # Fly To the atmosphere
-                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
-                                                gxflytomode=simplekml.GxFlyToMode.smooth)
-                    flyto.camera.longitude = longitude
-                    flyto.camera.latitude = latitude
-                    flyto.camera.altitude = 15000000
-                    flyto.camera.range = 15000000
-                    flyto.camera.tilt = 0
-                    playlist.newgxwait(gxduration=flyToDuration)
-
-                    # Go Back To the point
-                    flyto = playlist.newgxflyto(gxduration=flyToDuration,
-                                                gxflytomode=simplekml.GxFlyToMode.smooth)
-                    flyto.camera.longitude = longitude
-                    flyto.camera.latitude = latitude
-                    flyto.camera.altitude = 100000
-                    flyto.camera.range = 100000
-                    flyto.camera.tilt = 0
-                    playlist.newgxwait(gxduration=flyToDuration)
-
-                    simulateEarthquake(playlist, latitude, longitude, absMagnitude)
-
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
-                                                       '<visibility>1</visibility></Placemark>' \
-                        .format(pol.placemark.id)
-
-                    for i in range(1, 11):
-                        polycircleAux = polycircles.Polycircle(latitude=latitude, longitude=longitude,
-                                                               radius=(200 * i) * absMagnitude, number_of_vertices=100)
-
-                        polAux = kml.newpolygon(name="", outerboundaryis=polycircleAux.to_kml())
-                        polAux.style.polystyle.color = color
-                        polAux.style.polystyle.fill = 1
-                        polAux.style.polystyle.outline = 1
-                        polAux.style.linestyle.color = color
-                        polAux.style.linestyle.width = 1
-                        polAux.visibility = 0
-                        polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
-
-                        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
-                        animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
-                                                           '<visibility>1</visibility></Placemark>' \
-                            .format(polAux.placemark.id)
-
-                        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
-                        animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
-                                                           '<visibility>0</visibility></Placemark>' \
-                            .format(polAux.placemark.id)
-
-                        playlist.newgxwait(gxduration=balloonDuration/10)
-
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
-                    animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
-                                                       '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
-                        .format(pol.placemark.id)
-
-                    playlist.newgxwait(gxduration=10)
-
-                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
-                    animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
-                                                       '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
-                        .format(pol.placemark.id)
-
-            else:
-                earthquake = kml.newpoint(name=place,
-                                          description=infowindow,
-                                          coords=[(longitude, latitude)])
-                earthquake.timestamp.when = datetimeStr
-
-        except ValueError:
-            kml.newpoint(name=place, description=infowindow, coords=[(longitude, latitude)])
-            logging.error(absMagnitude)
-
-    if createTour:
-        playlist.newgxwait(gxduration=3 * balloonDuration)
-
-    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kmz"
-    currentDir = os.getcwd()
-    dir1 = os.path.join(currentDir, "static/kmls")
-    dirPath2 = os.path.join(dir1, fileName)
-    logging.info("Saving kmz: ", dirPath2)
-    kml.savekmz(dirPath2, format=False)
-
-    ip = getDjangoIp()
-
-    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
-    return fileUrl
-
-
 def sendConcreteValuesToLG(request):
-    date = request.POST['date']
-    millis = request.POST['millis']
 
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
@@ -595,12 +457,12 @@ def sendConcreteValuesToLG(request):
 
     ip = getDjangoIp()
 
-    fileName = "earthquakes" + str(date) + "_" + str(millis) + ".kml"
+    fileName = "earthquakes.kml"
     fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
     sendKmlToLG(fileName, request)
 
-    sendFlyToToLG(center_lat, center_lon, 100, 14, 69, 200000, 2)
+    sendFlyToToLG(center_lat, center_lon, 15000000, 0, 0, 15000000, 2)
 
     if createTour:
         currentDir = os.getcwd()
@@ -609,16 +471,16 @@ def sendConcreteValuesToLG(request):
         fileBytes = os.path.getsize(dirPath2)
         megas = (fileBytes/1024)/1000
 
-        logging.info("Size of the KML:" + str(os.path.getsize(dirPath2)))
-        waitTime = megas/10
-        logging.info("Waiting to start the tour..."+str(waitTime)+" seconds")
+        logger.info("Size of the KML:" + str(os.path.getsize(dirPath2)))
+        waitTime = megas/5
+        logger.info("Waiting to start the tour..."+str(waitTime)+" seconds")
         time.sleep(waitTime)
-        logging.info("Starting the tour!")
+        logger.info("Starting the tour!")
         playTour("EarthquakesTour")
 
     return render(request, 'floybd/earthquakes/viewEarthquakes.html',
                   {'kml': fileUrl, 'center_lat': center_lat,
-                   'center_lon': center_lon, 'date': date, 'millis': millis})
+                   'center_lon': center_lon})
 
 
 def demoLastWeekEarthquakesHeatmap(request):
