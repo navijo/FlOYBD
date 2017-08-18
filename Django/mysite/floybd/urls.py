@@ -130,20 +130,20 @@ def sendLogos():
         fileName = "Layout.kml"
         dir1 = os.path.join(currentDir, "static/logos")
         dirPath2 = os.path.join(dir1, fileName)
-        logger.info("Saving kml: " + str(dirPath2))
+        logger.info("\033[93m" + "Saving kml: " + str(dirPath2) + "\033[0m")
 
         kml.save(dirPath2)
 
         if db_table_exists("floybd_setting"):
-            logger.info("Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp())
+            logger.info("\033[93m" + "Sending Logos...from: " + getDjangoIp() + " to: " + getLGIp() + "\033[0m")
 
             getLeftScreenCommand = "sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + \
                                    " 'head -n 1 personavars.txt | cut -c17-19'"
             leftScreenDirty = subprocess.check_output(getLeftScreenCommand, stderr=subprocess.STDOUT, shell=True)
             leftScreenClean = leftScreenDirty.rstrip().decode("utf-8")
             leftScreenNumber = leftScreenClean[-1:]
-            print("Left Screen: ", leftScreenClean)
-            print("Left Screen Number: ", leftScreenNumber)
+            logger.debug("Left Screen: " + str(leftScreenClean))
+            logger.info("\033[93m" + "Left Screen Number: " + str(leftScreenNumber) + "\033[0m")
 
             command = "echo 'http://" + getDjangoIp() + ":8000/static/logos/Layout.kml?a="+str(millis) +\
                       "' | sshpass -p " + getLGPass() + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls_" + \
@@ -156,31 +156,31 @@ def createDefaultSettingsObjects():
     if db_table_exists("floybd_setting"):
         lgIp, created = Setting.objects.get_or_create(key="lgIp")
         if created:
-            logger.info("Created lgIp setting object\n")
+            logger.info("\033[93m" + "Created lgIp setting object\n" + "\033[0m")
         else:
-            logger.info("lgIp setting object existent\n")
+            logger.info("\033[93m" + "lgIp setting object existent\n" + "\033[0m")
 
         sparkIp, created = Setting.objects.get_or_create(key="sparkIp", value="130.206.117.178")
         if created:
-            logger.info("Created sparkIp setting object\n")
+            logger.info("\033[93m" + "Created sparkIp setting object\n" + "\033[0m")
         else:
-            logger.info("sparkIp setting object existent\n")
+            logger.info("\033[93m" + "sparkIp setting object existent\n" + "\033[0m")
 
         LGPassword, created = Setting.objects.get_or_create(key="LGPassword", value="lqgalaxy")
         if created:
-            logger.info("Created LGPassword setting object\n")
+            logger.info("\033[93m" + "Created LGPassword setting object\n" + "\033[0m")
         else:
-            logger.info("LGPassword setting object existent\n")
+            logger.info("\033[93m" + "LGPassword setting object existent\n" + "\033[0m")
 
 
 def startup_clean():
     if not os.path.exists("static/kmls"):
-        logger.info("Creating kmls folder")
+        logger.info("\033[93m" + "Creating kmls folder" + "\033[0m")
         os.makedirs("static/kmls")
 
 
 def db_table_exists(table_name):
-    logger.info("Checking table existence..." + str(table_name))
+    logger.info("\033[93m" + "Checking table existence..." + str(table_name) + "\033[0m")
     return table_name in connection.introspection.table_names()
 
 
@@ -188,10 +188,10 @@ def checkPing(host):
     response = os.system("ping -c 1 " + host)
 
     if response == 0:
-        logger.info(str(host) + ' is up!')
+        logger.info("\033[93m" + str(host) + ' is up!' + "\033[0m")
         return True
     else:
-        logger.info(str(host), ' is down!')
+        logger.info("\033[91m" +str(host), ' is down!' + "\033[0m")
         return False
 
 
