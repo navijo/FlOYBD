@@ -194,6 +194,12 @@ def checkPing(host):
         logger.info(str(host), ' is down!')
         return False
 
+
+def printIp():
+    logger.info('\033[94m'+"###########\tServing Web Application on address: " + str(getDjangoIp()+":8000") +
+                str("\t\t###########") + '\033[0m')
+
 startup_clean()
 createDefaultSettingsObjects()
 sendLogos()
+printIp()
