@@ -191,7 +191,7 @@ def checkPing(host):
         logger.info("\033[93m" + str(host) + ' is up!' + "\033[0m")
         return True
     else:
-        logger.info("\033[91m" +str(host), ' is down!' + "\033[0m")
+        logger.info("\033[91m" + str(host), ' is down!' + "\033[0m")
         return False
 
 
