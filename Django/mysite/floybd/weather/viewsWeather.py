@@ -11,6 +11,8 @@ from django.http import JsonResponse, HttpResponse
 from collections import defaultdict
 from simplejson.scanner import JSONDecodeError
 from django.core.urlresolvers import resolve
+from django.views.decorators.csrf import csrf_exempt
+
 
 import logging
 logger = logging.getLogger("django")
@@ -914,6 +916,7 @@ def getPredictionStats(request):
         return render(request, 'floybd/weather/weatherPredictionView.html')
 
 
+@csrf_exempt
 def currentWeather(request):
     logger.info("Getting current weather... ")
     try:
@@ -1086,6 +1089,7 @@ def getData(url, headers, querystring):
         return getData(url)
 
 
+@csrf_exempt
 def dummyWeather(request):
 
     sendDemoKmlToLG("dummyWeather.kmz", request)

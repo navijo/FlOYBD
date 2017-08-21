@@ -6,6 +6,7 @@ from ..forms import UploadFileForm
 from ..gtfs_models import Agency
 from ..utils.lgUtils import *
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 import tarfile
 import time
@@ -501,6 +502,7 @@ def doCarsMovement(stopSrc, stopDst, folder, playlist, firstPlacemark, kmlLines,
     playlist.newgxwait(gxduration=2)
 
 
+@csrf_exempt
 def launchdemogtfs(request):
     millis = int(round(time.time() * 1000))
     command = "echo 'http://" + getDjangoIp() + ":"+getDjangoPort(request)+"/static/demos/lines_demo.kml?a=" + \

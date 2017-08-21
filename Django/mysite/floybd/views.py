@@ -5,9 +5,9 @@ from .utils.utils import *
 import requests
 from django.http import JsonResponse, HttpResponse
 import json
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -72,7 +72,7 @@ def openHelp(request):
 def weatherDemos(request):
     return render(request, 'floybd/weather/currentWeatherTour.html')
 
-
+@csrf_exempt
 def demoEarthquakes(request):
     return render(request, 'floybd/earthquakes/demoEarthquakes.html')
 

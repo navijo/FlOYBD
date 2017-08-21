@@ -6,6 +6,7 @@ from ..utils.earthquakesUtils import *
 from ..utils.cylinders.cylindersHeatMap import *
 from django.http import HttpResponse
 from json.decoder import JSONDecodeError
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger("django")
 
@@ -475,6 +476,7 @@ def sendConcreteValuesToLG(request):
                    'center_lon': center_lon})
 
 
+@csrf_exempt
 def demoLastWeekEarthquakesHeatmap(request):
     millis = int(round(time.time() * 1000))
 
@@ -491,6 +493,7 @@ def demoLastWeekEarthquakesHeatmap(request):
     return HttpResponse(status=204)
 
 
+@csrf_exempt
 def demoLastWeekEarthquakes(request):
     sendDemoKmlToLG("lastWeekEarthquakes.kmz", request)
     time.sleep(10)
