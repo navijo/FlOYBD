@@ -487,7 +487,7 @@ def demoLastWeekEarthquakesHeatmap(request):
               + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
     time.sleep(2)
-    sendFlyToToLG(20.21078636181624, -111.3376967642952, 0, 1.372480247294665, 0, 14562650.06788917, 2)
+    sendFlyToToLG(20.21078636181624, -111.3376967642952, 0, 0, 0, 6000000, 2)
     time.sleep(2)
     playTour("WorldTour")
     return HttpResponse(status=204)

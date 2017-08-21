@@ -18,11 +18,24 @@
         <div class="mui-col-md-12">
 			<div class="mui--text-center">
 			{% if kml != None %}
-            <div class="mui--text-display3">Viewing Routes</div>
+				{% if isHyperLoop %}
+				 <div class="mui-row">
+					<div class="mui--text-display3">
+						<img style="width:auto;height:10%" src="{% static 'img/logoHyperloopTrans.png' %}"/> Demo
+					</div>
+					<div class="mui--text-display1">&copy;
+						<a href="http://www.spacex.com/" target="_blank">Space X</a></div>
+				  </div>
+
+				 {% else %}
+  					<div class="mui--text-display3">Viewing Routes</div>
+				{% endif %}
+
 				<form name="form" action="{% url 'floybd:sendGTFSToLG' %}" method="post" class="form">
 					{% csrf_token %}
 					<input type="hidden" name="kmlPath" value="{{  kml }}">
 					<input type="hidden" name="carKml" value="{{  carKml }}">
+					<input type="hidden" name="isHyperloop" value="{{  isHyperloop }}">
 					<input type="hidden" name="kmlName" value="{{  kmlName }}">
 					<input type="hidden" name="flyToLon" value="{{  flyToLon }}">
 					<input type="hidden" name="flyToLat" value="{{  flyToLat }}">

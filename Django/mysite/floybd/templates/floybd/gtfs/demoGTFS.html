@@ -4,7 +4,7 @@
 {% trans "Get Values" as getValues %}
 {% trans "Send Values to LG" as sendValues %}
 
-
+{% load static %}
 {% load coma_point %}
 
 <script>
@@ -15,7 +15,9 @@
 </script>
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
-    <div class="mui--text-center mui--text-display3">Demo GTFS</div>
+    <div class="mui--text-center mui--text-display3">Demo GTFS
+       <img style="width:auto;height:10%" src="{% static 'img/logoHyperloopTrans.png' %}"/>
+        </div>
      <div class="mui--appbar-height"></div>
     <div class="mui-container-fluid">
         	 <div class="mui-row">
@@ -35,7 +37,9 @@
                     <div class="col-xs-12">
                        <input type="submit" value="Play GTFS Demo" class="mui-btn mui-btn--primary"/>
                          <div class="mui--text-center mui--text-dark-hint">
-                           Plays a pre-generated GTFS demo simulating Hyperloop-One routes for United States
+                           Plays a pre-generated GTFS demo simulating Hyperloop &copy;
+                             <a href="http://www.spacex.com/" target="_blank">Space X</a>
+                             simulating routes for United States
                         </div>
                     </div>
                 </div>

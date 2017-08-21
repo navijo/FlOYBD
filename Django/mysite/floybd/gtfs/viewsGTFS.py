@@ -253,7 +253,8 @@ def getAgenciesAndGenerateKML(request):
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
                                                                 '/static/kmls/' + linesKml,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
-                                                         'carKml': carKml, 'kmlName': linesKml})
+                                                         'carKml': carKml, 'kmlName': linesKml,
+                                                         'isHyperLoop': isHyperloop})
 
 
 def createCars(maxCars, trips, folderCars, playlistCars, kmlLines, addedLines, isHyperloop):
