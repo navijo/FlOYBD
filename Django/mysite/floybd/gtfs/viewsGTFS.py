@@ -107,6 +107,7 @@ def sendGTFSToLG(request):
     carKml = request.POST["carKml"]
     flyToLat = request.POST["flyToLat"]
     flyToLon = request.POST["flyToLon"]
+    isHyperloop = request.POST["isHyperloop"]
     lgIp = getLGIp()
     ip = getDjangoIp()
 
@@ -123,7 +124,8 @@ def sendGTFSToLG(request):
     return render(request, 'floybd/gtfs/viewGTFS.html', {'kml': 'http://' + ip + ':'+getDjangoPort(request) +
                                                                 '/static/kmls/' + kmlName,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
-                                                         'carKml': carKml, 'kmlName': kmlName})
+                                                         'carKml': carKml, 'kmlName': kmlName,
+                                                         'isHyperloop': isHyperloop})
 
 
 def uploadgtfs(request):
@@ -254,7 +256,7 @@ def getAgenciesAndGenerateKML(request):
                                                                 '/static/kmls/' + linesKml,
                                                          'flyToLon': flyToLon, 'flyToLat': flyToLat,
                                                          'carKml': carKml, 'kmlName': linesKml,
-                                                         'isHyperLoop': isHyperloop})
+                                                         'isHyperloop': isHyperloop})
 
 
 def createCars(maxCars, trips, folderCars, playlistCars, kmlLines, addedLines, isHyperloop):
