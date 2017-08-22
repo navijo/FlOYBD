@@ -72,6 +72,7 @@ def openHelp(request):
 def weatherDemos(request):
     return render(request, 'floybd/weather/currentWeatherTour.html')
 
+
 @csrf_exempt
 def demoEarthquakes(request):
     return render(request, 'floybd/earthquakes/demoEarthquakes.html')
