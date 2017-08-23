@@ -8,8 +8,10 @@ import json
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_control
 
 
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def index(request):
     return render(request, 'floybd/index.html')
 
