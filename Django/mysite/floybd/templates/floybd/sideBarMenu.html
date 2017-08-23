@@ -152,11 +152,18 @@ function openHelp(){
 </div>
 <div class="mui-divider"></div>
 <ul>
+     <li>
+        <strong><img style="vertical-align: middle;" src="{% static 'img/demoIcon.png' %}" width="20%"/>Demonstrations</strong>
+        <ul>
+            <li class="menu item1"><a href="{% url 'floybd:weatherDemos' %}"><b>Weather Demos </b></a></li>
+            <li class="menu demoearthquakes"><a href="{% url 'floybd:demoEarthquakes' %}"><b>Earthquakes Demos</b></a></li>
+            <li class="menu item19"><a href="{% url 'floybd:demogtfsindex' %}"><b>Hyperloop Demo</b></a></li>
+        </ul>
+    </li>
   <li>
     <strong><img style="vertical-align: middle;" src="https://png.icons8.com/partly-cloudy-day/color/24" title="Weather" width="20%">
      Weather</strong>
     <ul>
-        <!--<li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>-->
         <li class="menu item1"><a href="{% url 'floybd:weatherDemos' %}"><b>Weather Demos</b></a></li>
         <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}"><b>Weather Concrete Day</b></a></li>
         <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}"><b>Weather Predictions</b></a></li>
