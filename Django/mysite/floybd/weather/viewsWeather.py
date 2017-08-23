@@ -219,7 +219,7 @@ def getPrediction(request):
                         'material.blue_grey-red.min.css" / > ' + \
                         '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                         'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                        '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                        '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
                         '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                         '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + \
                         concreteStation.name + '</h1>' + \
@@ -369,7 +369,7 @@ def getStats(request):
                                 'material.blue_grey-red.min.css" / > ' + \
                                 '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                                 'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                                '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                                '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
                                 '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                                 '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
                                 concreteStation.name + '</h1>' + \
@@ -476,7 +476,7 @@ def getStats(request):
                             ' "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
                             '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                             'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                            '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                            '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
                             '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                             '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
                             concreteStation.name + '</h1>' + \
@@ -619,7 +619,7 @@ def getStats(request):
 
 def getContentStringWithGraphs(rowData):
     logger.info("Getting Graphs...")
-    contentString = '<table width="600px"><tr><td class="balloonTd">' + \
+    contentString = '<table max-width="600px" width="600px"><tr><td class="balloonTd">' + \
                     '<center><h3><u>Max Temp</u></h3>' + \
                     '<br/><b>Avg Max Temp: </b>' + str("{0:.2f}".format(rowData.get("avgMaxTemp"))) + \
                     '<br/><b>Max Max Temp: </b>' + str("{0:.2f}".format(rowData.get("maxMaxTemp"))) + \
@@ -811,7 +811,7 @@ def getPredictionStats(request):
                             ' "https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
                             '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                             'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                            '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                            '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
                             '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                             '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
                             concreteStation.name + '</h1>' + \
@@ -970,7 +970,7 @@ def currentWeather(request):
                         'https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
                         '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                         'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                        '<table width="470" style="font-family: Roboto;"><tr><td>' + \
+                        '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
                         '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                         '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' +\
                         jsonData.get("ubi") + '</h1>' + \

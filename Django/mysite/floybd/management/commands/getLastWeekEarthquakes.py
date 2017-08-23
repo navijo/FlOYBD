@@ -206,7 +206,7 @@ class Command(BaseCommand):
                         '"https://code.getmdl.io/1.3.0/material.blue_grey-red.min.css" / > ' + \
                         '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
                         'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                        '<table width="560" style="font-family: Roboto;"><tr><td>' + \
+                        '<table max-width="560" width="560" style="font-family: Roboto;"><tr><td>' + \
                         '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
                         '<h1 id="firstHeading" class="thirdHeading" style="text-align:center">' + \
                         str(row["place"]) + '</h1>' + \
