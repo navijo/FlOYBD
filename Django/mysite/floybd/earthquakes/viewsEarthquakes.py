@@ -300,7 +300,7 @@ def createKml(jsonData, createTour, numberObtained, request):
     flyToDuration = 3
     balloonDuration = 1
     if numberObtained > 1000:
-        balloonDuration = numberObtained/1000
+        balloonDuration = numberObtained / 1000
 
     logger.info("Default duration: " + str(balloonDuration))
     for row in jsonData:
@@ -389,26 +389,26 @@ def createKml(jsonData, createTour, numberObtained, request):
                         polAux.style.balloonstyle.displaymode = simplekml.DisplayMode.hide
                         polAux.style.balloonstyle.text = "$[description]"
 
-                        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
                         animatedupdateshow.update.change = '<Placemark targetId="{0}">' \
                                                            '<visibility>1</visibility></Placemark>' \
                             .format(polAux.placemark.id)
 
-                        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration/10)
+                        animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration / 10)
                         animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                            '<visibility>0</visibility></Placemark>' \
                             .format(polAux.placemark.id)
 
-                        playlist.newgxwait(gxduration=balloonDuration/10)
+                        playlist.newgxwait(gxduration=balloonDuration / 10)
 
-                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
+                    animatedupdateshow = playlist.newgxanimatedupdate(gxduration=balloonDuration * 2)
                     animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
                                                        '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
 
                     playlist.newgxwait(gxduration=10)
 
-                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration*2)
+                    animatedupdatehide = playlist.newgxanimatedupdate(gxduration=balloonDuration * 2)
                     animatedupdatehide.update.change = '<Placemark targetId="{0}">' \
                                                        '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
                         .format(pol.placemark.id)
@@ -436,12 +436,11 @@ def createKml(jsonData, createTour, numberObtained, request):
 
     ip = getDjangoIp()
 
-    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":" + getDjangoPort(request) + "/static/kmls/" + fileName
     return fileUrl
 
 
 def sendConcreteValuesToLG(request):
-
     createTourParam = request.POST.get('createTour', 0)
     createTour = createTourParam == str(1)
 
@@ -451,7 +450,7 @@ def sendConcreteValuesToLG(request):
     ip = getDjangoIp()
 
     fileName = "earthquakes.kml"
-    fileUrl = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
+    fileUrl = "http://" + ip + ":" + getDjangoPort(request) + "/static/kmls/" + fileName
 
     sendKmlToLG(fileName, request)
 
@@ -462,11 +461,11 @@ def sendConcreteValuesToLG(request):
         dir1 = os.path.join(currentDir, "static/kmls")
         dirPath2 = os.path.join(dir1, fileName)
         fileBytes = os.path.getsize(dirPath2)
-        megas = (fileBytes/1024)/1000
+        megas = (fileBytes / 1024) / 1000
 
         logger.info("Size of the KML:" + str(os.path.getsize(dirPath2)))
-        waitTime = megas/5
-        logger.info("Waiting to start the tour..."+str(waitTime)+" seconds")
+        waitTime = megas / 5
+        logger.info("Waiting to start the tour..." + str(waitTime) + " seconds")
         time.sleep(waitTime)
         logger.info("Starting the tour!")
         playTour("EarthquakesTour")
@@ -483,7 +482,7 @@ def demoLastWeekEarthquakesHeatmap(request):
     command = "echo 'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
               "/static/demos/lastWeekEarthquakesHeatMap.kmz?a=" + str(millis) + \
               "\n'http://" + getDjangoIp() + ":" + getDjangoPort(request) + \
-              "/static/demos/WorldTour.kmz?a=" + str(millis)+" | sshpass -p " + getLGPass() \
+              "/static/demos/WorldTour.kmz?a=" + str(millis) + " | sshpass -p " + getLGPass() \
               + " ssh lg@" + getLGIp() + " 'cat - > /var/www/html/kmls.txt'"
     os.system(command)
     time.sleep(2)
@@ -502,7 +501,7 @@ def demoLastWeekEarthquakes(request):
 
 
 def simulateEarthquake(playlist, latitude, longitude, magnitude):
-    for i in range(0, int(10*magnitude)):
+    for i in range(0, int(10 * magnitude)):
         bounce = 5 if (i % 2 == 0) else 0
         flyto = playlist.newgxflyto(gxduration=0.01)
         flyto.camera.longitude = longitude

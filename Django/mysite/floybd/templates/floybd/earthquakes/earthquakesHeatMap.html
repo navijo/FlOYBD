@@ -35,6 +35,12 @@
 		    $("#dateTo").prop('disabled', false);
 		}
     }
+
+   function updateProgressBar(){
+    var currentWidth = $(".determinate").width()
+    $(".determinate").width(currentWidth+15)
+ }
+
 </script>
 
 <div id="content-wrapper">
@@ -51,6 +57,17 @@
                         <div class="overlay loading-indicator">
                          <div id="spinner-target"></div>
                        </div>
+                          <div class="mui--text-center">
+                          <div>
+                              <div class="mui--text-display1 mui--text-dark-secondary">Getting, filtering and parsing
+                                  earthquakes data.<br/> Depending on the number of them and the parameter that you have
+                                  configured, it could take some time.<br/>
+                              Please be patient.</div>
+                                <div class="progress">
+                                  <div class="determinate" style="width: 0%"></div>
+                                </div>
+                            </div>
+                         </div>
                     </div>
                </div>
           </div>

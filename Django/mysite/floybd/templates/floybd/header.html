@@ -39,7 +39,7 @@
 <link rel="stylesheet" href="{% static 'css/sideMenu.css' %}">
 <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 <link rel="stylesheet" href="{% static 'css/footer.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/progressbar.css' %}">
 
 <link rel='stylesheet' href="{% static 'css/flexpaper-spinner.css' %}"/>
 <link rel='stylesheet' href="{% static 'css/modaloverlay.css' %}"/>
@@ -115,12 +115,18 @@
                 logo        : "{% static 'img/gears.gif' %}"
             });
 
+            var interval;
+            if(formId === "earthquakesForm"){
+               interval =  setInterval( "updateProgressBar()", 1000 );
+            }
+
             $.ajax({
                 url: form_url,
                 type: form_method,
                 data: form_data,
                 cache: false,
                 success: function (returnhtml) {
+                    window.clearInterval(interval);
                    mui.overlay('off');
                    $('.modal').toggleClass('hide');
                    $('#spinnerDiv').hide()
@@ -132,6 +138,7 @@
                 },
                 error: function(response){
                    alert("Ooops, something went wrong. Please try again or contact the administrator");
+                    window.clearInterval(interval);
                    mui.overlay('off');
                    $('.modal').toggleClass('hide');
                    $('#spinnerDiv').hide()
