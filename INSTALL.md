@@ -99,28 +99,28 @@
     * To get weekly the past week weather info:
     
     ```
-    0 1 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash gather.sh
+    0 1 * * 1 cd <WHATEVER>/FlOYBD/ScriptsLaunchers && bash gather.sh
     ```
     * To clean the past week weather info:
     
     ```
-    0 2 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash clean.sh
+    0 2 * * 1 cd <WHATEVER>/FlOYBD/ScriptsLaunchers && bash clean.sh
     ```
     * To calculate new stats with the past week weather info:
     
     ```
-    30 4 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash weatherFunctions.sh
+    30 4 * * 1 cd <WHATEVER>/FlOYBD/ScriptsLaunchers && bash weatherFunctions.sh
     ```
     * To fetch daily the new earthquakes data:
     
     ```
-    30 5 * * * cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash launchEarthquakes.sh
+    30 5 * * * cd <WHATEVER>/FlOYBD/ScriptsLaunchers && bash launchEarthquakes.sh
     ```
     * To retrain weekly the Linear Regression models with the new weather data:
     
     ```
-    0 6 * * 1 cd ~/GSOC17/FlOYBD/ScriptsLaunchers && bash launchPredictions.sh
+    0 6 * * 1 cd <WHATEVER>/FlOYBD/ScriptsLaunchers && bash launchPredictions.sh
     ```
     
     
-##  More Coming Soon...
+#  Congratulations! You've arrived at the end
