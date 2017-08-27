@@ -6,6 +6,6 @@ Below, a link to the commits made during Google Summer of Code is provided:
 
 FlOYBD : [https://github.com/LiquidGalaxyLAB/FlOYBD/commits/master?author=navijo](https://github.com/LiquidGalaxyLAB/FlOYBD/commits/master?author=navijo)
 
-Additionally, some minor changes has been made to the previous year (GSoC16) Liquid Galaxy Controller in order to adapt it to new Android versions such as Chromebook OS. 
+Additionally, some minor changes has been made to the previous year (GSoC16) Liquid Galaxy Controller in order to adapt it to new Android versions as well as Chromebook OS. 
 
 Liquid Galaxy Controller : [https://github.com/LiquidGalaxyLAB/Liquid-Galaxy-POIs-Controller/commits/master?author=navijo](https://github.com/LiquidGalaxyLAB/Liquid-Galaxy-POIs-Controller/commits/master?author=navijo)
