@@ -151,5 +151,6 @@ def getData(fromDate, toDate):
 if __name__ == "__main__":
     cluster = Cluster(['192.168.246.236'])
     session = cluster.connect("dev")
-    getEarthQuakesWorld(2017)
+    now = datetime.now()
+    getEarthQuakesWorld(now.year)
     printLog("END")
