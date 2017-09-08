@@ -185,7 +185,7 @@ def db_table_exists(table_name):
 
 
 def checkPing(host):
-    response = os.system("ping -c 1 " + host)
+    response = os.system("ping -W 1 -c 1 " + host)
 
     if response == 0:
         logger.info("\033[93m" + str(host) + ' is up!' + "\033[0m")
