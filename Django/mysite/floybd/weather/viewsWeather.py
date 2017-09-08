@@ -204,84 +204,85 @@ def getPrediction(request):
     except requests.exceptions.ConnectionError:
         return render(request, '500.html')
 
-    if response.json():
-        try:
+    try:
+        if response.json():
+
             result = json.loads(response.json())
-        except JSONDecodeError:
-            return render(request, '500.html')
-        concreteStation = Station.objects.get(station_id=station_id)
+            concreteStation = Station.objects.get(station_id=station_id)
 
-        kml = simplekml.Kml()
-        tour = kml.newgxtour(name="Show Balloon")
-        playlist = tour.newgxplaylist()
+            kml = simplekml.Kml()
+            tour = kml.newgxtour(name="Show Balloon")
+            playlist = tour.newgxplaylist()
 
-        contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/' \
-                        'material.blue_grey-red.min.css" / > ' + \
-                        '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
-                        'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
-                        '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
-                        '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
-                        '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + \
-                        concreteStation.name + '</h1>' + \
-                        '<div id="bodyContent" style="text-align: center;">' + \
-                        '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
-                        ' mdl-cell--6-col mdl-grid" style="width: 98%">'
+            contentString = '<link rel = "stylesheet" href = "https://code.getmdl.io/1.3.0/' \
+                            'material.blue_grey-red.min.css" / > ' + \
+                            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?' \
+                            'family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en"/>' + \
+                            '<table max-width="470" width="470" style="font-family: Roboto;"><tr><td>' + \
+                            '<div id="content">' + '<div id="siteNotice">' + '</div>' + \
+                            '<h1 id="firstHeading" class="firstHeading" style="text-align:center">' + \
+                            concreteStation.name + '</h1>' + \
+                            '<div id="bodyContent" style="text-align: center;">' + \
+                            '<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell' \
+                            ' mdl-cell--6-col mdl-grid" style="width: 98%">'
 
-        for row in result:
-            jsonRow = json.loads(row)
+            for row in result:
+                jsonRow = json.loads(row)
 
-            for column in columnsToPredict:
-                if jsonRow.get("prediction_" + column) is not None:
-                    contentString += '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
-                                    '<p style="font-size:1.5em;color:#474747;">' \
-                                     '<b>' + column + '</b>'\
-                                     ':</p></div><div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
-                                     '<p style="font-size:1.5em;color:#474747;">' + \
-                                     str("%.2f" % round(jsonRow.get("prediction_" + column), 2)) + '</p></div>'
-        contentString += '</div></div></div></td></tr></table>'
+                for column in columnsToPredict:
+                    if jsonRow.get("prediction_" + column) is not None:
+                        contentString += '<div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
+                                        '<p style="font-size:1.5em;color:#474747;">' \
+                                         '<b>' + column + '</b>'\
+                                         ':</p></div><div class="mdl-cell mdl-cell--3-col mdl-layout-spacer">' \
+                                         '<p style="font-size:1.5em;color:#474747;">' + \
+                                         str("%.2f" % round(jsonRow.get("prediction_" + column), 2)) + '</p></div>'
+            contentString += '</div></div></div></td></tr></table>'
 
-        point = kml.newpoint(name="", description=contentString,
-                             coords=[(concreteStation.longitude, concreteStation.latitude)])
-        point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
-        point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
-        point.style.balloonstyle.text = "$[description]"
-        point.gxballoonvisibility = 0
+            point = kml.newpoint(name="", description=contentString,
+                                 coords=[(concreteStation.longitude, concreteStation.latitude)])
+            point.style.iconstyle.icon.href = 'https://png.icons8.com/thermometer-automation/ultraviolet/80'
+            point.style.balloonstyle.bgcolor = simplekml.Color.lightblue
+            point.style.balloonstyle.text = "$[description]"
+            point.gxballoonvisibility = 0
 
-        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 0, 4855570, 3.0, 0)
-        playlist.newgxwait(gxduration=3.0)
-        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 5.0, 0)
-        playlist.newgxwait(gxduration=5.0)
-        doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 1)
-        playlist.newgxwait(gxduration=1)
+            doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 0, 4855570, 3.0, 0)
+            playlist.newgxwait(gxduration=3.0)
+            doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 5.0, 0)
+            playlist.newgxwait(gxduration=5.0)
+            doFlyToSmooth(playlist, concreteStation.latitude, concreteStation.longitude, 1000, 5000, 1)
+            playlist.newgxwait(gxduration=1)
 
-        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=5.0)
-        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
-                                           '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
-            .format(point.placemark.id)
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=5.0)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>1</visibility>' \
+                                               '<gx:balloonVisibility>1</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
 
-        doRotation(playlist, float(concreteStation.latitude), float(concreteStation.longitude), 1000, 5000)
+            doRotation(playlist, float(concreteStation.latitude), float(concreteStation.longitude), 1000, 5000)
 
-        playlist.newgxwait(gxduration=5.0)
+            playlist.newgxwait(gxduration=5.0)
 
-        animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
-        animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
-                                           '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
-            .format(point.placemark.id)
+            animatedupdateshow = playlist.newgxanimatedupdate(gxduration=0.1)
+            animatedupdateshow.update.change = '<Placemark targetId="{0}"><visibility>0</visibility>' \
+                                               '<gx:balloonVisibility>0</gx:balloonVisibility></Placemark>' \
+                .format(point.placemark.id)
 
-        fileName = "prediction.kml"
-        currentDir = os.getcwd()
-        dir1 = os.path.join(currentDir, "static/kmls")
-        dirPath2 = os.path.join(dir1, fileName)
+            fileName = "prediction.kml"
+            currentDir = os.getcwd()
+            dir1 = os.path.join(currentDir, "static/kmls")
+            dirPath2 = os.path.join(dir1, fileName)
 
-        kml.save(dirPath2)
+            kml.save(dirPath2)
 
-        kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
+            kmlpath = "http://" + ip + ":"+getDjangoPort(request)+"/static/kmls/" + fileName
 
-        return render(request, 'floybd/weather/weatherPredictionView.html',
-                      {'fileName': fileName, 'kml': kmlpath, 'backUrl': resolve("/predictWeather").url_name,
-                       'concreteStation': concreteStation})
-    else:
-        return render(request, 'floybd/weather/weatherPredictionView.html')
+            return render(request, 'floybd/weather/weatherPredictionView.html',
+                          {'fileName': fileName, 'kml': kmlpath, 'backUrl': resolve("/predictWeather").url_name,
+                           'concreteStation': concreteStation})
+        else:
+            return render(request, 'floybd/weather/weatherPredictionView.html')
+    except JSONDecodeError:
+        return render(request, '500.html')
 
 
 def sendPredictionsToLG(request):
