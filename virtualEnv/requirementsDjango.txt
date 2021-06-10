@@ -1,4 +1,4 @@
-Django==1.11.3
+Django==2.2.24
 certifi==2017.4.17
 chardet==3.0.4
 django-bootstrap==0.2.4
