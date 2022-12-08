@@ -1,5 +1,5 @@
 Django==1.11.3
-certifi==2017.4.17
+certifi==2022.12.7
 chardet==3.0.4
 django-bootstrap==0.2.4
 django-bootstrap3==9.0.0
